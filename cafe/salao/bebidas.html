@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>🥤 Bebidas</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body{
+  font-family: system-ui, Arial;
+  background:#0f172a;
+  color:white;
+  margin:0;
+  padding:12px;
+}
+
+h1{
+  text-align:center;
+  font-size:clamp(24px,5vw,42px);
+  margin:10px 0 15px;
+}
+
+/* ================= MENSAGEM MOTIVACIONAL ================= */
+#mensagemEquipe{
+  background:linear-gradient(135deg,#1e293b,#334155);
+  border:2px solid #3b82f6;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:18px;
+  text-align:center;
+  box-shadow:0 8px 20px rgba(0,0,0,0.35);
+  animation:fadeMensagem .5s ease;
+}
+
+#mensagemEquipe h3{
+  margin:0 0 8px;
+  font-size:18px;
+  color:#60a5fa;
+}
+
+#mensagemTexto{
+  font-size:15px;
+  line-height:1.5;
+  opacity:0.95;
+}
+
+@keyframes fadeMensagem{
+  from{
+    opacity:0;
+    transform:translateY(-10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* ========================================================= */
+
+#botoes{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:12px;
+}
+
+.botao-produto{
+  background:#1e293b;
+  border:none;
+  border-radius:18px;
+  padding:10px;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  box-shadow:0 8px 20px rgba(0,0,0,0.35);
+  transition:0.15s;
+}
+
+.botao-produto:active{
+  transform:scale(0.94);
+  background:#334155;
+}
+
+.img-box{
+  width:100%;
+  height:95px;
+  border-radius:12px;
+  overflow:hidden;
+  margin-bottom:6px;
+  background:#0f172a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.img-box img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.sem-img{
+  font-size:11px;
+  opacity:0.5;
+}
+
+.nome{
+  font-size:12px;
+  text-align:center;
+  min-height:30px;
+}
+
+.qtd{
+  font-size:26px;
+  font-weight:bold;
+  text-align:center;
+  color:#3b82f6;
+}
+
+/* ================= RESUMO ================= */
+#resumo{
+  margin-top:20px;
+  background:#1e293b;
+  padding:12px;
+  border-radius:16px;
+}
+
+#resumo h2{
+  font-size:16px;
+  margin:0 0 10px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th,td{
+  padding:8px;
+  border-bottom:1px solid #334155;
+  text-align:left;
+}
+
+button.small{
+  padding:5px 8px;
+  font-size:12px;
+  border:none;
+  border-radius:8px;
+  margin-right:5px;
+}
+
+.edit{
+  background:#3b82f6;
+  color:white;
+}
+
+.del{
+  background:#ef4444;
+  color:white;
+}
+
+/* ========================================== */
+
+#enviar{
+  position:fixed;
+  bottom:15px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#3b82f6;
+  border:none;
+  padding:14px 28px;
+  font-size:16px;
+  border-radius:14px;
+  color:white;
+  box-shadow:0 8px 25px rgba(0,0,0,0.4);
+}
+
+#modalStatus{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#modalBox{
+  background:#1e293b;
+  padding:30px;
+  border-radius:18px;
+  text-align:center;
+}
+
+.spinner{
+  width:40px;
+  height:40px;
+  border:4px solid #334155;
+  border-top:4px solid #3b82f6;
+  border-radius:50%;
+  animation:girar 1s linear infinite;
+  margin:0 auto 10px;
+}
+
+@keyframes girar{
+  100%{ transform:rotate(360deg); }
+}
+
+
+#modalEditar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#modalEditarBox{
+  background:#1e293b;
+  padding:20px;
+  border-radius:16px;
+  width:90%;
+  max-width:300px;
+  text-align:center;
+}
+
+#modalEditarBox input{
+  width:100%;
+  padding:10px;
+  margin:10px 0;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h1>🥤 Bebidas</h1>
+
+<!-- 🔥 MENSAGEM RANDOM -->
+<div id="mensagemEquipe">
+  <h3>💙 Equipe de Contagem</h3>
+  <div id="mensagemTexto"></div>
+</div>
+
+<div id="botoes"></div>
+
+<!-- 🔥 NOVA COLUNA DE RESUMO -->
+<div id="resumo">
+  <h2>📋 Resumo de Contagens</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>EAN</th>
+        <th>Produto</th>
+        <th>Qtd</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="resumoBody"></tbody>
+  </table>
+</div>
+
+<button id="enviar" onclick="enviar()">Enviar Contagem</button>
+
+<div id="modalStatus" style="display:none;">
+  <div id="modalBox">
+    <div class="spinner"></div>
+    <div id="msg">Enviando...</div>
+  </div>
+</div>
+
+<!-- 🔥 MODAL DE EDIÇÃO -->
+<div id="modalEditar" style="display:none;">
+  <div id="modalEditarBox">
+    <h3>Editar Quantidade</h3>
+
+    <input type="number" id="editQtd" min="0">
+
+    <div style="display:flex; gap:10px;">
+      <button onclick="fecharEdicao()" style="flex:1; padding:10px; border:none; border-radius:10px; background:#ef4444; color:white;">
+        Cancelar
+      </button>
+
+      <button onclick="salvarEdicao()" style="flex:1; padding:10px; border:none; border-radius:10px; background:#3b82f6; color:white;">
+        Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const url="https://script.google.com/macros/s/AKfycbyYQl3lefgDbJQYQQDfvlyYT7T8-RnEre78Xmx0olCpk1ogdiASJfcsbF7JvqY89hhC/exec";
+
+let produtos=[];
+let contagens=[];
+
+/* ======================= */
+/* 🔥 MENSAGENS RANDOM */
+const mensagensEquipe = [
+
+"☕ Hoje é dia de vencer uma contagem por vez. Obrigado pelo empenho da equipe!",
+
+"🥤 Cada item contado é um problema evitado amanhã. Vocês são gigantes!",
+
+"📦 A equipe pode até cansar… mas o estoquista confia em vocês 😅",
+
+"🚀 Contagem concluída é paz para o gerente e glória para a equipe!",
+
+"😂 Se acharem 3 Coca-Cola perdidas atrás da prateleira, já é lucro!",
+
+"💪 Vocês fazem o estoque girar melhor que sistema caro por aí.",
+
+"🔥 A tropa da contagem nunca decepciona. Bora pra cima!",
+
+"📋 Obrigado pelo esforço de todos hoje. Isso faz diferença de verdade.",
+
+"😎 Quem conta certo evita surtos amanhã. Equipe inteligente trabalha assim.",
+
+"🧠 Contar estoque também é arte. E vocês são artistas do inventário.",
+
+"☕ Café ajuda muito… mas vocês ajudam mais ainda!",
+
+"📦 Se o estoque estiver certo hoje, o estoquista agradece amanhã.",
+
+"😂 O sistema acredita em vocês. Só não deixem ele negativo.",
+
+"🏆 Equipe forte é equipe que conta até o último refrigerante.",
+
+"🚨 Missão do dia: encontrar produtos escondidos em lugares impossíveis.",
+
+"🥤 Obrigado pelo empenho da equipe. Vocês seguram a operação!",
+
+"📈 Uma boa contagem hoje evita dor de cabeça amanhã.",
+
+"😅 Respira fundo… falta só mais alguns produtos.",
+
+"💙 O estoque funciona porque existe uma equipe comprometida por trás.",
+
+"🔥 Vocês já sobreviveram a contagens piores. Essa vai ser tranquila."
+
+];
+
+function mostrarMensagemRandom(){
+
+let msg = mensagensEquipe[
+Math.floor(Math.random() * mensagensEquipe.length)
+];
+
+document.getElementById("mensagemTexto").innerText = msg;
+
+}
+
+/* ======================= */
+/* ANTI CLICK DUPLO */
+let ultimo=0;
+function pode(){
+  let agora=Date.now();
+  if(agora-ultimo<120) return false;
+  ultimo=agora;
+  return true;
+}
+
+/* ======================= */
+function formatarImg(link){
+  if(!link) return "";
+
+  if(link.includes("drive.google.com")){
+    let id = link.split("/d/")[1]?.split("/")[0];
+    if(id){
+      return `https://drive.google.com/uc?export=view&id=${id}`;
+    }
+  }
+
+  return link;
+}
+
+/* ======================= */
+function carregar(){
+fetch(url)
+.then(r=>r.json())
+.then(d=>{
+
+produtos=[];
+
+for(let i=1;i<d.length;i++){
+produtos.push({
+ean:String(d[i][0]).trim(),
+nome:d[i][1],
+setor:(d[i][9]||"").toLowerCase().trim(),
+img:formatarImg(d[i][10])
+});
+}
+
+render();
+
+});
+}
+
+/* ======================= */
+function listaBebidas(){
+return produtos.filter(p =>
+p.setor.includes("salao")
+);
+}
+
+/* ======================= */
+function render(){
+
+let el=document.getElementById("botoes");
+el.innerHTML="";
+
+listaBebidas().forEach(p=>{
+
+let item=contagens.find(c=>c.ean===p.ean);
+let qtd=item?item.qtd:0;
+
+let imgHTML = p.img
+? `<img src="${p.img}" onerror="this.parentElement.innerHTML='<div class=sem-img>SEM IMG</div>'">`
+: `<div class="sem-img">SEM IMG</div>`;
+
+let btn=document.createElement("button");
+btn.className="botao-produto";
+
+btn.innerHTML=`
+<div class="img-box">${imgHTML}</div>
+<div class="nome">${p.nome}</div>
+<div id="q_${p.ean}" class="qtd">${qtd}</div>
+`;
+
+btn.onclick=(e)=>{
+e.stopPropagation();
+if(!pode()) return;
+contar(p.ean);
+};
+
+el.appendChild(btn);
+
+});
+
+renderResumo();
+}
+
+/* ======================= */
+function contar(ean){
+
+let item=contagens.find(c=>c.ean===ean);
+
+if(item){
+item.qtd++;
+}else{
+contagens.push({ean:ean,qtd:1});
+}
+
+document.getElementById("q_"+ean).innerText=
+contagens.find(c=>c.ean===ean).qtd;
+
+renderResumo();
+}
+
+/* ======================= */
+/* 🔥 RESUMO */
+function renderResumo(){
+
+let body=document.getElementById("resumoBody");
+body.innerHTML="";
+
+contagens.forEach(c=>{
+
+let prod=produtos.find(p=>p.ean===c.ean);
+
+let nome=prod?prod.nome:"Desconhecido";
+
+let tr=document.createElement("tr");
+
+tr.innerHTML=`
+<td>${c.ean}</td>
+<td>${nome}</td>
+<td>${c.qtd}</td>
+<td>
+<button class="small edit" onclick="editar('${c.ean}')">Editar</button>
+<button class="small del" onclick="excluir('${c.ean}')">Excluir</button>
+</td>
+`;
+
+body.appendChild(tr);
+
+});
+
+}
+
+let editEAN = null;
+
+function editar(ean){
+  let item = contagens.find(c => c.ean === ean);
+  if(!item) return;
+
+  editEAN = ean;
+
+  document.getElementById("editQtd").value = item.qtd;
+  document.getElementById("modalEditar").style.display = "flex";
+}
+
+function fecharEdicao(){
+  document.getElementById("modalEditar").style.display = "none";
+  editEAN = null;
+}
+
+function salvarEdicao(){
+  let valor = parseInt(document.getElementById("editQtd").value);
+
+  if(isNaN(valor) || valor < 0) return;
+
+  let item = contagens.find(c => c.ean === editEAN);
+  if(item){
+    item.qtd = valor;
+  }
+
+  fecharEdicao();
+  render();
+}
+
+/* ======================= */
+function excluir(ean){
+
+contagens=contagens.filter(c=>c.ean!==ean);
+render();
+}
+
+/* ======================= */
+function enviar(){
+
+modal("Enviando bebidas... ⏳",true);
+
+let dados=listaBebidas().map(p=>{
+
+let item=contagens.find(c=>c.ean===p.ean);
+let qtd=item?item.qtd:0;
+
+return `${p.ean},salao,${qtd}`;
+
+});
+
+fetch(url,{
+method:"POST",
+body:JSON.stringify({
+tipo:"contagem_lote",
+dados:dados
+})
+})
+.then(()=>{
+modal("Enviado!🥤✅",false);
+contagens=[];
+render();
+setTimeout(fechar,1500);
+})
+.catch(()=>{
+modal("Erro ❌",false);
+setTimeout(fechar,2000);
+});
+
+}
+
+/* ======================= */
+function modal(msg,load=true){
+document.getElementById("msg").innerText=msg;
+document.querySelector(".spinner").style.display=load?"block":"none";
+document.getElementById("modalStatus").style.display="flex";
+}
+
+function fechar(){
+document.getElementById("modalStatus").style.display="none";
+}
+
+/* ======================= */
+window.onload=()=>{
+mostrarMensagemRandom();
+carregar();
+};
+
+</script>
+
+</body>
+</html>

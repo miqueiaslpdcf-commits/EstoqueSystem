@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+<title>Escolher Tipo de Contagem</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color:transparent;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:#0f172a;
+  font-family:system-ui, Arial;
+  color:white;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  padding:20px;
+}
+
+.container{
+  width:100%;
+  max-width:500px;
+  text-align:center;
+}
+
+h1{
+  font-size:clamp(28px,5vw,42px);
+  margin-bottom:12px;
+}
+
+.sub{
+  opacity:.8;
+  margin-bottom:35px;
+  font-size:15px;
+}
+
+.botoes{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+}
+
+.botao{
+  text-decoration:none;
+  color:white;
+
+  background:linear-gradient(135deg,#1e293b,#334155);
+
+  border:2px solid #334155;
+
+  border-radius:22px;
+
+  padding:24px 18px;
+
+  transition:.15s;
+
+  box-shadow:0 10px 25px rgba(0,0,0,.35);
+}
+
+.botao:active{
+  transform:scale(.97);
+}
+
+.botao:hover{
+  border-color:#f59e0b;
+}
+
+.icone{
+  font-size:42px;
+  margin-bottom:12px;
+}
+
+.titulo{
+  font-size:22px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.desc{
+  font-size:14px;
+  opacity:.85;
+  line-height:1.4;
+}
+
+/* botão 1 */
+.clicks{
+  border-color:#22c55e;
+}
+
+/* botão 2 */
+.digitavel{
+  border-color:#f59e0b;
+}
+
+@media(min-width:768px){
+
+.botoes{
+  flex-direction:row;
+}
+
+.botao{
+  flex:1;
+}
+
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <h1>👨‍🍳Tipo de Contagem</h1>
+
+  <div class="sub">
+    Escolha como deseja realizar a contagem da Cozinha:
+  </div>
+
+  <div class="botoes">
+
+    <!-- OPÇÃO 1 -->
+    <a href="cozinha.html" class="botao clicks">
+
+      <div class="icone">👆</div>
+
+      <div class="titulo">
+        OPÇÃO 1
+      </div>
+
+      <div class="desc">
+        Contagem por clicks rápidos nos produtos
+      </div>
+
+    </a>
+
+    <!-- OPÇÃO 2 -->
+    <a href="cozinha2.html" class="botao digitavel">
+
+      <div class="icone">⌨️</div>
+
+      <div class="titulo">
+        OPÇÃO 2
+      </div>
+
+      <div class="desc">
+        Contagem digitável com quantidade manual
+      </div>
+
+    </a>
+
+  </div>
+
+</div>
+
+</body>
+</html>

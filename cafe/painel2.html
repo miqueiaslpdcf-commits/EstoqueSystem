@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Painel Geral</title>
+
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+
+body{
+  font-family:system-ui,Arial;
+  background:#0f172a;
+  color:white;
+  margin:0;
+  padding:10px;
+}
+
+h1{
+  text-align:center;
+  margin:10px 0;
+}
+
+/* ABAS */
+#abas{
+  display:flex;
+  gap:10px;
+  margin-bottom:10px;
+}
+
+.aba{
+  flex:1;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  background:#1e293b;
+  color:white;
+  font-weight:bold;
+}
+
+.aba.ativa{
+  background:#22c55e;
+}
+
+/* GRID */
+#grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+  gap:10px;
+}
+
+/* BOTÃO */
+.botao{
+  background:#1e293b;
+  border:none;
+  border-radius:16px;
+  padding:8px;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+.botao:active{
+  transform:scale(0.95);
+}
+
+/* IMG */
+.botao img{
+  width:100%;
+  height:90px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-bottom:5px;
+  pointer-events:none;
+}
+
+/* QTD */
+.qtd{
+  font-size:22px;
+  font-weight:bold;
+}
+
+/* ENVIAR */
+#enviar{
+  position:fixed;
+  bottom:15px;
+  left:50%;
+  transform:translateX(-50%);
+  padding:14px 25px;
+  border:none;
+  border-radius:14px;
+  background:#3b82f6;
+  color:white;
+}
+
+/* MODAL */
+#modal{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+
+.box{
+  background:#1e293b;
+  padding:25px;
+  border-radius:15px;
+  text-align:center;
+}
+
+.spinner{
+  width:40px;height:40px;
+  border:4px solid #334155;
+  border-top:4px solid #3b82f6;
+  border-radius:50%;
+  animation:girar 1s linear infinite;
+  margin:0 auto 10px;
+}
+
+@keyframes girar{
+  from{transform:rotate(0);}
+  to{transform:rotate(360deg);}
+}
+</style>
+</head>
+
+<body>
+
+<h1>📊 Painel Geral</h1>
+
+<div id="abas">
+  <button class="aba ativa" onclick="trocarAba('cozinha')">🍳 Cozinha</button>
+  <button class="aba" onclick="trocarAba('cafe')">☕ Café</button>
+  <button class="aba" onclick="trocarAba('salao')">🥤 Bebidas</button>
+</div>
+
+<div id="grid"></div>
+
+<button id="enviar" onclick="enviar()">Enviar Tudo</button>
+
+<div id="modal">
+  <div class="box">
+    <div class="spinner"></div>
+    <div id="msg">Enviando...</div>
+  </div>
+</div>
+
+<script>
+const url="https://script.google.com/macros/s/AKfycby4gwho-0QULxI_vn7Hf-vaFlxREmMQZSi58y35Bz_Uz3j0mOs2nSjhU5QMmtZD5NSLKQ/exec";
+
+let produtos=[];
+let contagens=[];
+let abaAtual="cozinha";
+
+/* anti duplo toque */
+let lastTouch=0;
+document.addEventListener("touchend",e=>{
+  let now=Date.now();
+  if(now-lastTouch<300)e.preventDefault();
+  lastTouch=now;
+});
+
+/* carregar */
+function carregar(){
+fetch(url)
+.then(r=>r.json())
+.then(d=>{
+for(let i=1;i<d.length;i++){
+produtos.push({
+ean:String(d[i][0]).trim(),
+nome:d[i][1],
+setor:(d[i][8]||"").toLowerCase(),
+img:d[i][9]||""
+});
+}
+render();
+});
+}
+
+/* trocar aba */
+function trocarAba(setor){
+abaAtual=setor;
+
+document.querySelectorAll(".aba").forEach(b=>b.classList.remove("ativa"));
+event.target.classList.add("ativa");
+
+render();
+}
+
+/* filtro */
+function filtrados(){
+return produtos.filter(p=>{
+if(abaAtual==="cozinha") return p.setor.includes("cozinha");
+if(abaAtual==="cafe") return p.setor.includes("cafe");
+if(abaAtual==="salao") return p.setor.includes("salao");
+});
+}
+
+/* render */
+function render(){
+
+let grid=document.getElementById("grid");
+grid.innerHTML="";
+
+filtrados().forEach(p=>{
+
+let item=contagens.find(c=>c.ean===p.ean);
+let qtd=item?item.qtd:0;
+
+let btn=document.createElement("button");
+btn.className="botao";
+
+let img=p.img
+? `<img src="${p.img}">`
+: `<div style="height:90px;display:flex;align-items:center;justify-content:center">SEM IMG</div>`;
+
+btn.innerHTML=`
+${img}
+<div>${p.nome}</div>
+<div id="q_${p.ean}" class="qtd">${qtd}</div>
+`;
+
+btn.onclick=()=>contar(p);
+
+grid.appendChild(btn);
+
+});
+
+}
+
+/* contar */
+function contar(p){
+
+let item=contagens.find(c=>c.ean===p.ean);
+
+if(item){
+item.qtd++;
+}else{
+contagens.push({
+ean:p.ean,
+setor:p.setor.includes("cozinha")?"Cozinha":
+p.setor.includes("cafe")?"Cafe":"Bebidas",
+qtd:1
+});
+}
+
+document.getElementById("q_"+p.ean).innerText=
+contagens.find(c=>c.ean===p.ean).qtd;
+
+}
+
+/* enviar */
+function enviar(){
+
+document.getElementById("modal").style.display="flex";
+
+let dados=produtos.map(p=>{
+let item=contagens.find(c=>c.ean===p.ean);
+let qtd=item?item.qtd:0;
+
+let setor=p.setor.includes("cozinha")?"Cozinha":
+p.setor.includes("cafe")?"Cafe":"Bebidas";
+
+return `${p.ean},${setor},${qtd}`;
+});
+
+fetch(url,{
+method:"POST",
+body:JSON.stringify({
+tipo:"contagem_lote",
+dados:dados
+})
+})
+.then(()=>{
+document.getElementById("msg").innerText="Enviado ✅";
+contagens=[];
+render();
+setTimeout(()=>document.getElementById("modal").style.display="none",1500);
+})
+.catch(()=>{
+document.getElementById("msg").innerText="Erro ❌";
+setTimeout(()=>document.getElementById("modal").style.display="none",2000);
+});
+
+}
+
+window.onload=carregar;
+</script>
+
+</body>
+</html>

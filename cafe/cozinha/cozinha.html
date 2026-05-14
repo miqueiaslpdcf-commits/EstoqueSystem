@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Painel Cozinha</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body{
+  font-family: system-ui, Arial;
+  background:#0f172a;
+  color:white;
+  margin:0;
+  padding:10px;
+}
+
+h1{
+  text-align:center;
+  font-size:clamp(22px, 5vw, 40px);
+  margin:10px 0 10px;
+}
+
+/* GRID RESPONSIVO */
+#botoesCozinha{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+  gap:10px;
+  margin-top:10px;
+}
+
+/* BOTÃO PRODUTO */
+.botao-produto{
+  background:#1e293b;
+  border:none;
+  border-radius:16px;
+  padding:8px;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  align-items:center;
+  transition:0.2s;
+}
+
+/* IMAGEM */
+.botao-produto img{
+  width:100%;
+  height:90px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-bottom:5px;
+}
+
+/* NOME */
+.botao-produto div:nth-child(2){
+  font-size:12px;
+  text-align:center;
+  min-height:30px;
+}
+
+/* QUANTIDADE */
+.qtd{
+  font-size:22px;
+  font-weight:bold;
+  margin-top:4px;
+}
+
+/* CLICK */
+.botao-produto:active{
+  transform:scale(0.95);
+  background:#334155;
+}
+
+/* RESUMO */
+#resumo{
+  margin-top:20px;
+  background:#1e293b;
+  padding:12px;
+  border-radius:16px;
+}
+
+#resumo h2{
+  margin:0 0 10px;
+  font-size:16px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th,td{
+  padding:8px;
+  border-bottom:1px solid #334155;
+  text-align:left;
+}
+
+button.small{
+  padding:5px 8px;
+  font-size:12px;
+  border:none;
+  border-radius:8px;
+  margin-right:5px;
+}
+
+.edit{
+  background:#22c55e;
+  color:white;
+}
+
+.del{
+  background:#ef4444;
+  color:white;
+}
+
+/* BOTÃO ENVIAR */
+#enviar{
+  position:fixed;
+  bottom:15px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#22c55e;
+  border:none;
+  padding:14px 25px;
+  font-size:16px;
+  border-radius:14px;
+  color:white;
+  box-shadow:0 5px 20px rgba(0,0,0,0.3);
+}
+
+/* DESKTOP MELHOR */
+@media(min-width:768px){
+
+  body{
+    padding:20px 40px;
+  }
+
+  #botoesCozinha{
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:15px;
+  }
+
+  .botao-produto img{
+    height:120px;
+  }
+
+  .qtd{
+    font-size:26px;
+  }
+
+  #enviar{
+    font-size:18px;
+  }
+
+}
+
+/* MODAL */
+#modalStatus{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+#modalBox{
+  background:#1e293b;
+  padding:30px 40px;
+  border-radius:18px;
+  text-align:center;
+  font-size:18px;
+  font-weight:bold;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* SPINNER 🔄 */
+.spinner{
+  width:40px;
+  height:40px;
+  border:4px solid #334155;
+  border-top:4px solid #22c55e;
+  border-radius:50%;
+  animation:girar 1s linear infinite;
+  margin:0 auto 15px;
+}
+
+@keyframes girar{
+  0%{ transform:rotate(0deg); }
+  100%{ transform:rotate(360deg); }
+}
+
+/* MODAL EDITAR */
+#modalEditar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+}
+
+#modalEditarBox{
+  background:#1e293b;
+  padding:20px;
+  border-radius:16px;
+  width:90%;
+  max-width:320px;
+  text-align:center;
+}
+
+#modalEditarBox input{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  margin:10px 0;
+  font-size:16px;
+}
+
+/* ================= MENSAGEM MOTIVACIONAL ================= */
+#mensagemEquipe{
+  background:linear-gradient(135deg,#1e293b,#334155);
+  border:2px solid #22c55e;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:18px;
+  text-align:center;
+  box-shadow:0 8px 20px rgba(0,0,0,0.35);
+  animation:fadeMensagem .5s ease;
+}
+
+#mensagemEquipe h3{
+  margin:0 0 8px;
+  font-size:18px;
+  color:#4ade80;
+}
+
+#mensagemTexto{
+  font-size:15px;
+  line-height:1.5;
+  opacity:0.95;
+}
+
+@keyframes fadeMensagem{
+  from{
+    opacity:0;
+    transform:translateY(-10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+/* ========================================================= */
+
+
+</style>
+</head>
+
+<body>
+
+<h1>👨‍🍳 Cozinha</h1>
+<!-- 🔥 MENSAGEM RANDOM -->
+<div id="mensagemEquipe">
+  <h3>💚 Equipe da Cozinha</h3>
+  <div id="mensagemTexto"></div>
+</div>
+
+<div id="botoesCozinha"></div>
+
+<!-- RESUMO -->
+<div id="resumo">
+  <h2>📋 Resumo de Contagens</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>EAN</th>
+        <th>Produto</th>
+        <th>Qtd</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+
+    <tbody id="resumoBody"></tbody>
+  </table>
+</div>
+
+<button id="enviar" onclick="enviarContagens()">Enviar Contagem</button>
+
+<div id="modalStatus" style="display:none;">
+  <div id="modalBox">
+    <div class="spinner"></div>
+    <div id="modalTexto">Enviando...</div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div id="modalEditar">
+
+  <div id="modalEditarBox">
+
+    <h3>Editar Quantidade</h3>
+
+    <input type="number" id="editQtd" min="0">
+
+    <div style="display:flex; gap:10px;">
+
+      <button onclick="fecharEdicao()"
+      style="flex:1;padding:10px;border:none;border-radius:10px;background:#ef4444;color:white;">
+        Cancelar
+      </button>
+
+      <button onclick="salvarEdicao()"
+      style="flex:1;padding:10px;border:none;border-radius:10px;background:#22c55e;color:white;">
+        Salvar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const url="https://script.google.com/macros/s/AKfycby4gwho-0QULxI_vn7Hf-vaFlxREmMQZSi58y35Bz_Uz3j0mOs2nSjhU5QMmtZD5NSLKQ/exec";
+
+let produtos=[];
+let produtosMap=new Map();
+let contagensPendentes=[];
+let editEAN=null;
+
+
+/* ======================= */
+/* 🔥 MENSAGENS RANDOM */
+const mensagensEquipe = [
+
+"👨‍🍳 A cozinha pode ser corrida… mas vocês dão conta do recado!",
+
+"🔥 Cada item contado evita dor de cabeça depois. Obrigado equipe!",
+
+"🍳 Quem domina a cozinha cuida do estoque dela também 😎",
+
+"💪 A equipe da cozinha é forte até na contagem!",
+
+"📦 Contagem certa hoje = operação tranquila amanhã.",
+
+"😂 Se aparecer uma parmegiana perdida atrás do freezer, ninguém viu.",
+
+"🥘 Vocês fazem muito mais do que contar produtos. Fazem a operação funcionar.",
+
+"🚀 Bora equipe! Mais uma contagem inciada, vocês são fera.",
+
+"🍽️ Organização boa começa numa contagem bem feita.",
+
+"😅 Respira… falta só mais algumas tílapia aí.",
+
+"🏆 Cozinha alinhada é estoque saudável.",
+
+"🔥 Obrigado pelo empenho de todos hoje. Faz diferença de verdade.",
+
+"📋 Quem conta certo evita o estoquista depois.",
+
+"😂 O estoquista confia em vocês… e o sistema também.",
+
+"💚 Equipe boa é equipe que conta até a última porção de amêndoas.",
+
+"🍳 Hoje o desafio é sobreviver à contagem e ao calor da cozinha.",
+
+"📦 Uma boa contagem salva pedidos, produção e paciência.",
+
+"🚨 Missão do dia: encontrar produtos escondidos em lugares impossíveis.",
+
+"😎 A cozinha gira melhor porque vocês seguram a operação.",
+
+"☕ Força equipe! A próxima pausa pro café está cada vez mais perto."
+
+];
+
+function mostrarMensagemRandom(){
+
+let msg = mensagensEquipe[
+Math.floor(Math.random() * mensagensEquipe.length)
+];
+
+document.getElementById("mensagemTexto").innerText = msg;
+
+}
+
+let lastTouchEnd = 0;
+document.addEventListener('touchend', function (event) {
+  let now = (new Date()).getTime();
+  if (now - lastTouchEnd <= 300) {
+    event.preventDefault();
+  }
+  lastTouchEnd = now;
+}, false);
+
+// =======================
+// FORMATA SETOR
+// =======================
+function formatarSetor(setor){
+  return setor.trim().toLowerCase();
+}
+
+// =======================
+// CARREGAR PRODUTOS
+// =======================
+function carregarProdutos(){
+fetch(url)
+.then(r=>r.json())
+.then(dados=>{
+
+produtos=[];
+
+for(let i=1;i<dados.length;i++){
+
+produtos.push({
+ean:String(dados[i][0]),
+produto:dados[i][1],
+cozinha:Number(dados[i][4]) || 0,
+setor:(dados[i][9] || ""),
+imagem: dados[i][10] || ""
+});
+
+}
+
+// cria mapa
+produtosMap=new Map();
+produtos.forEach(p=>produtosMap.set(p.ean,p));
+
+gerarPainel();
+
+});
+}
+
+// =======================
+// FILTRA COZINHA
+// =======================
+function produtosDaCozinha(){
+return produtos.filter(p =>
+p.setor.toLowerCase().includes("cozinha")
+);
+}
+
+// =======================
+// GERAR PAINEL
+// =======================
+function gerarPainel(){
+
+let container=document.getElementById("botoesCozinha");
+container.innerHTML="";
+
+let lista=produtosDaCozinha();
+
+lista.forEach(p=>{
+
+let existente=contagensPendentes.find(c=>c.ean===p.ean);
+let qtd=existente ? existente.quantidade : 0;
+
+let btn=document.createElement("button");
+btn.className="botao-produto";
+
+let img = p.imagem 
+? `<img src="${p.imagem}" loading="lazy">`
+: `<div style="height:100px;display:flex;align-items:center;justify-content:center;font-size:12px;opacity:0.5">SEM IMG</div>`;
+
+btn.innerHTML=`
+${img}
+<div>${p.produto}</div>
+<div id="qtd_${p.ean}" class="qtd">${qtd}</div>
+`;
+
+btn.onclick=()=>contar(p.ean);
+
+container.appendChild(btn);
+
+});
+
+renderResumo();
+
+}
+
+// =======================
+// CONTAR
+// =======================
+function contar(ean){
+
+let existente=contagensPendentes.find(c=>c.ean===ean);
+
+if(existente){
+existente.quantidade++;
+}else{
+contagensPendentes.push({
+ean:ean,
+setor:"Cozinha",
+quantidade:1
+});
+}
+
+atualizarContador(ean);
+renderResumo();
+
+}
+
+// =======================
+// ATUALIZA CONTADOR
+// =======================
+function atualizarContador(ean){
+
+let el=document.getElementById("qtd_"+ean);
+
+let item=contagensPendentes.find(c=>c.ean===ean);
+
+el.innerText=item ? item.quantidade : 0;
+
+}
+
+// =======================
+// RESUMO
+// =======================
+function renderResumo(){
+
+let body=document.getElementById("resumoBody");
+body.innerHTML="";
+
+contagensPendentes.forEach(c=>{
+
+let prod=produtos.find(p=>p.ean===c.ean);
+
+let nome=prod ? prod.produto : "Desconhecido";
+
+let tr=document.createElement("tr");
+
+tr.innerHTML=`
+<td>${c.ean}</td>
+<td>${nome}</td>
+<td>${c.quantidade}</td>
+<td>
+<button class="small edit" onclick="editar('${c.ean}')">Editar</button>
+<button class="small del" onclick="excluir('${c.ean}')">Excluir</button>
+</td>
+`;
+
+body.appendChild(tr);
+
+});
+
+}
+
+// =======================
+// EDITAR
+// =======================
+function editar(ean){
+
+let item=contagensPendentes.find(c=>c.ean===ean);
+
+if(!item) return;
+
+editEAN=ean;
+
+document.getElementById("editQtd").value=item.quantidade;
+
+document.getElementById("modalEditar").style.display="flex";
+
+}
+
+// =======================
+// FECHAR EDIÇÃO
+// =======================
+function fecharEdicao(){
+
+document.getElementById("modalEditar").style.display="none";
+
+editEAN=null;
+
+}
+
+// =======================
+// SALVAR EDIÇÃO
+// =======================
+function salvarEdicao(){
+
+let valor=parseInt(
+document.getElementById("editQtd").value
+);
+
+if(isNaN(valor)||valor<0) return;
+
+let item=contagensPendentes.find(c=>c.ean===editEAN);
+
+if(item){
+item.quantidade=valor;
+}
+
+fecharEdicao();
+
+gerarPainel();
+
+}
+
+// =======================
+// EXCLUIR
+// =======================
+function excluir(ean){
+
+contagensPendentes=
+contagensPendentes.filter(c=>c.ean!==ean);
+
+gerarPainel();
+
+}
+
+// =======================
+// ENVIAR PARA PLANILHA
+// =======================
+function enviarContagens(){
+
+mostrarModal("Enviando contagem... ⏳", true);
+
+let lista = produtosDaCozinha();
+
+let dados = lista.map(p => {
+
+let existente = contagensPendentes.find(c => c.ean === p.ean);
+let qtd = existente ? existente.quantidade : 0;
+
+return `${p.ean},Cozinha,${qtd}`;
+
+});
+
+fetch(url,{
+method:"POST",
+body:JSON.stringify({
+tipo:"contagem_lote",
+dados:dados
+})
+})
+.then(()=>{
+
+mostrarModal("Contagem enviada! ✅", false);
+
+contagensPendentes = [];
+gerarPainel();
+
+setTimeout(()=>{
+esconderModal();
+},1500);
+
+})
+.catch(err=>{
+console.error(err);
+
+mostrarModal("Erro ao enviar ❌", false);
+
+setTimeout(()=>{
+esconderModal();
+},2000);
+});
+
+}
+
+function mostrarModal(msg, carregando=true){
+
+  document.getElementById("modalTexto").innerText = msg;
+
+  let spinner = document.querySelector(".spinner");
+
+  if(spinner){
+    spinner.style.display = carregando ? "block" : "none";
+  }
+
+  document.getElementById("modalStatus").style.display = "flex";
+}
+
+function esconderModal(){
+document.getElementById("modalStatus").style.display = "none";
+}
+
+// =======================
+// INIT
+// =======================
+window.onload=()=>{
+mostrarMensagemRandom();
+carregarProdutos();
+};
+
+</script>
+
+</body>
+</html>

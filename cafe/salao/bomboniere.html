@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>🍫 Bomboniere</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body{
+  font-family: system-ui, Arial;
+  background:#0f172a;
+  color:white;
+  margin:0;
+  padding:12px;
+}
+
+h1{
+  text-align:center;
+  font-size:clamp(24px,5vw,42px);
+  margin:10px 0 15px;
+}
+
+/* ================= MENSAGEM MOTIVACIONAL ================= */
+#mensagemEquipe{
+  background:linear-gradient(135deg,#1e293b,#3f1d2e);
+  border:2px solid #ec4899;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:18px;
+  text-align:center;
+  box-shadow:0 8px 20px rgba(0,0,0,0.35);
+  animation:fadeMensagem .5s ease;
+}
+
+#mensagemEquipe h3{
+  margin:0 0 8px;
+  font-size:18px;
+  color:#f472b6;
+}
+
+#mensagemTexto{
+  font-size:15px;
+  line-height:1.5;
+  opacity:0.95;
+}
+
+@keyframes fadeMensagem{
+  from{
+    opacity:0;
+    transform:translateY(-10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+/* ========================================================= */
+
+#botoes{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:12px;
+}
+
+.botao-produto{
+  background:#1e293b;
+  border:none;
+  border-radius:18px;
+  padding:10px;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  box-shadow:0 8px 20px rgba(0,0,0,0.35);
+  transition:0.15s;
+}
+
+.botao-produto:active{
+  transform:scale(0.94);
+  background:#334155;
+}
+
+.img-box{
+  width:100%;
+  height:95px;
+  border-radius:12px;
+  overflow:hidden;
+  margin-bottom:6px;
+  background:#0f172a;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.img-box img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+}
+
+.sem-img{
+  font-size:11px;
+  opacity:0.5;
+}
+
+.nome{
+  font-size:12px;
+  text-align:center;
+  min-height:30px;
+}
+
+.qtd{
+  font-size:26px;
+  font-weight:bold;
+  text-align:center;
+  color:#f472b6;
+}
+
+/* ================= RESUMO ================= */
+#resumo{
+  margin-top:20px;
+  background:#1e293b;
+  padding:12px;
+  border-radius:16px;
+}
+
+#resumo h2{
+  font-size:16px;
+  margin:0 0 10px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th,td{
+  padding:8px;
+  border-bottom:1px solid #334155;
+  text-align:left;
+}
+
+button.small{
+  padding:5px 8px;
+  font-size:12px;
+  border:none;
+  border-radius:8px;
+  margin-right:5px;
+}
+
+.edit{
+  background:#ec4899;
+  color:white;
+}
+
+.del{
+  background:#ef4444;
+  color:white;
+}
+
+/* ================= MODAL ================= */
+#modalEditar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+
+#modalEditarBox{
+  background:#1e293b;
+  padding:20px;
+  border-radius:16px;
+  width:90%;
+  max-width:300px;
+  text-align:center;
+}
+
+#modalEditarBox input{
+  width:100%;
+  padding:10px;
+  margin:10px 0;
+  border:none;
+  border-radius:10px;
+  font-size:16px;
+}
+
+/* ================= BOTÃO ENVIAR ================= */
+
+#enviar{
+  position:fixed;
+  bottom:15px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#ec4899;
+  border:none;
+  padding:14px 28px;
+  font-size:16px;
+  border-radius:14px;
+  color:white;
+  box-shadow:0 8px 25px rgba(0,0,0,0.4);
+}
+
+#modalStatus{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#modalBox{
+  background:#1e293b;
+  padding:30px;
+  border-radius:18px;
+  text-align:center;
+}
+
+.spinner{
+  width:40px;
+  height:40px;
+  border:4px solid #334155;
+  border-top:4px solid #ec4899;
+  border-radius:50%;
+  animation:girar 1s linear infinite;
+  margin:0 auto 10px;
+}
+
+@keyframes girar{
+  100%{ transform:rotate(360deg); }
+}
+</style>
+</head>
+
+<body>
+
+<h1>🍫 Bomboniere</h1>
+
+<!-- 🔥 MENSAGEM RANDOM -->
+<div id="mensagemEquipe">
+  <h2>🍫 Equipe Bomboniere</h2>
+  <div id="mensagemTexto"></div>
+</div>
+
+<div id="botoes"></div>
+
+<!-- 📋 RESUMO -->
+<div id="resumo">
+  <h2>📋 Resumo de Contagens</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>EAN</th>
+        <th>Produto</th>
+        <th>Qtd</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="resumoBody"></tbody>
+  </table>
+</div>
+
+<button id="enviar" onclick="enviar()">Enviar Contagem</button>
+
+<!-- 🔥 MODAL EDITAR -->
+<div id="modalEditar">
+  <div id="modalEditarBox">
+    <h3>Editar Quantidade</h3>
+    <input type="number" id="editQtd" min="0">
+
+    <div style="display:flex; gap:10px;">
+      <button onclick="fecharEdicao()" style="flex:1; padding:10px; border:none; border-radius:10px; background:#ef4444; color:white;">
+        Cancelar
+      </button>
+
+      <button onclick="salvarEdicao()" style="flex:1; padding:10px; border:none; border-radius:10px; background:#ec4899; color:white;">
+        Salvar
+      </button>
+    </div>
+  </div>
+</div>
+
+<div id="modalStatus" style="display:none;">
+  <div id="modalBox">
+    <div class="spinner"></div>
+    <div id="msg">Enviando...</div>
+  </div>
+</div>
+
+<script>
+const url="https://script.google.com/macros/s/AKfycby4gwho-0QULxI_vn7Hf-vaFlxREmMQZSi58y35Bz_Uz3j0mOs2nSjhU5QMmtZD5NSLKQ/exec";
+
+let produtos=[];
+let contagens=[];
+let editEAN=null;
+
+/* ======================= */
+/* 🔥 MENSAGENS RANDOM */
+const mensagensEquipe = [
+
+"🍫 Contar chocolate também é um ato de coragem. Obrigado equipe!",
+
+"😂 Se sumir um chocolate, ninguém viu nada...",
+
+"💖 A bomboniere fica organizada porque vocês fazem acontecer.",
+
+"🍬 Cada produto contado é uma vitória contra o caos do estoque.",
+
+"🏆 Equipe forte é equipe que conta até a última bala.",
+
+"😅 Quem nunca achou doce escondido atrás da prateleira?",
+
+"🍫 Obrigado pelo empenho de vocês hoje. A operação agradece!",
+
+"🔥 Vocês fazem a bomboniere funcionar melhor que muito sistema caro.",
+
+"🍭 A missão é simples: contar tudo e resistir aos chocolates 😆",
+
+"💪 Contagem feita com capricho evita dor de cabeça amanhã.",
+
+"😂 Se aparecer caixa misteriosa de bombom, investiguem com calma.",
+
+"🍬 Organização hoje, tranquilidade amanhã.",
+
+"💖 Obrigado equipe! Vocês deixam tudo funcionando redondinho.",
+
+"🚀 Bora finalizar essa contagem igual profissionais do estoque!",
+
+"🍫 Quem conta certo evita sustos no fechamento.",
+
+"😎 A tropa da bomboniere nunca decepciona.",
+
+"🔥 Hoje o estoque vai dormir atualizado graças a vocês.",
+
+"🍭 Contagem concluída = estoque feliz.",
+
+"💙 Vocês seguram a operação todos os dias. Obrigado!",
+
+"😂 O sistema confia em vocês… principalmente nos chocolates."
+
+];
+
+function mostrarMensagemRandom(){
+
+let msg = mensagensEquipe[
+Math.floor(Math.random() * mensagensEquipe.length)
+];
+
+document.getElementById("mensagemTexto").innerText = msg;
+
+}
+
+let ultimo=0;
+function pode(){
+  let agora=Date.now();
+  if(agora-ultimo<120) return false;
+  ultimo=agora;
+  return true;
+}
+
+/* ======================= */
+function normalizar(txt){
+  return (txt || "")
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/* ======================= */
+function formatarImg(link){
+if(!link) return "";
+
+if(link.includes("drive.google.com")){
+  let id = link.split("/d/")[1]?.split("/")[0];
+  if(id){
+    return `https://drive.google.com/uc?export=view&id=${id}`;
+  }
+}
+return link;
+}
+
+/* ======================= */
+function carregar(){
+fetch(url)
+.then(r=>r.json())
+.then(d=>{
+
+produtos=[];
+
+for(let i=1;i<d.length;i++){
+produtos.push({
+ean:String(d[i][0]).trim(),
+nome:d[i][1],
+familia:d[i][2],
+img:formatarImg(d[i][10])
+});
+}
+
+render();
+
+});
+}
+
+/* ======================= */
+function listaBomboniere(){
+return produtos.filter(p =>
+normalizar(p.familia) === "bomboniere"
+);
+}
+
+/* ======================= */
+function render(){
+
+let el=document.getElementById("botoes");
+el.innerHTML="";
+
+listaBomboniere().forEach(p=>{
+
+let item=contagens.find(c=>c.ean===p.ean);
+let qtd=item?item.qtd:0;
+
+let imgHTML = p.img
+? `<img src="${p.img}" onerror="this.parentElement.innerHTML='<div class=sem-img>SEM IMG</div>'">`
+: `<div class="sem-img">SEM IMG</div>`;
+
+let btn=document.createElement("button");
+btn.className="botao-produto";
+
+btn.innerHTML=`
+<div class="img-box">${imgHTML}</div>
+<div class="nome">${p.nome}</div>
+<div class="qtd">${qtd}</div>
+`;
+
+btn.onclick=(e)=>{
+e.stopPropagation();
+if(!pode()) return;
+contar(p.ean);
+};
+
+el.appendChild(btn);
+
+});
+
+renderResumo();
+}
+
+/* ======================= */
+function contar(ean){
+
+let item=contagens.find(c=>c.ean===ean);
+
+if(item){
+item.qtd++;
+}else{
+contagens.push({ean:ean,qtd:1});
+}
+
+render();
+}
+
+/* ======================= */
+function renderResumo(){
+
+let body=document.getElementById("resumoBody");
+body.innerHTML="";
+
+contagens.forEach(c=>{
+
+let prod=produtos.find(p=>p.ean===c.ean);
+let nome=prod?prod.nome:"Desconhecido";
+
+let tr=document.createElement("tr");
+
+tr.innerHTML=`
+<td>${c.ean}</td>
+<td>${nome}</td>
+<td>${c.qtd}</td>
+<td>
+<button class="small edit" onclick="editar('${c.ean}')">Editar</button>
+<button class="small del" onclick="excluir('${c.ean}')">Excluir</button>
+</td>
+`;
+
+body.appendChild(tr);
+
+});
+
+}
+
+/* ======================= */
+function editar(ean){
+
+let item=contagens.find(c=>c.ean===ean);
+if(!item) return;
+
+editEAN=ean;
+
+document.getElementById("editQtd").value=item.qtd;
+document.getElementById("modalEditar").style.display="flex";
+}
+
+/* ======================= */
+function fecharEdicao(){
+document.getElementById("modalEditar").style.display="none";
+editEAN=null;
+}
+
+/* ======================= */
+function salvarEdicao(){
+
+let valor=parseInt(document.getElementById("editQtd").value);
+
+if(isNaN(valor)||valor<0) return;
+
+let item=contagens.find(c=>c.ean===editEAN);
+if(item){
+item.qtd=valor;
+}
+
+fecharEdicao();
+render();
+}
+
+/* ======================= */
+function excluir(ean){
+contagens=contagens.filter(c=>c.ean!==ean);
+render();
+}
+
+/* ======================= */
+function enviar(){
+
+modal("Enviando... ⏳",true);
+
+let dados=listaBomboniere().map(p=>{
+
+let item=contagens.find(c=>c.ean===p.ean);
+let qtd=item?item.qtd:0;
+
+return `${p.ean},Bomboniere,${qtd}`;
+
+});
+
+fetch(url,{
+method:"POST",
+body:JSON.stringify({
+tipo:"contagem_lote",
+dados:dados
+})
+})
+.then(()=>{
+modal("Enviado! 🍫✅",false);
+contagens=[];
+render();
+setTimeout(fechar,1500);
+})
+.catch(()=>{
+modal("Erro ❌",false);
+setTimeout(fechar,2000);
+});
+
+}
+
+/* ======================= */
+function modal(msg,load=true){
+document.getElementById("msg").innerText=msg;
+document.querySelector(".spinner").style.display=load?"block":"none";
+document.getElementById("modalStatus").style.display="flex";
+}
+
+function fechar(){
+document.getElementById("modalStatus").style.display="none";
+}
+
+window.onload=()=>{
+mostrarMensagemRandom();
+carregar();
+};
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>📦 Estoque Seco</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body{
+  font-family: system-ui, Arial;
+  background:#0f172a;
+  color:white;
+  margin:0;
+  padding:10px;
+}
+
+h1{
+  text-align:center;
+  font-size:clamp(22px, 5vw, 40px);
+  margin:10px 0 10px;
+}
+
+#botoes{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+  gap:10px;
+  margin-top:10px;
+}
+
+.botao-produto{
+  background:#1e293b;
+  border:none;
+  border-radius:16px;
+  padding:8px;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  justify-content:space-between;
+  align-items:center;
+  transition:0.2s;
+}
+
+.botao-produto img{
+  width:100%;
+  height:90px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-bottom:5px;
+}
+
+.botao-produto div:nth-child(2){
+  font-size:12px;
+  text-align:center;
+  min-height:30px;
+}
+
+.qtd{
+  font-size:22px;
+  font-weight:bold;
+  margin-top:4px;
+}
+
+.botao-produto:active{
+  transform:scale(0.95);
+  background:#334155;
+}
+
+#enviar{
+  position:fixed;
+  bottom:15px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#f59e0b;
+  border:none;
+  padding:14px 25px;
+  font-size:16px;
+  border-radius:14px;
+  color:white;
+  box-shadow:0 5px 20px rgba(0,0,0,0.3);
+}
+
+#modalStatus{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+#modalBox{
+  background:#1e293b;
+  padding:30px 40px;
+  border-radius:18px;
+  text-align:center;
+  font-size:18px;
+  font-weight:bold;
+}
+
+.spinner{
+  width:40px;
+  height:40px;
+  border:4px solid #334155;
+  border-top:4px solid #f59e0b;
+  border-radius:50%;
+  animation:girar 1s linear infinite;
+  margin:0 auto 15px;
+}
+
+@keyframes girar{
+  100%{ transform:rotate(360deg); }
+}
+
+/* ================= MENSAGEM MOTIVACIONAL ================= */
+#mensagemEquipe{
+  background:linear-gradient(135deg,#1e293b,#334155);
+  border:2px solid #f59e0b;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:18px;
+  text-align:center;
+  box-shadow:0 8px 20px rgba(0,0,0,0.35);
+  animation:fadeMensagem .5s ease;
+}
+
+#mensagemEquipe h3{
+  margin:0 0 8px;
+  font-size:18px;
+  color:#fbbf24;
+}
+
+#mensagemTexto{
+  font-size:15px;
+  line-height:1.5;
+  opacity:0.95;
+}
+
+@keyframes fadeMensagem{
+  from{
+    opacity:0;
+    transform:translateY(-10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+/* ========================================================= */
+
+</style>
+</head>
+
+<body>
+
+<h1>📦 Estoque Seco</h1>
+<!-- 🔥 MENSAGEM RANDOM -->
+<div id="mensagemEquipe">
+  <h3>📦 Equipe do Estoque Seco</h3>
+  <div id="mensagemTexto"></div>
+</div>
+
+<div id="botoes"></div>
+
+<!-- 📋 RESUMO -->
+<div id="resumo" style="
+margin-top:20px;
+background:#1e293b;
+padding:12px;
+border-radius:16px;
+">
+
+<h2 style="margin:0 0 10px;">
+📋 Resumo de Contagens
+</h2>
+
+<table style="
+width:100%;
+border-collapse:collapse;
+font-size:13px;
+">
+
+<thead>
+<tr>
+<th style="padding:8px;border-bottom:1px solid #334155;text-align:left;">EAN</th>
+<th style="padding:8px;border-bottom:1px solid #334155;text-align:left;">Produto</th>
+<th style="padding:8px;border-bottom:1px solid #334155;text-align:left;">Qtd</th>
+<th style="padding:8px;border-bottom:1px solid #334155;text-align:left;">Ações</th>
+</tr>
+</thead>
+
+<tbody id="resumoBody"></tbody>
+
+</table>
+</div>
+
+<button id="enviar" onclick="enviarContagens()">Enviar Contagem</button>
+
+<div id="modalStatus" style="display:none;">
+  <div id="modalBox">
+    <div class="spinner"></div>
+    <div id="modalTexto">Enviando...</div>
+  </div>
+</div>
+
+<!-- 🔥 MODAL EDITAR -->
+<div id="modalEditar" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+align-items:center;
+justify-content:center;
+z-index:99999;
+">
+
+<div style="
+background:#1e293b;
+padding:20px;
+border-radius:16px;
+width:90%;
+max-width:320px;
+">
+
+<h3 style="margin-top:0;">Editar Quantidade</h3>
+
+<input
+id="editQtd"
+type="number"
+min="0"
+style="
+width:100%;
+padding:12px;
+border:none;
+border-radius:10px;
+margin:10px 0;
+font-size:16px;
+"
+>
+
+<div style="display:flex;gap:10px;">
+
+<button
+onclick="fecharEdicao()"
+style="
+flex:1;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#ef4444;
+color:white;
+"
+>
+Cancelar
+</button>
+
+<button
+onclick="salvarEdicao()"
+style="
+flex:1;
+padding:12px;
+border:none;
+border-radius:10px;
+background:#22c55e;
+color:white;
+"
+>
+Salvar
+</button>
+
+</div>
+</div>
+</div>
+
+<script>
+const url="https://script.google.com/macros/s/AKfycby4gwho-0QULxI_vn7Hf-vaFlxREmMQZSi58y35Bz_Uz3j0mOs2nSjhU5QMmtZD5NSLKQ/exec";
+
+let produtos=[];
+let contagensPendentes=[];
+
+/* ======================= */
+/* 🔥 MENSAGENS RANDOM */
+const mensagensEquipe = [
+
+"📦 Estoque seco organizado é metade da batalha vencida.",
+
+"🧂 Você o guardião dos produtos escondidos no Estoque Seco 😎",
+
+"💪 Obrigado pelo empenho de hoje. Faz diferença de verdade.",
+
+"😂 Se achar um produto perdido atrás das prateleiras, já valeu a missão.",
+
+"📋 Contagem certa hoje evita confusão amanhã.",
+
+"🚀 A tropa do estoque seco nunca decepciona!",
+
+"🔥 Cada item contado deixa o sistema mais forte.",
+
+"😅 Respira fundo… falta só mais alguns produtos.",
+
+"📦 O estoque seco pode parecer infinito… mas você consegue vencer ele.",
+
+"🧠 Quem conta direito evita sustos depois.",
+
+"🏆 Estoque organizado é estoque saudável.",
+
+"😂 Missão do dia: encontrar produtos em lugares improváveis.",
+
+"📈 Uma boa contagem salva tempo, dinheiro e paciência.",
+
+"💙 Obrigado por manter tudo alinhado no estoque.",
+
+"🥤 Café ajuda… mas sua dedicação ajuda muito mais.",
+
+"🔥 Você segura a operação mais do que imagina.",
+
+"📦 O sistema agradece cada produto contado corretamente.",
+
+"😎 Quem domina o Estoque Seco domina qualquer contagem.",
+
+"🚨 Atenção: produtos perdidos serão encontrados.😂",
+
+"💪 Bora finalizar mais uma contagem com sucesso!"
+
+];
+
+function mostrarMensagemRandom(){
+
+let msg = mensagensEquipe[
+Math.floor(Math.random() * mensagensEquipe.length)
+];
+
+document.getElementById("mensagemTexto").innerText = msg;
+
+}
+
+/* ======================= */
+/* NORMALIZAR */
+function normalizar(txt){
+  return (txt || "")
+    .toLowerCase()
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+/* ======================= */
+/* CARREGAR */
+function carregarProdutos(){
+fetch(url)
+.then(r=>r.json())
+.then(dados=>{
+
+produtos=[];
+
+for(let i=1;i<dados.length;i++){
+
+produtos.push({
+ean:String(dados[i][0]),
+produto:dados[i][1],
+subsetor:(dados[i][12] || ""),
+imagem: dados[i][10] || ""
+});
+
+}
+
+gerarPainel();
+
+});
+}
+
+/* ======================= */
+/* FILTRO FLEXÍVEL PSECO */
+function produtosPseco(){
+return produtos.filter(p => {
+  return normalizar(p.subsetor).includes("pseco");
+});
+}
+
+/* ======================= */
+/* PAINEL */
+function gerarPainel(){
+
+let container=document.getElementById("botoes");
+container.innerHTML="";
+
+let lista=produtosPseco();
+
+lista.forEach(p=>{
+
+let existente=contagensPendentes.find(c=>c.ean===p.ean);
+let qtd=existente ? existente.quantidade : 0;
+
+let btn=document.createElement("button");
+btn.className="botao-produto";
+
+let img = p.imagem 
+? `<img src="${p.imagem}" loading="lazy">`
+: `<div style="height:100px;display:flex;align-items:center;justify-content:center;font-size:12px;opacity:0.5">SEM IMG</div>`;
+
+btn.innerHTML=`
+${img}
+<div>${p.produto}</div>
+<div id="qtd_${p.ean}" class="qtd">${qtd}</div>
+`;
+
+btn.onclick=()=>contar(p.ean);
+
+container.appendChild(btn);
+
+});
+
+renderResumo();
+
+}
+
+/* ======================= */
+/* CONTAR */
+function contar(ean){
+
+let existente=contagensPendentes.find(c=>c.ean===ean);
+
+if(existente){
+existente.quantidade++;
+}else{
+contagensPendentes.push({
+ean:ean,
+setor:"ESTOQUE",
+quantidade:1
+});
+}
+
+atualizarContador(ean);
+
+renderResumo();
+
+}
+
+/* ======================= */
+function atualizarContador(ean){
+let el=document.getElementById("qtd_"+ean);
+let item=contagensPendentes.find(c=>c.ean===ean);
+el.innerText=item ? item.quantidade : 0;
+}
+
+/* ======================= */
+/* RESUMO */
+function renderResumo(){
+
+let body=document.getElementById("resumoBody");
+
+body.innerHTML="";
+
+contagensPendentes.forEach(c=>{
+
+let prod=produtos.find(p=>p.ean===c.ean);
+
+let nome=prod ? prod.produto : "Desconhecido";
+
+let tr=document.createElement("tr");
+
+tr.innerHTML=`
+<td style="padding:8px;border-bottom:1px solid #334155;">${c.ean}</td>
+
+<td style="padding:8px;border-bottom:1px solid #334155;">
+${nome}
+</td>
+
+<td style="padding:8px;border-bottom:1px solid #334155;">
+${c.quantidade}
+</td>
+
+<td style="padding:8px;border-bottom:1px solid #334155;">
+
+<button
+onclick="editar('${c.ean}')"
+style="
+padding:5px 8px;
+border:none;
+border-radius:8px;
+background:#3b82f6;
+color:white;
+margin-right:5px;
+"
+>
+Editar
+</button>
+
+<button
+onclick="excluir('${c.ean}')"
+style="
+padding:5px 8px;
+border:none;
+border-radius:8px;
+background:#ef4444;
+color:white;
+"
+>
+Excluir
+</button>
+
+</td>
+`;
+
+body.appendChild(tr);
+
+});
+
+}
+
+/* ======================= */
+/* MODAL EDITAR */
+let editEAN=null;
+
+function editar(ean){
+
+let item=contagensPendentes.find(c=>c.ean===ean);
+
+if(!item) return;
+
+editEAN=ean;
+
+document.getElementById("editQtd").value=item.quantidade;
+
+document.getElementById("modalEditar").style.display="flex";
+
+}
+
+function fecharEdicao(){
+
+document.getElementById("modalEditar").style.display="none";
+
+editEAN=null;
+
+}
+
+function salvarEdicao(){
+
+let valor=parseInt(document.getElementById("editQtd").value);
+
+if(isNaN(valor) || valor<0) return;
+
+let item=contagensPendentes.find(c=>c.ean===editEAN);
+
+if(item){
+item.quantidade=valor;
+}
+
+fecharEdicao();
+
+gerarPainel();
+
+}
+
+/* ======================= */
+/* EXCLUIR */
+function excluir(ean){
+
+contagensPendentes=
+contagensPendentes.filter(c=>c.ean!==ean);
+
+gerarPainel();
+
+}
+
+/* ======================= */
+/* ENVIAR */
+function enviarContagens(){
+
+mostrarModal("Enviando... ⏳", true);
+
+let lista = produtosPseco();
+
+let dados = lista.map(p => {
+
+let existente = contagensPendentes.find(c => c.ean === p.ean);
+let qtd = existente ? existente.quantidade : 0;
+
+return `${p.ean},ESTOQUE,${qtd}`;
+
+});
+
+fetch(url,{
+method:"POST",
+body:JSON.stringify({
+tipo:"contagem_lote",
+dados:dados
+})
+})
+.then(()=>{
+mostrarModal("Enviado! 📦✅", false);
+contagensPendentes = [];
+gerarPainel();
+setTimeout(esconderModal,1500);
+})
+.catch(()=>{
+mostrarModal("Erro ❌", false);
+setTimeout(esconderModal,2000);
+});
+
+}
+
+/* ======================= */
+function mostrarModal(msg, carregando=true){
+document.getElementById("modalTexto").innerText = msg;
+document.querySelector(".spinner").style.display = carregando ? "block" : "none";
+document.getElementById("modalStatus").style.display = "flex";
+}
+
+function esconderModal(){
+document.getElementById("modalStatus").style.display = "none";
+}
+
+/* ======================= */
+window.onload=()=>{
+mostrarMensagemRandom();
+carregarProdutos();
+};
+
+</script>
+
+</body>
+</html>

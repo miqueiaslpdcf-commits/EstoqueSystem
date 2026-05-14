@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Painel Café</title>
+
+<style>
+*{
+  box-sizing:border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body{
+  font-family: system-ui, Arial;
+  background:#0f172a;
+  color:white;
+  margin:0;
+  padding:10px;
+}
+
+h1{
+  text-align:center;
+  font-size:clamp(22px, 5vw, 40px);
+  margin:10px 0;
+}
+
+/* ================= MENSAGEM MOTIVACIONAL ================= */
+#mensagemEquipe{
+  background:linear-gradient(135deg,#1e293b,#334155);
+  border:2px solid #f59e0b;
+  border-radius:18px;
+  padding:16px;
+  margin-bottom:18px;
+  text-align:center;
+  box-shadow:0 8px 20px rgba(0,0,0,0.35);
+  animation:fadeMensagem .5s ease;
+}
+
+#mensagemEquipe h3{
+  margin:0 0 8px;
+  font-size:18px;
+  color:#fbbf24;
+}
+
+#mensagemTexto{
+  font-size:15px;
+  line-height:1.5;
+  opacity:0.95;
+}
+
+@keyframes fadeMensagem{
+  from{
+    opacity:0;
+    transform:translateY(-10px);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* GRID */
+#botoesCafe{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
+  gap:10px;
+}
+
+/* BOTÃO */
+.botao-produto{
+  background:#1e293b;
+  border:none;
+  border-radius:16px;
+  padding:8px;
+  color:white;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:space-between;
+  transition:0.15s;
+}
+
+.botao-produto:active{
+  transform:scale(0.95);
+  background:#334155;
+}
+
+/* IMAGEM */
+.botao-produto img{
+  width:100%;
+  height:90px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-bottom:5px;
+  pointer-events:none;
+}
+
+/* NOME */
+.botao-produto div:nth-child(2){
+  font-size:12px;
+  text-align:center;
+  min-height:30px;
+  word-break:break-word;
+}
+
+/* QTD */
+.qtd{
+  font-size:22px;
+  font-weight:bold;
+  margin-top:4px;
+}
+
+/* RESUMO */
+#resumo{
+  margin-top:20px;
+  background:#1e293b;
+  padding:12px;
+  border-radius:16px;
+}
+
+#resumo h2{
+  margin:0 0 10px;
+  font-size:16px;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+}
+
+th,td{
+  padding:8px;
+  border-bottom:1px solid #334155;
+  text-align:left;
+}
+
+button.small{
+  padding:5px 8px;
+  font-size:12px;
+  border:none;
+  border-radius:8px;
+  margin-right:5px;
+}
+
+.edit{
+  background:#f59e0b;
+  color:white;
+}
+
+.del{
+  background:#ef4444;
+  color:white;
+}
+
+/* BOTÃO ENVIAR */
+#enviar{
+  position:fixed;
+  bottom:15px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#f59e0b;
+  border:none;
+  padding:14px 25px;
+  font-size:16px;
+  border-radius:14px;
+  color:white;
+  box-shadow:0 5px 20px rgba(0,0,0,0.3);
+}
+
+/* MODAL */
+#modalStatus{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+}
+
+#modalBox{
+  background:#1e293b;
+  padding:30px 40px;
+  border-radius:18px;
+  text-align:center;
+  font-size:18px;
+  font-weight:bold;
+  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+}
+
+.spinner{
+  width:40px;
+  height:40px;
+  border:4px solid #334155;
+  border-top:4px solid #f59e0b;
+  border-radius:50%;
+  animation:girar 1s linear infinite;
+  margin:0 auto 15px;
+}
+
+@keyframes girar{
+  0%{ transform:rotate(0deg); }
+  100%{ transform:rotate(360deg); }
+}
+
+/* MODAL EDITAR */
+#modalEditar{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background:rgba(0,0,0,0.6);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+}
+
+#modalEditarBox{
+  background:#1e293b;
+  padding:20px;
+  border-radius:16px;
+  width:90%;
+  max-width:320px;
+  text-align:center;
+}
+
+#modalEditarBox input{
+  width:100%;
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  margin:10px 0;
+  font-size:16px;
+}
+
+/* DESKTOP */
+@media(min-width:768px){
+  body{ padding:20px 40px; }
+
+  #botoesCafe{
+    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
+    gap:15px;
+  }
+
+  .botao-produto img{
+    height:120px;
+  }
+
+  .qtd{ font-size:26px; }
+}
+</style>
+</head>
+
+<body>
+
+<h1>☕ Café</h1>
+
+<!-- 🔥 MENSAGEM RANDOM -->
+<div id="mensagemEquipe">
+  <h3>☕ Equipe do Café</h3>
+  <div id="mensagemTexto"></div>
+</div>
+
+<div id="botoesCafe"></div>
+
+<!-- RESUMO -->
+<div id="resumo">
+  <h2>📋 Resumo de Contagens</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th>EAN</th>
+        <th>Produto</th>
+        <th>Qtd</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+
+    <tbody id="resumoBody"></tbody>
+  </table>
+</div>
+
+
+<!-- MODAL QUANTIDADE -->
+<div id="modalQuantidade"
+style="
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+display:none;
+align-items:center;
+justify-content:center;
+z-index:999999;
+">
+
+  <div style="
+  background:#1e293b;
+  width:90%;
+  max-width:320px;
+  border-radius:18px;
+  padding:20px;
+  text-align:center;
+  ">
+
+    <h3 style="margin-top:0;">
+      Informe a quantidade
+    </h3>
+
+    <input
+      type="number"
+      id="qtdModalInput"
+      min="1"
+      value="1"
+      style="
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      font-size:20px;
+      margin:15px 0;
+      text-align:center;
+      "
+    >
+
+    <div style="display:flex; gap:10px;">
+
+      <button
+      onclick="fecharModalQuantidade()"
+      style="
+      flex:1;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      background:#ef4444;
+      color:white;
+      font-size:16px;
+      ">
+        Cancelar
+      </button>
+
+      <button
+      onclick="confirmarQuantidade()"
+      style="
+      flex:1;
+      padding:12px;
+      border:none;
+      border-radius:12px;
+      background:#f59e0b;
+      color:white;
+      font-size:16px;
+      ">
+        Confirmar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<button id="enviar" onclick="enviarContagens()">Enviar Contagem</button>
+
+<div id="modalStatus" style="display:none;">
+  <div id="modalBox">
+    <div class="spinner"></div>
+    <div id="modalTexto">Enviando...</div>
+  </div>
+</div>
+
+<!-- MODAL EDITAR -->
+<div id="modalEditar">
+
+  <div id="modalEditarBox">
+
+    <h3>Editar Quantidade</h3>
+
+    <input type="number" id="editQtd" min="0">
+
+    <div style="display:flex; gap:10px;">
+
+      <button onclick="fecharEdicao()"
+      style="flex:1;padding:10px;border:none;border-radius:10px;background:#ef4444;color:white;">
+        Cancelar
+      </button>
+
+      <button onclick="salvarEdicao()"
+      style="flex:1;padding:10px;border:none;border-radius:10px;background:#f59e0b;color:white;">
+        Salvar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+<script>
+const url="https://script.google.com/macros/s/AKfycby4gwho-0QULxI_vn7Hf-vaFlxREmMQZSi58y35Bz_Uz3j0mOs2nSjhU5QMmtZD5NSLKQ/exec";
+
+let produtos=[];
+let contagensPendentes=[];
+let editEAN=null;
+
+/* ======================= */
+/* 🔥 MENSAGENS RANDOM */
+const mensagensEquipe = [
+
+"☕ Relaxa e conta com calma, no final tem um cafézinho.😂",
+
+"🔥 A equipe do café é pequena no tamanho e gigante na entrega.",
+
+"😅 Se aparecer grão escondido atrás da cafeteira, ninguém viu.",
+
+"💪 Obrigado pelo empenho de vocês hoje. O café funciona por causa da equipe.",
+
+"📦 Cada item contado é menos dor de cabeça amanhã.",
+
+"☕ O estoque pode acabar… mas a paciência da equipe não deveria 😂",
+
+"🚀 Uma boa contagem hoje deixa tudo mais tranquilo amanhã.",
+
+"🏆 Equipe boa é aquela que conta até o último sachê de açúcar.",
+
+"😂 Quem encontrar açúcar perdido ganha respeito automático.",
+
+"☕ Café forte e equipe forte: combinação perfeita.",
+
+"📋 Vocês fazem diferença de verdade na operação.",
+
+"💙 Obrigado pelo comprometimento da equipe do café.",
+
+"🔥 Vamos lá tropa do café, vocês nunca me decepciona.",
+
+"😎 Contar certinho hoje evita retrabalho amanhã.",
+
+"📈 Organização começa em uma boa contagem.",
+
+"☕ Respira fundo… falta menos do que parece.",
+
+"😂 O sistema acredita em vocês. O estoquista também.",
+
+"💪 Vocês seguram a operação muito mais do que imaginam.",
+
+"📦 Se o estoque bate certinho, a vitória é da equipe.",
+
+"☕ Bora finalizar essa contagem igual profissionais."
+
+];
+
+function mostrarMensagemRandom(){
+
+let msg = mensagensEquipe[
+Math.floor(Math.random() * mensagensEquipe.length)
+];
+
+document.getElementById("mensagemTexto").innerText = msg;
+
+}
+
+// =======================
+// CARREGAR PRODUTOS
+// =======================
+function carregarProdutos(){
+fetch(url)
+.then(r=>r.json())
+.then(dados=>{
+
+produtos=[];
+
+for(let i=1;i<dados.length;i++){
+produtos.push({
+ean:String(dados[i][0]).trim(),
+produto:dados[i][1],
+setor:(dados[i][9] || "").toLowerCase(),
+imagem:dados[i][10] || ""
+});
+}
+
+gerarPainel();
+
+});
+}
+
+// =======================
+// FILTRO CAFÉ
+// =======================
+function produtosDoCafe(){
+return produtos.filter(p => p.setor.includes("cafe"));
+}
+
+// =======================
+// GERAR PAINEL
+// =======================
+function gerarPainel(){
+
+let container=document.getElementById("botoesCafe");
+container.innerHTML="";
+
+let lista=produtosDoCafe();
+
+lista.forEach((p,index)=>{
+
+let existente=contagensPendentes.find(c=>c.ean===p.ean);
+let qtd=existente ? existente.quantidade : 0;
+
+let btn=document.createElement("button");
+btn.type="button";
+btn.className="botao-produto";
+
+let img = p.imagem 
+? `<img src="${p.imagem}" loading="lazy">`
+: `<div style="height:90px;display:flex;align-items:center;justify-content:center;font-size:12px;opacity:0.5">SEM IMG</div>`;
+
+btn.innerHTML=`
+${img}
+<div>${p.produto}</div>
+<div id="qtd_${index}" class="qtd">${qtd}</div>
+`;
+
+btn.onclick=()=>abrirModalQuantidade(index);
+
+container.appendChild(btn);
+
+});
+
+renderResumo();
+
+}
+
+
+
+// =======================
+// MODAL QUANTIDADE
+// =======================
+let produtoSelecionadoIndex = null;
+
+function abrirModalQuantidade(index){
+
+produtoSelecionadoIndex = index;
+
+document.getElementById("qtdModalInput").value = 1;
+
+document.getElementById("modalQuantidade").style.display = "flex";
+
+document.getElementById("qtdModalInput").focus();
+
+}
+
+function fecharModalQuantidade(){
+
+document.getElementById("modalQuantidade").style.display = "none";
+
+produtoSelecionadoIndex = null;
+
+}
+
+function confirmarQuantidade(){
+
+let valor = parseInt(
+document.getElementById("qtdModalInput").value
+);
+
+if(isNaN(valor) || valor <= 0) return;
+
+contar(produtoSelecionadoIndex, valor);
+
+fecharModalQuantidade();
+
+}
+
+
+// =======================
+// CONTAR
+// =======================
+function contar(index, quantidade=1){
+
+let lista = produtosDoCafe();
+let p = lista[index];
+
+let item = contagensPendentes.find(c=>c.ean===p.ean);
+
+if(item){
+item.quantidade += quantidade;
+}else{
+contagensPendentes.push({
+ean:p.ean,
+setor:"Cafe",
+quantidade:quantidade
+});
+}
+
+atualizar(index, p.ean);
+renderResumo();
+
+}
+
+// =======================
+// ATUALIZAR
+// =======================
+function atualizar(index, ean){
+
+let el=document.getElementById("qtd_"+index);
+
+let item=contagensPendentes.find(c=>c.ean===ean);
+
+if(el){
+el.innerText=item ? item.quantidade : 0;
+}
+
+}
+
+// =======================
+// RESUMO
+// =======================
+function renderResumo(){
+
+let body=document.getElementById("resumoBody");
+body.innerHTML="";
+
+contagensPendentes.forEach(c=>{
+
+let prod=produtos.find(p=>p.ean===c.ean);
+
+let nome=prod ? prod.produto : "Desconhecido";
+
+let tr=document.createElement("tr");
+
+tr.innerHTML=`
+<td>${c.ean}</td>
+<td>${nome}</td>
+<td>${c.quantidade}</td>
+<td>
+<button class="small edit" onclick="editar('${c.ean}')">Editar</button>
+<button class="small del" onclick="excluir('${c.ean}')">Excluir</button>
+</td>
+`;
+
+body.appendChild(tr);
+
+});
+
+}
+
+// =======================
+// EDITAR
+// =======================
+function editar(ean){
+
+let item=contagensPendentes.find(c=>c.ean===ean);
+
+if(!item) return;
+
+editEAN=ean;
+
+document.getElementById("editQtd").value=item.quantidade;
+
+document.getElementById("modalEditar").style.display="flex";
+
+}
+
+// =======================
+// FECHAR EDIÇÃO
+// =======================
+function fecharEdicao(){
+
+document.getElementById("modalEditar").style.display="none";
+
+editEAN=null;
+
+}
+
+// =======================
+// SALVAR EDIÇÃO
+// =======================
+function salvarEdicao(){
+
+let valor=parseInt(
+document.getElementById("editQtd").value
+);
+
+if(isNaN(valor)||valor<0) return;
+
+let item=contagensPendentes.find(c=>c.ean===editEAN);
+
+if(item){
+item.quantidade=valor;
+}
+
+fecharEdicao();
+
+gerarPainel();
+
+}
+
+// =======================
+// EXCLUIR
+// =======================
+function excluir(ean){
+
+contagensPendentes=
+contagensPendentes.filter(c=>c.ean!==ean);
+
+gerarPainel();
+
+}
+
+// =======================
+// ENVIAR
+// =======================
+function enviarContagens(){
+
+mostrarModal("Enviando contagem Café... ⏳", true);
+
+let lista = produtosDoCafe();
+
+let dados = lista.map(p => {
+
+let existente = contagensPendentes.find(c => c.ean === p.ean);
+let qtd = existente ? existente.quantidade : 0;
+
+return `${p.ean},Cafe,${qtd}`;
+
+});
+
+fetch(url,{
+method:"POST",
+body:JSON.stringify({
+tipo:"contagem_lote",
+dados:dados
+})
+})
+.then(()=>{
+
+mostrarModal("Contagem enviada! ☕✅", false);
+
+contagensPendentes=[];
+gerarPainel();
+
+setTimeout(esconderModal,1500);
+
+})
+.catch(()=>{
+mostrarModal("Erro ao enviar ❌", false);
+setTimeout(esconderModal,2000);
+});
+
+}
+
+// =======================
+// MODAL
+// =======================
+function mostrarModal(msg, carregando=true){
+
+document.getElementById("modalTexto").innerText=msg;
+
+let spinner=document.querySelector(".spinner");
+if(spinner){
+spinner.style.display=carregando ? "block" : "none";
+}
+
+document.getElementById("modalStatus").style.display="flex";
+}
+
+function esconderModal(){
+document.getElementById("modalStatus").style.display="none";
+}
+
+// =======================
+// INIT
+// =======================
+window.onload=()=>{
+mostrarMensagemRandom();
+carregarProdutos();
+};
+
+</script>
+
+</body>
+</html>
