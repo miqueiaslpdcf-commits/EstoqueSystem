@@ -1,0 +1,201 @@
+*{
+box-sizing:border-box;
+}
+
+body{
+font-family:"Inter","Segoe UI",Arial;
+margin:0;
+background:#efe4d6;
+color:#3b2a1f;
+}
+
+h3{
+display:flex;
+align-items:center;
+gap:10px;
+}
+
+/* HEADER */
+
+header{
+background:#fffaf4;
+border-bottom:1px solid #dccbb7;
+padding:20px;
+text-align:center;
+font-size:20px;
+font-weight:600;
+}
+
+/* MENU */
+
+nav{
+display:flex;
+flex-wrap:wrap;
+gap:6px;
+padding:12px;
+background:#efe4d6;
+border-bottom:1px solid #dccbb7;
+}
+
+nav button{
+flex:1;
+background:#fffaf4;
+border:1px solid #dccbb7;
+color:#6b4f3a;
+padding:10px;
+border-radius:10px;
+cursor:pointer;
+font-size:14px;
+transition:0.2s;
+}
+
+nav button:hover{
+background:#f3e7d9;
+}
+
+/* SEÇÕES */
+
+section{
+display:none;
+padding:25px;
+max-width:1200px;
+margin:auto;
+}
+
+section.active{
+display:block;
+}
+
+/* INPUTS */
+
+input,select{
+padding:10px;
+margin:6px 4px;
+border-radius:8px;
+border:1px solid #dccbb7;
+background:#fffaf4;
+font-size:14px;
+}
+
+input:focus,select:focus{
+outline:none;
+border-color:#c89a6a;
+}
+
+/* BOTÕES */
+
+.btn{
+padding:10px 16px;
+border:none;
+border-radius:8px;
+background:#c89a6a;
+color:white;
+cursor:pointer;
+font-size:14px;
+transition:0.2s;
+}
+
+.btn:hover{
+background:#b88452;
+}
+
+/* TABELA */
+
+table{
+width:100%;
+border-collapse:collapse;
+margin-top:15px;
+background:#fffaf4;
+border-radius:12px;
+overflow:hidden;
+box-shadow:0 4px 10px rgba(0,0,0,0.05);
+}
+
+th{
+background:#e8d7c3;
+padding:12px;
+font-weight:600;
+text-align:center;
+}
+
+td{
+padding:10px;
+border-bottom:1px solid #eee;
+text-align:center;
+}
+
+tr:hover{
+background:#f7efe6;
+}
+
+/* ESTOQUE BAIXO */
+
+.estoque-baixo{
+background:#ffdddd !important;
+color:#ff2121;
+font-weight:bold;
+}
+
+.botaoRuptura{
+padding:10px 15px;
+border:none;
+border-radius:8px;
+background:#c89a6a;
+color:#ffffff;
+cursor:pointer;
+font-size:15px;
+font-weight:700;
+letter-spacing:0.5px;
+}
+.botaoPequeno{
+padding:6px 12px;
+border:none;
+border-radius:8px;
+background:#c89a6a;
+color:#ffffff;
+cursor:pointer;
+font-size:13px;
+font-weight:700;
+letter-spacing:0.3px;
+}
+.botaoEstoqueSeco{
+padding:8px 14px;
+border:none;
+border-radius:8px;
+background:#ed902d;
+color:#ffffff;
+cursor:pointer;
+font-size:13px;
+font-weight:700;
+letter-spacing:0.3px;
+}
+
+.botaoPequeno:hover{
+background:#b58555;
+}
+
+.painel-touch{
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+gap:10px;
+margin-top:20px;
+}
+
+.botao-produto{
+padding:20px;
+font-size:16px;
+border:none;
+border-radius:10px;
+background:#0f172a;
+color:white;
+cursor:pointer;
+font-weight:bold;
+}
+
+.botao-produto:active{
+transform:scale(0.95);
+}
+
+#sistema {
+display:none;
+}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LIVRARIA DA PRAÇA - MSYSTEM</title>
+    <!-- CSS principal do Home -->
+    <link rel="stylesheet" href="../EstoqueSystem/home.css">
+</head>
+<body>
+
+<h1>OLÁ, SEJA BEM-VINDO!👋</h1>
+<p>ESCOLHA QUAL EMPRESA VOCÊ DESEJA ACESSAR</p>
+
+<div class="botoes">
+    <!-- Botão Cafeteria -->
+    <button class="btn cafeteria" onclick="entrarSistema('cafeteria')">☕ Café</button>
+    <!-- Botão Livraria -->
+    <button class="btn livraria" onclick="entrarSistema('livraria')">📚 Livraria</button>
+</div>
+
+
+
+<script src="script.js"></script>
+<script>
+function entrarSistema(tipo){
+    if(tipo === "cafeteria"){
+        window.location.href = "cafe/cafe.html";
+    }
+    if(tipo === "livraria"){
+        window.location.href = "livraria/livraria.html";
+    }
+}
+</script>
+</body>
+</html>

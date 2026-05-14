@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CONFERÊNCIA</title>
+
+<link rel="stylesheet" href="../livraria/livraria.css">
+</head>
+
+<body>
+
+<!-- MENU -->
+<nav class="topo">
+    <a href="livraria.html" class="btn-menu">⬅ Voltar</a>
+    <a href="../index.html" class="btn-menu">🏠 Início</a>
+</nav>
+
+<h2>📦 CONFERÊNCIA DE NOTA FISCAL VIA TXT/XML</h2>
+
+<input type="file" id="txtNFe" accept=".txt">
+<hr>
+
+<input type="text" id="scanner" placeholder="Escaneie o produto aqui" autofocus disabled>
+
+<div class="progresso" id="progresso">
+    Itens conferidos: 0 / 0 (0%)
+</div>
+
+<table>
+    <thead>
+        <tr>
+            <th>Código Interno</th>
+            <th>Código EAN</th>
+            <th>Produto</th>
+            <th>Qtd Nota</th>
+            <th>Escaneado</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody id="tabela"></tbody>
+</table>
+
+<audio id="bip" src="https://www.soundjay.com/button/beep-07.wav"></audio>
+
+<script src="../livraria/livraria.js"></script>
+<script src="../script.js"></script>
+
+</body>
+</html>

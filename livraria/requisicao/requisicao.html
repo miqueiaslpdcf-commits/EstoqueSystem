@@ -1,0 +1,1042 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Requisição de Compras</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#f4f4f4;
+    padding:20px;
+}
+
+.box{
+    background:#fff;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+
+input{
+    padding:10px;
+    width:250px;
+    font-size:16px;
+}
+
+button{
+    padding:10px 15px;
+    cursor:pointer;
+    border:none;
+    border-radius:5px;
+    background:#28a745;
+    color:#fff;
+}
+
+button:hover{
+    background:#218838;
+}
+
+#produto{
+    margin-top:15px;
+    display:flex;
+    gap:20px;
+    align-items:center;
+}
+
+#produto img{
+    width:120px;
+    border-radius:5px;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+}
+
+th, td{
+    padding:10px;
+    vertical-align: middle;
+    border-bottom:1px solid #ddd;
+    text-align:center;
+}
+
+
+
+.qtd-btn{
+    padding:5px 10px;
+    margin:0 5px;
+    background:#007bff;
+}
+
+.remover{
+    background:red;
+}
+
+.nacional{
+    color: green;
+    font-weight: bold;
+}
+
+.internacional{
+    color: blue;
+    font-weight: bold;
+}
+
+
+@keyframes girar{
+    0%{ transform:rotate(0deg); }
+    100%{ transform:rotate(360deg); }
+}
+
+
+</style>
+</head>
+
+<body>
+
+<div style="display:flex; justify-content:flex-end; gap:10px; margin-bottom:10px;">
+
+    <button onclick="irPainel()" style="background:#6c757d;">
+        📊 Ver Status das Requisições
+    </button>
+
+    <button onclick="window.location.href='painel-aprovacao.html'" style="background:#6c757d;">
+        🟢 Painel de Aprovação
+    </button>
+
+</div>
+
+<div class="box">
+    <h2>🛒 REQUISIÇÃO DE COMPRA</h2>
+
+    <input type="text" id="ean" placeholder="Digite o EAN">
+    <button onclick="buscarLivro()">Buscar</button>
+
+    <div id="produto"></div>
+</div>
+
+
+<div style="margin-top:15px; display:flex; justify-content:flex-end;">
+
+    <div style="text-align:right;">
+
+        <!-- TOTAL EM CIMA -->
+        <div style="font-size:18px; font-weight:bold; background:#fff; padding:8px 12px; border-radius:5px; margin-bottom:8px;">
+            💰 TOTAL: R$ <span id="total">0.00</span>
+        </div>
+
+        <!-- BOTÃO EMBAIXO -->
+        <button onclick="enviarRequisicao()" style="width:100%; position:relative; z-index:5;">
+    📤 Enviar Requisição</button>
+    </div>
+
+</div>
+
+
+
+<div style="
+    transform: translateY(-12px);
+    display:flex;
+    justify-content:flex-start;
+    align-items:center;
+    position:relative;
+    z-index:1;
+">
+
+    <div style="display:flex; align-items:center; gap:10px;">
+
+        <label style="font-weight:bold;">
+            🏢 Editora:
+        </label>
+
+        <select id="filtroEditora" onchange="filtrarEditora()" style="
+            padding:10px 12px;
+            border-radius:8px;
+            border:1px solid #ccc;
+            font-size:14px;
+            min-width:220px;
+            background:#fff;
+            cursor:pointer;
+            outline:none;
+        ">
+            <option value="">📚 TODAS AS EDITORAS</option>
+        </select>
+
+    </div>
+
+</div>
+
+<div class="box">
+    <h2>📋 Lista de Requisição</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>LIVRO</th>
+                <th>QUANTIDADE</th>
+                <th>AÇÕES</th>
+            </tr>
+        </thead>
+        <tbody id="tabela"></tbody>
+    </table>
+</div>
+
+<div id="modalUsuario" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+justify-content:center;
+align-items:center;
+z-index:9999;
+">
+
+    <div style="
+    background:#fff;
+    padding:20px;
+    border-radius:10px;
+    text-align:center;
+    width:300px;
+    ">
+        <h3>👤 Quem está enviando?</h3>
+
+        <input type="text" id="nomeUsuario" placeholder="Digite seu nome" style="width:100%; margin-top:10px;">
+
+        <button onclick="confirmarUsuario()" style="margin-top:15px;">
+            Confirmar
+        </button>
+    </div>
+
+</div>
+
+
+<div id="modalAcesso" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+justify-content:center;
+align-items:center;
+z-index:99999;
+">
+
+    <div style="
+    background:#fff;
+    padding:25px;
+    border-radius:10px;
+    text-align:center;
+    width:320px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.3);
+    ">
+
+        <h2 style="color:red;">🚫 Acesso Negado</h2>
+
+        <p style="margin-top:10px;">
+            Apenas <b>livreiros</b> podem acessar este sistema.
+        </p>
+
+        <button onclick="voltarLogin()" style="
+            margin-top:15px;
+            padding:10px 15px;
+            background:#dc3545;
+            color:#fff;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+        ">
+            Voltar para login
+        </button>
+
+    </div>
+</div>
+
+
+
+<!-- MODAL CARREGANDO -->
+<div id="modalLoading" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+justify-content:center;
+align-items:center;
+z-index:999999;
+">
+
+    <div style="
+    background:#fff;
+    padding:25px;
+    border-radius:12px;
+    text-align:center;
+    width:320px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.3);
+    ">
+
+        <div style="
+        width:50px;
+        height:50px;
+        border:5px solid #ddd;
+        border-top:5px solid #28a745;
+        border-radius:50%;
+        margin:0 auto 15px auto;
+        animation:girar 1s linear infinite;
+        "></div>
+
+        <h3>📤 Pedido está sendo enviado...</h3>
+        <p>Aguarde um momento.</p>
+
+    </div>
+</div>
+
+<!-- MODAL SUCESSO -->
+<div id="modalSucesso" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+justify-content:center;
+align-items:center;
+z-index:999999;
+">
+
+    <div style="
+    background:#fff;
+    padding:25px;
+    border-radius:12px;
+    text-align:center;
+    width:320px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.3);
+    ">
+
+        <h2 style="color:#28a745;">✅ Pedido enviado!</h2>
+
+        <p style="margin-top:10px;">
+            Sua requisição foi enviada com sucesso.
+        </p>
+
+        <button onclick="fecharModalSucesso()" style="
+            margin-top:15px;
+            padding:10px 15px;
+            background:#28a745;
+            color:#fff;
+            border:none;
+            border-radius:5px;
+            cursor:pointer;
+        ">
+            OK
+        </button>
+
+    </div>
+</div>
+
+<!-- MODAL QUANTIDADE -->
+<div id="modalQuantidade" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.7);
+justify-content:center;
+align-items:center;
+z-index:999999;
+">
+
+    <div style="
+    background:#fff;
+    padding:25px;
+    border-radius:12px;
+    text-align:center;
+    width:320px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.3);
+    ">
+
+        <h2>🛒 Quantidade</h2>
+
+        <p id="nomeLivroModal" style="
+        margin-top:10px;
+        font-weight:bold;
+        color:#333;
+        "></p>
+
+        <div style="
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        gap:15px;
+        margin-top:20px;">
+     <button onclick="alterarQtdModal(-1)" class="qtd-btn"> - </button>
+
+    <input
+        type="number"
+        id="qtdModal"
+        value="1"
+        min="1"
+        style="
+        width:90px;
+        text-align:center;
+        font-size:24px;
+        font-weight:bold;
+        padding:10px;
+        border:2px solid #ddd;
+        border-radius:10px;
+        "
+        oninput="validarQtdModal()"
+    >
+    <button onclick="alterarQtdModal(1)" class="qtd-btn"> + </button>
+</div>
+        <button onclick="confirmarAdicionarLivro()" style="
+        margin-top:25px;
+        width:100%;
+        background:#28a745;
+        ">
+            ✅ Adicionar na Requisição
+        </button>
+
+    </div>
+</div>
+
+
+<script>
+
+const API = "https://script.google.com/macros/s/AKfycbxMtt-wZAbBrJJrGj-hk0UccP76C3WWntByd7MBneZxS74BVcFPaEybfOhYvLBhQ7e7-A/exec";
+// 🔐 proteção de acesso
+const tipo = localStorage.getItem("tipoUsuario");
+
+let cacheLivros = {};
+
+
+if(tipo !== "livreiro"){
+    document.getElementById("modalAcesso").style.display = "flex";
+}
+
+
+async function enviarRequisicao(){
+
+    if(carrinho.length === 0){
+        alert("Adicione itens antes!");
+        return;
+    }
+
+    let usuario = localStorage.getItem("usuarioNome");
+
+    // 🔥 se não tiver nome → abre modal
+    if(!usuario){
+        document.getElementById("modalUsuario").style.display = "flex";
+        return;
+    }
+
+    // 🔥 abre loading
+    document.getElementById("modalLoading").style.display = "flex";
+
+    const payload = {
+        tipo: "nova_requisicao",
+        data: {
+            id: Date.now(),
+            usuario: usuario,
+            itens: carrinho,
+            status: "Pendente",
+            data: new Date().toLocaleString()
+        }
+    };
+
+    try{
+
+        const res = await fetch(API, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded"
+            },
+            body: "dados=" + encodeURIComponent(JSON.stringify(payload))
+        });
+
+        const resposta = await res.text();
+
+        console.log("RESPOSTA:", resposta);
+
+        // 🔥 fecha loading
+        document.getElementById("modalLoading").style.display = "none";
+
+        carrinho = [];
+
+        renderTabela();
+
+        // 🔥 abre modal sucesso
+        document.getElementById("modalSucesso").style.display = "flex";
+
+    }catch(e){
+
+        console.error("ERRO:", e);
+
+        // 🔥 fecha loading
+        document.getElementById("modalLoading").style.display = "none";
+
+        alert("❌ Erro ao enviar requisição");
+    }
+}
+
+function fecharModalSucesso(){
+    document.getElementById("modalSucesso").style.display = "none";
+}
+
+
+// 🔹 Banco simulado (mantido como fallback)
+const livros = {
+    "789123456": {
+        nome: "Livro Exemplo 1",
+        frente: "https://via.placeholder.com/120x180?text=Frente",
+        verso: "https://via.placeholder.com/120x180?text=Verso"
+    },
+    "789987654": {
+        nome: "Livro Exemplo 2",
+        frente: "https://via.placeholder.com/120x180?text=Frente",
+        verso: "https://via.placeholder.com/120x180?text=Verso"
+    }
+};
+
+let carrinho = [];
+let livroAtual = null;
+
+let qtdSelecionada = 1;
+let eanSelecionado = null;
+
+// 🔍 Buscar livro (AGORA COM API + FALLBACK LOCAL)
+async function buscarLivro(){
+    const busca = document.getElementById("ean").value.trim();
+    const div = document.getElementById("produto");
+
+    // 🚀 CACHE (AQUI!)
+   if(cacheLivros[busca] && cacheLivros[busca].nome){
+    const livro = cacheLivros[busca];
+
+    livroAtual = livro;
+
+    div.innerHTML = `
+    <img src="${livro.frente}" onerror="this.src='https://via.placeholder.com/120x180?text=Sem+Capa'">
+    <img src="${livro.verso}" onerror="this.src='https://via.placeholder.com/120x180?text=Sem+Capa'">
+    <div>
+        <h4>${livro.nome}</h4>
+        <p>${livro.autor || ""}</p>
+
+        <p><b>💰 R$:</b> ${livro.preco || "-"}</p>
+        <p><b>📖:</b> ${livro.descricao || ""}</p>
+
+        <p class="editora"><b>🏢 Editora(s):</b> ${livro.editora?.join(", ") || "Não informado"}</p>
+        <button onclick="abrirModalQuantidade('${busca}')"> Adicionar 🛒</button>
+    </div>
+`;
+
+    return;
+    }
+
+    if(!busca){
+        div.innerHTML = "Digite ISBN ou nome do livro";
+        return;
+    }
+
+    div.innerHTML = "🔎 Buscando livro... Aguarde";
+
+let livro = null;
+
+// 🔥 1. BUSCA NA PLANILHA
+livro = await buscarNaPlanilha(busca);
+
+// 🔥 2. SÓ BUSCA NAS APIs SE NÃO ENCONTROU
+if(!livro){
+    try{
+
+        if(ehNumero(busca)){
+            const [google, open] = await Promise.all([
+                buscarGoogleBooks(busca),
+                buscarOpenLibrary(busca)
+            ]);
+            livro = google || open;
+        }
+
+        if(!livro){
+            livro = await buscarPorTituloGoogle(busca);
+        }
+
+        if(!livro){
+            livro = await buscarPorTituloOpenLibrary(busca);
+        }
+
+    }catch(e){
+        console.error("Erro na busca:", e);
+        div.innerHTML = "❌ Erro ao buscar livro";
+        return;
+    }
+}
+
+    // ❌ fallback local
+    if(!livro && livros[busca]){
+        livro = livros[busca];
+    }
+
+    if(!livro){
+        div.innerHTML = "❌ Livro não encontrado";
+        return;
+    }
+
+    // 🔥 EDITORA COMPLETA
+    if(!livro.editora || livro.editora.length === 0){
+    buscarEditoraCompleta(busca, livro.nome).then(editoras => {
+        livro.editora = editoras;
+
+        // 🔥 atualiza na tela depois (sem travar)
+       const elEditora = document.querySelector("#produto .editora");
+
+       if(elEditora){
+       elEditora.innerHTML = "<b>🏢 Editora(s):</b> " + editoras.join(", ");
+       }
+       // 🔥 atualiza cache com editora completa
+       cacheLivros[busca] = livro;
+       });
+    }
+
+    // 🖼️ CAPA GARANTIDA
+    if(!livro.frente){
+        livro.frente = `https://covers.openlibrary.org/b/isbn/${busca}-L.jpg`;
+    }
+
+    if(!livro.verso){
+        livro.verso = livro.frente;
+    }
+    livroAtual = livro;
+    cacheLivros[busca] = livro;
+
+    div.innerHTML = `
+    <img src="${livro.frente}" onerror="this.src='https://via.placeholder.com/120x180?text=Sem+Capa'">
+    <img src="${livro.verso}" onerror="this.src='https://via.placeholder.com/120x180?text=Sem+Capa'">
+    <div>
+        <h4>${livro.nome}</h4>
+        <p>${livro.autor || ""}</p>
+
+        <p><b>💰 R$:</b> ${livro.preco || "-"}</p>
+        <p><b>📖:</b> ${livro.descricao || ""}</p>
+
+        <p class="editora"><b>🏢 Editora(s):</b> ${livro.editora?.join(", ") || "Não informado"}</p>
+        <button onclick="abrirModalQuantidade('${busca}')"> Adicionar 🛒</button>
+    </div>
+`;
+}
+
+async function buscarGoogleBooks(isbn){
+    try{
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+        const data = await res.json();
+
+        if(data.totalItems > 0){
+            const livro = data.items[0].volumeInfo;
+
+            return {
+                nome: livro.title,
+                autor: livro.authors?.join(", ") || "",
+                editora: livro.publisher ? [livro.publisher] : [],
+                frente: livro.imageLinks?.thumbnail?.replace("http://","https://") || "",
+                verso: livro.imageLinks?.thumbnail?.replace("http://","https://") || ""
+            };
+        }
+    }catch(e){
+        console.log("Erro Google Books:", e);
+    }
+    return null;
+}
+
+function origemLivro(isbn){
+    if(!isbn) return "❓";
+
+    if(isbn.startsWith("789") || isbn.startsWith("850") || isbn.startsWith("851")){
+        return "🇧🇷 Nacional";
+    }
+    return "🌍 Internacional";
+}
+function confirmarUsuario(){
+    const nome = document.getElementById("nomeUsuario").value.trim();
+
+    if(!nome){
+        alert("Digite seu nome!");
+        return;
+    }
+
+    localStorage.setItem("usuarioNome", nome);
+
+    document.getElementById("modalUsuario").style.display = "none";
+
+    // 🔥 agora envia de novo já com nome salvo
+    enviarRequisicao();
+}
+
+async function buscarOpenLibrary(isbn){
+    try{
+        const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
+        const data = await res.json();
+
+        const key = `ISBN:${isbn}`;
+
+        if(data[key]){
+            const livro = data[key];
+
+            return {
+                nome: livro.title,
+                autor: livro.authors?.map(a=>a.name).join(", ") || "",
+                editora: livro.publishers?.map(p=>p.name) || [],
+                frente: livro.cover?.large || livro.cover?.medium || "",
+                verso: livro.cover?.medium || livro.cover?.large || ""
+            };
+        }
+    }catch(e){
+        console.log("Erro OpenLibrary:", e);
+    }
+    return null;
+}
+
+function atualizarEditoras(){
+    const select = document.getElementById("filtroEditora");
+
+    // 🔥 guarda o filtro atual antes de recriar o select
+    const filtroAtual = select.value;
+
+    let editoras = new Set();
+
+    carrinho.forEach(item => {
+        (item.editora || ["Não informado"]).forEach(e => editoras.add(e));
+    });
+
+    select.innerHTML = '<option value="">Todas</option>';
+
+    editoras.forEach(e => {
+        select.innerHTML += `<option value="${e}">${e}</option>`;
+    });
+
+    // 🔥 restaura seleção anterior
+    select.value = filtroAtual;
+}
+function filtrarEditora(){
+    renderTabela();
+}
+function renderTabela(){
+    const tabela = document.getElementById("tabela");
+    const filtro = document.getElementById("filtroEditora").value;
+
+    tabela.innerHTML = "";
+
+    carrinho.forEach((item, index) => {
+
+        if(filtro && !(item.editora || []).includes(filtro)){
+            return;
+        }
+
+        tabela.innerHTML += `
+            <tr>
+                <td style="display:flex; align-items:center; gap:10px; text-align:left;">
+    
+    <img src="${item.capa}" 
+         style="width:40px; height:60px; object-fit:cover; border-radius:5px; cursor:pointer;"
+         onclick="verCapa('${item.capa}')"
+         onerror="this.src='https://via.placeholder.com/40x60?text=Livro'">
+
+<div>
+    <b>${item.nome}</b><br>
+
+    <span style="font-size:12px; color:#555;">
+        🏢 ${item.editora.join(", ")}
+    </span><br>
+
+    <span style="font-size:12px; color:#777;">
+        ${item.descricao || ""}
+    </span><br>
+
+    <span style="font-size:13px; font-weight:bold; color:#28a745;">
+        💰 ${item.preco ? "R$ " + item.preco : ""}
+    </span><br>
+
+<span class="${origemLivro(item.ean).includes('Nacional') ? 'nacional' : 'internacional'}">
+    ${origemLivro(item.ean)}
+</span>
+</div>
+
+            </td>
+                <td>
+                    <button class="qtd-btn" onclick="diminuir(${index})">-</button>
+                    ${item.qtd}
+                    <button class="qtd-btn" onclick="aumentar(${index})">+</button>
+                </td>
+                <td>
+                    <button class="remover" onclick="remover(${index})">❌</button>
+                </td>
+            </tr>
+        `;
+    });
+    document.getElementById("total").innerText = calcularTotal();
+    atualizarEditoras();
+}
+async function buscarPorTituloGoogle(titulo){
+    try{
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(titulo)}`);
+        const data = await res.json();
+
+        if(data.items){
+            const livro = data.items[0].volumeInfo;
+
+            return {
+                nome: livro.title,
+                autor: livro.authors?.join(", ") || "",
+                editora: livro.publisher ? [livro.publisher] : [],
+                frente: livro.imageLinks?.thumbnail?.replace?.("http://","https://"),
+                verso: livro.imageLinks?.smallThumbnail?.replace("http://","https://") || ""
+            };
+        }
+    }catch(e){}
+    return null;
+}
+
+// 🔹 Open Library
+async function buscarPorTituloOpenLibrary(titulo){
+    try{
+        const res = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(titulo)}`);
+        const data = await res.json();
+
+        if(data.docs && data.docs.length > 0){
+            const livro = data.docs[0];
+
+            return {
+                nome: livro.title,
+                autor: livro.author_name ? livro.author_name.join(", ") : "",
+                editora: livro.publisher ? livro.publisher : [],
+                frente: livro.isbn ? `https://covers.openlibrary.org/b/isbn/${livro.isbn[0]}-L.jpg` : "",
+                verso: livro.isbn ? `https://covers.openlibrary.org/b/isbn/${livro.isbn[0]}-L.jpg` : ""
+            };
+        }
+    }catch(e){}
+    return null;
+}
+
+function calcularTotal(){
+    let total = 0;
+
+    carrinho.forEach(item => {
+        const preco = parseFloat(item.preco) || 0;
+        total += preco * item.qtd;
+    });
+
+    return total.toFixed(2);
+}
+
+async function buscarNaPlanilha(ean){
+    try{
+        const res = await fetch(`${API}?tipo=buscar_livro&ean=${ean}`);
+        return await res.json();
+    }catch(e){
+        console.error("Erro planilha:", e);
+        return null;
+    }
+}
+
+// ➕ ADAPTADO (mantém lógica original)
+function adicionarLivro(ean, quantidade = 1){
+
+    if(!livroAtual) return;
+
+    const item = carrinho.find(p => p.ean === ean);
+
+    if(item){
+
+        item.qtd += quantidade;
+
+    } else {
+
+        carrinho.unshift({
+            ean: ean,
+            nome: livroAtual.nome,
+            editora: livroAtual.editora || ["Não informado"],
+            capa: livroAtual.frente,
+            descricao: livroAtual.descricao || "",
+            preco: livroAtual.preco || "",
+            qtd: quantidade
+        });
+    }
+
+    renderTabela();
+}
+function abrirModalQuantidade(ean){
+
+    qtdSelecionada = 1;
+    eanSelecionado = ean;
+
+    document.getElementById("qtdModal").value = qtdSelecionada;
+
+    document.getElementById("nomeLivroModal").innerText =
+        livroAtual?.nome || "";
+
+    document.getElementById("modalQuantidade").style.display = "flex";
+}
+
+function alterarQtdModal(valor){
+
+    const input = document.getElementById("qtdModal");
+
+    let atual = parseInt(input.value) || 1;
+
+    atual += valor;
+
+    if(atual < 1){
+        atual = 1;
+    }
+
+    input.value = atual;
+
+    qtdSelecionada = atual;
+}
+
+function validarQtdModal(){
+
+    const input = document.getElementById("qtdModal");
+
+    let valor = parseInt(input.value);
+
+    if(isNaN(valor) || valor < 1){
+        valor = 1;
+    }
+
+    input.value = valor;
+
+    qtdSelecionada = valor;
+}
+
+function confirmarAdicionarLivro(){
+
+    adicionarLivro(eanSelecionado, qtdSelecionada);
+
+    document.getElementById("modalQuantidade").style.display = "none";
+}
+
+function irPainel(){
+    window.location.href = "status-requisicoes.html";
+}
+
+// ➕
+function aumentar(index){
+    carrinho[index].qtd++;
+    renderTabela();
+}
+
+// ➖
+function diminuir(index){
+    if(carrinho[index].qtd > 1){
+        carrinho[index].qtd--;
+    }
+    renderTabela();
+}
+
+// ❌
+function remover(index){
+    carrinho.splice(index,1);
+    renderTabela();
+}
+
+function ehNumero(valor){
+    return /^[0-9]+$/.test(valor);
+}
+
+function verStatus(){
+    window.location.href = "status-requisicoes.html";
+}
+
+async function buscarEditoraCompleta(isbn, titulo){
+    let editoras = new Set();
+
+    // 🔹 1. Google Books direto
+    try{
+        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+        const data = await res.json();
+
+        if(data.items){
+            const info = data.items[0].volumeInfo;
+            if(info.publisher){
+                editoras.add(info.publisher);
+            }
+        }
+    }catch(e){}
+
+    // 🔹 2. Open Library
+    try{
+        const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
+        const data = await res.json();
+
+        const key = `ISBN:${isbn}`;
+        if(data[key] && data[key].publishers){
+            data[key].publishers.forEach(p => editoras.add(p.name));
+        }
+    }catch(e){}
+
+    // 🔹 3. BUSCA POR TÍTULO (isso resolve MUITO)
+    if(editoras.size === 0 && titulo){
+        try{
+            const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(titulo)}`);
+            const data = await res.json();
+
+            if(data.items){
+                data.items.slice(0,3).forEach(item=>{
+                    if(item.volumeInfo.publisher){
+                        editoras.add(item.volumeInfo.publisher);
+                    }
+                });
+            }
+        }catch(e){}
+    }
+
+    // 🔥 fallback inteligente
+    if(editoras.size === 0){
+        return ["Editora não encontrada"];
+    }
+
+    return [...editoras];
+}
+
+function verCapa(url){
+    const modal = document.createElement("div");
+
+    modal.style = `
+        position:fixed;
+        top:0;
+        left:0;
+        width:100%;
+        height:100%;
+        background:rgba(0,0,0,0.8);
+        display:flex;
+        justify-content:center;
+        align-items:center;
+        z-index:9999;
+    `;
+
+    modal.innerHTML = `
+        <img src="${url}" style="max-width:80%; max-height:80%; border-radius:10px;">
+    `;
+
+    modal.onclick = () => modal.remove();
+
+    document.body.appendChild(modal);
+}
+function voltarLogin(){
+    window.location.href = "login.html";
+}
+
+</script>
+
+</body>
+</html>

@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CAFÉ</title>
+
+<link rel="stylesheet" href="style.css">
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+</head>
+<body>
+
+<header><h2>CAFÉ</h2></header>
+
+<nav>
+<button onclick="abrir('geral')">📦ESTOQUE GERAL</button>
+<button onclick="abrir('cadastro')">📋CADASTRO</button>
+<button onclick="abrir('mov')">🔄 MOVIMENTAÇÃO</button>
+<button onclick="window.location.href='painel.html'">📋CONTAGEM</button>
+<button onclick="abrir('entrada')">📥 RECEBIMENTOS</button>
+<button onclick="abrirPedidos()">🛒 PEDIDOS DE COMPRA</button>
+</nav>
+
+<section id="entrada">
+<h3>📦 ENTRADA DE NOTA FISCAL</h3>
+<input id="eanEntrada" placeholder="EAN / Código de barras" onkeyup="buscarProdutoEntrada()">
+<input id="produtoEntrada" placeholder="Produto" readonly>
+<button onclick="iniciarScanner('eanEntrada')"class="botaoPequeno">
+📷 ESCANEAR
+</button>
+<div id="msgEntrada" style="margin-top:5px;height:20px"></div>
+<input type="number" id="qtdEntrada" placeholder="Quantidade">
+<input id="fornecedor" placeholder="Fornecedor">
+<input id="nota" placeholder="Número da Nota Fiscal">
+<br>
+<button onclick="registrarEntrada()"class="botaoPequeno">
+REGISTRAR ENTRADA
+</button>
+<h3>Área para movimentar novas mercadorias que acabaram de ser recebidas.</h3>
+</section>
+
+<section id="pedidos">
+
+<div id="pedidoCompra">
+
+<div style="display:flex; gap:10px; margin-bottom:15px;">
+
+<button onclick="abrirModalRuptura()" class="botaoRuptura">
+🚨 VER RUPTURA DE PRODUTOS
+</button>
+
+<button onclick="gerarPedido()" class="botaoRuptura">
+📦 GERAR PEDIDO DE COMPRA
+</button>
+
+</div>
+
+<h1>🛒 PEDIDOS DE COMPRA</h1>
+
+<table>
+<thead>
+<tr>
+<th>Produtos</th>
+<th>Total Atual</th>
+<th>Estoque Mínimo</th>
+<th>Comprar</th>
+</tr>
+</thead>
+
+<tbody id="listaCompra"></tbody>
+
+</table>
+
+</section>
+
+<section id="geral" class="active">
+<h3>ESTOQUE GERAL</h3>
+
+<input type="text" id="buscaProduto" placeholder="Buscar por EAN ou Produto" onkeyup="buscarProduto()">
+
+<select id="filtroFamilia" onchange="filtrarFamilia()">
+<option value="">TODAS AS FAMÍLIAS</option>
+<option>BEBIDAS</option>
+<option>PROTEINAS</option>
+<option>DESCARTAVEIS</option>
+<option>LIMPEZA</option>
+<option>QUEIJOS</option>
+<option>SALGADOS</option>
+<option>ACOMPANHAMENTOS</option>
+<option>RECHEIOS</option>
+<option>DOCES</option>
+<option>BOMBONIERE</option>
+<option>INSUMOS</option>
+</select>
+
+<table>
+<thead>
+<tr>
+<th>EAN13</th>
+<th>Produto</th>
+<th>Família</th>
+<th>Estoque</th>
+<th>Cozinha</th>
+<th>Café</th>
+<th>Salão</th>
+<th>Total</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody id="tabela"></tbody>
+</table>
+</section>
+
+<section id="cadastro">
+<h3>CADASTRO DE PRODUTOS</h3>
+<input id="ean" placeholder="EAN13">
+<button onclick="iniciarScanner('ean')"class="botaoPequeno">
+📷 ESCANEAR
+</button>
+<div id="msgCadastro" style="margin-top:5px;height:20px"></div>
+<input id="produto" placeholder="Produto">
+<select id="familia">
+<option value="">Selecione a família</option>
+<option>BEBIDAS</option>
+<option>PROTEINAS</option>
+<option>DESCARTAVEIS</option>
+<option>LIMPEZA</option>
+<option>QUEIJOS</option>
+<option>SALGADOS</option>
+<option>ACOMPANHAMENTOS</option>
+<option>RECHEIOS</option>
+<option>DOCES</option>
+<option>BOMBONIERE</option>
+<option>INSUMOS</option>
+</select>
+
+<select id="unidade">
+<option value="UN">UN</option>
+<option value="KG">KG</option>
+<option value="G">G</option>
+<option value="L">L</option>
+<option value="ML">ML</option>
+</select>
+<input type="number" id="qtd" placeholder="Quantidade Inicial">
+<input type="number" id="min" placeholder="Estoque mínimo">
+<br>
+
+<label style="font-size:16px; font-weight:600; margin-right:8px;">
+<input type="checkbox" id="est" style="transform:scale(1.5); margin-right:5px;">
+Estoque
+</label>
+
+<label style="font-size:16px; font-weight:600; margin-right:8px;">
+<input type="checkbox" id="coz" style="transform:scale(1.5); margin-right:5px;">
+Cozinha
+</label>
+
+<label style="font-size:16px; font-weight:600; margin-right:8px;">
+<input type="checkbox" id="caf" style="transform:scale(1.5); margin-right:5px;">
+Café
+</label>
+
+<label style="font-size:16px; font-weight:600; margin-right:8px;">
+<input type="checkbox" id="sal" style="transform:scale(1.5); margin-right:5px;">
+Salão
+</label>
+
+<br>
+<button onclick="cadastrar()" class="botaoPequeno" style="margin-top:20px;">
+CADASTRAR
+</button>
+<h3>Área para cadastrar os produtos que tenha no estoque, cozinha ou café.</h3>
+</section>
+
+<section id="mov">
+<h3>🔄 MOVIMENTAÇÃO</h3>
+<input id="movEan" placeholder="EAN13 do Produto" onkeyup="buscarProdutoMov()">
+<input id="produtoMov" placeholder="Produto" readonly>
+<button onclick="iniciarScanner('movEan')"class="botaoPequeno">📷 ESCANEAR</button>
+<div id="msgMov" style="margin-top:5px;height:20px"></div>
+<select id="origem">
+<option>ESTOQUE</option>
+<option>COZINHA</option>
+<option>CAFE</option>
+<option>SALAO</option>
+</select>
+<select id="destino">
+<option>ESTOQUE</option>
+<option>COZINHA</option>
+<option>CAFE</option>
+<option>SALAO</option>
+</select>
+<input type="number" id="movQtd" placeholder="Quantidade">
+<button onclick="movimentar()"class="botaoPequeno">MOVER</button>
+<hr>
+
+<h3>ENTRADA / SAÍDA MANUAL</h3>
+
+<input id="manualEan" placeholder="EAN13 do Produto">
+
+<select id="manualTipo">
+<option value="ENTRADA">ENTRADA</option>
+<option value="SAIDA">SAÍDA</option>
+</select>
+
+<select id="manualSetor">
+<option>ESTOQUE</option>
+<option>COZINHA</option>
+<option>CAFE</option>
+<option>SALAO</option>
+</select>
+
+<input type="number" id="manualQtd" placeholder="Quantidade">
+
+<button onclick="movManual()"class="botaoPequeno">
+REGISTRAR
+</button>
+
+<div id="msgManual" style="margin-top:5px;height:20px"></div>
+
+<h3>Área de movimentação de produtos entre os setores.</h3>
+</section>
+
+<section id="cont">
+<h3>CONTAGEM NOTURNA</h3>
+<button 
+id="botaoPainelCozinha"
+onclick="abrirPainelCozinha()"
+style="
+display:none;
+margin-left:15px;
+padding:6px 12px;
+font-size:14px;
+border:none;
+border-radius:6px;
+background:#0f172a;
+color:white;
+cursor:pointer;
+">
+🍳 CONTAGEM POR PAINEL TOUCH
+</button>
+
+EAN: <input id="contEan" placeholder="EAN13 do Produto" onkeyup="buscarProdutoContagem()">
+PRODUTO: <input id="produtoContagem" readonly placeholder="Produto">
+
+<button onclick="iniciarScanner('contEan')" class="botaoPequeno">
+📷 ESCANEAR
+</button>
+
+SETOR:
+<select id="contSetor" onchange="verificarPainelCafe()">
+<option>ESTOQUE</option>
+
+<option>COZINHA</option>
+
+<option>CAFE</option>
+
+<option>SALAO</option>
+</select>
+<div id="painelCafe" style="display:none;margin-top:20px">
+
+<h4>☕ PAINEL TOUCH - CONTAGEM CAFÉ</h4>
+
+<div id="botoesCafe" style="
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+gap:10px;
+margin-top:10px;
+"></div>
+</div>
+
+<div id="painelSalao" style="display:none; margin-top:15px;">
+
+<div style="display:flex; align-items:center; justify-content:space-between;">
+  <div style="flex:1; text-align:center; font-size:28px; font-weight:bold;">
+    🍽️ CONTAGEM SALÃO
+  </div>
+</div>
+
+<div id="botoesSalao"
+style="
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(120px,1fr));
+gap:10px;
+margin-top:10px;
+">
+</div>
+
+</div>
+
+
+<div id="painelCozinha" style="display:none;margin-top:20px">
+
+<h4>🍳 PAINEL TOUCH - CONTAGEM COZINHA</h4>
+
+<div id="botoesCozinha"
+style="
+display:grid;
+grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+gap:10px;
+margin-top:10px;
+">
+</div>
+
+</div>
+
+QUANTIDADE: <input type="number" step="0.001" id="contQtd" placeholder="Quantidade Contada">
+<br>
+<button onclick="adicionarContagem()" class="botaoPequeno">
+ADICIONAR À LISTA
+</button>
+<button onclick="enviarContagens()" class="botaoPequeno">
+ENVIAR TODOS
+</button>
+<div id="msgCont" style="margin-top:8px;height:20px"></div>
+
+<button onclick="abrirEstoqueSeco()" class="botaoEstoqueSeco"> 
+📦 ESTOQUE SECO</button>
+
+
+
+<div id="painelTouch" class="painel-touch"></div>
+<h4>Contagens Pendentes:</h4>
+<table id="tabelaContagens">
+<thead>
+<tr>
+<th>EAN</th>
+<th>PRODUTO</th>
+<th>SETOR</th>
+<th>QTD</th>
+<th>AÇÕES</th>
+</tr>
+</thead>
+<tbody></tbody>
+</table>
+</section>
+
+<div id="scanner" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:black;
+z-index:999;
+">
+
+<div id="camera" style="width:100%;max-width:500px;margin:auto"></div>
+
+<button onclick="pararScanner()" 
+style="width:100%;height:10%;font-size:20px">
+❌ FECHAR
+</button>
+</div>
+
+<!-- Modal de Edição -->
+<div id="modalEditar" style="
+display:none;
+position:fixed;
+top:0; left:0; width:100%; height:100%;
+background:rgba(0,0,0,0.5);
+justify-content:center; align-items:center;
+z-index:1000;
+">
+  <div style="
+    background:#fffaf4; padding:20px; border-radius:12px;
+    max-width:400px; width:90%;
+    box-shadow:0 4px 10px rgba(0,0,0,0.3);
+    display:flex; flex-direction:column; gap:10px;
+  ">
+    <h3>Editar Produto</h3>
+    <input id="editEan" placeholder="EAN">
+    <input id="editProduto" placeholder="Produto">
+    <input id="editFamilia" placeholder="Família">
+    <input type="number" id="editEstoque" placeholder="Estoque">
+    <input type="number" id="editCozinha" placeholder="Cozinha">
+    <input type="number" id="editCafe" placeholder="Café">
+    <input type="number" id="editMinimo" placeholder="Estoque mínimo">
+    <input id="editSetor" placeholder="Setores (Ex: Estoque,Cozinha,Cafe)">
+    <input id="editSubsetor" placeholder="Subsetor (ex: Geladeira, Prateleira 1)">
+    <select id="editUnidade">
+    <option value="UN">UN</option>
+    <option value="KG">KG</option>
+    <option value="G">G</option>
+    <option value="L">L</option>
+    <option value="ML">ML</option>
+    </select>
+
+    <div style="display:flex; gap:10px; justify-content:flex-end;">
+      <button onclick="salvarEdicao()">💾 Salvar</button>
+      <button onclick="fecharModal()">❌ Cancelar</button>
+    </div>
+  <!-- AQUI É O LOCAL CERTO -->
+    <div id="modalMsg" style="
+        display:none;
+        position:absolute;
+        top:50%; left:50%;
+        transform:translate(-50%,-50%);
+        background:#0f172a;
+        color:white;
+        padding:20px 30px;
+        border-radius:10px;
+        font-weight:bold;
+        text-align:center;
+        box-shadow:0 4px 10px rgba(0,0,0,0.3);
+        z-index:1010;
+    ">
+      Produto editado com sucesso!
+    </div>
+  </div>
+</div>
+<div id="modalQtd" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:#0008;align-items:center;justify-content:center;z-index:1000;">
+  
+  <div style="background:white;padding:20px;border-radius:10px;width:300px;text-align:center">
+    
+    <h3 id="modalProduto"></h3>
+
+    <input id="modalValor" type="number" step="0.001" style="width:100%;padding:10px;font-size:18px">
+
+    <div style="margin-top:15px">
+      <button onclick="confirmarQuantidade()">CONFIRMAR</button>
+      <button onclick="fecharModalQtd()">CANCELAR</button>
+    </div>
+
+  </div>
+
+</div>
+
+<div id="modalRuptura" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+justify-content:center;
+align-items:center;
+z-index:10000;
+">
+
+<div style="
+background:#fffaf4;
+padding:20px;
+border-radius:12px;
+max-width:1200px;
+width:90%;
+max-height:80%;
+overflow-y:auto;
+box-shadow:0 4px 20px rgba(0,0,0,0.4);
+position:relative;
+">
+
+<button onclick="fecharModalRuptura()" style="
+position:absolute;
+top:10px;
+right:10px;
+background:none;
+border:none;
+color:#e11d48;
+font-size:22px;
+cursor:pointer;
+">
+❌
+</button>
+
+<div id="modalInfoRuptura" style="
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center; align-items:center;
+    z-index:2000;
+">
+  <div style="
+      background:#fffaf4; 
+      padding:40px; 
+      border-radius:15px;
+      max-width:600px; 
+      width:95%;
+      text-align:center;
+      box-shadow:0 6px 20px rgba(0,0,0,0.4);
+  ">
+    <h3 style="font-size:36px; font-weight:bold;">🛈 O QUE É RUPTURA DE PRODUTO?</h3>
+    <p style="font-size:26px; line-height:1.5;">
+      A ruptura de produto ocorre quando a quantidade disponível em estoque atinge zero
+      ou fica abaixo do nível mínimo definido, indicando que o item precisa ser reposto 
+      para evitar falta no abastecimento ou nas vendas.
+    </p>
+    <button style="
+      font-size:20px; 
+      padding:12px 25px; 
+      border:none; 
+      border-radius:10px; 
+      background:#c89a6a; 
+      color:white; 
+      cursor:pointer;
+    " onclick="fecharModalInfoRuptura()">FECHAR</button>
+  </div>
+</div>
+
+<div style="
+  display:flex; 
+  justify-content:center; 
+  align-items:center; 
+  gap:12px; 
+  margin-bottom:15px;
+">
+  <div style="font-size:32px; font-weight:bold; text-align:center;">
+    🚨 RUPTURA DE PRODUTOS
+  </div>
+  <span id="infoRuptura" style="cursor:pointer; font-size:38px; line-height:1;">🛈</span>
+</div>
+
+<table style="width:100%;border-collapse:collapse;">
+<thead>
+<tr>
+<th>PRODUTO</th>
+<th>TOTAL</th>
+<th>ESTOQUE MÍNIMO</th>
+<th>STATUS</th>
+<th>AÇÕES</th>
+</tr>
+</thead>
+<tbody id="listaRupturaModal"></tbody>
+</table>
+
+<button onclick="abrirModalRequisicao()" style="
+padding:10px 15px;
+border:none;
+border-radius:8px;
+background:#c89a6a;
+color:white;
+cursor:pointer;
+min-width:90px;
+height:40px;
+">
+📋 VER REQUISIÇÃO
+</button>
+
+</div>
+</div>
+
+<div id="modalRequisicao" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+justify-content:center;
+align-items:center;
+z-index:10000;
+">
+
+<div style="
+background:#fffaf4;
+padding:20px;
+border-radius:12px;
+max-width:900px;
+width:90%;
+max-height:80%;
+overflow-y:auto;
+box-shadow:0 4px 20px rgba(0,0,0,0.4);
+position:relative;
+">
+
+
+
+
+
+
+<h2 style="text-align:center;">📋 REQUISIÇÕES SOLICITADAS</h2>
+
+<table style="width:100%;border-collapse:collapse;">
+<thead>
+<tr>
+<th>Produto</th>
+<th>Estoque Atual</th>
+<th>Quantidade Requisitada</th>
+</tr>
+</thead>
+
+<tbody id="listaRequisicao"></tbody>
+
+</table>
+
+<br>
+
+<button onclick="fecharModalRequisicao()" class="btn">FECHAR</button>
+
+<button onclick="voltarParaRuptura()" class="btn" style="margin-left:10px;background:#c89a6a;">
+VOLTAR
+</button>
+
+</div>
+</div>
+
+<div id="modalFormato" style="
+display:none;
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,0.6);
+justify-content:center;
+align-items:center;
+z-index:9999;
+">
+
+<div style="
+background:#fffaf4;
+padding:30px;
+border-radius:12px;
+text-align:center;
+width:380px;
+box-shadow:0 4px 20px rgba(0,0,0,0.4);
+">
+
+
+
+
+<h3>📦 GERAR PEDIDO</h3>
+<p>Escolha o formato do arquivo</p>
+
+<div style="display:grid;gap:10px;margin-top:20px">
+
+<button class="btn" onclick="baixarPedido('txt')">
+📄 Arquivo TXT
+</button>
+
+<button class="btn" onclick="baixarPedido('pdf')">
+📑 Arquivo PDF
+</button>
+
+<button class="btn" onclick="baixarPedido('excel')">
+📊 Arquivo EXCEL
+</button>
+
+<button class="btn" onclick="baixarPedido('doc')">
+📝 Arquivo DOC
+</button>
+
+<button class="btn" onclick="gerarPlanilhaGoogle()">
+📊 GOOGLE PLANILHAS
+</button>
+
+<button class="btn" onclick="enviarWhatsApp()">
+📱 ENVIAR WHATSAPP
+</button>
+
+<button onclick="fecharModalFormato()" style="background:#ccc;color:black">
+❌ Cancelar
+</button>
+
+</div>
+</div>
+</div>
+
+
+<!-- carregamento do JS e CSS do Café -->
+<link rel="stylesheet" href="../cafe/cafe.css">
+<script src="../cafe/cafe.js"></script>
+
+<!-- carregamento do JS geral -->
+<script src="../script.js"></script>
+
+
+
+</body>
+</html>

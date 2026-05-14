@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LIVRARIA</title>
+
+<link rel="stylesheet" href="../livraria/livraria.css">
+</head>
+
+<body>
+
+<!-- MENU SUPERIOR -->
+<nav class="topo">
+    <a href="../index.html" class="btn-menu">🏠 Início</a>
+</nav>
+
+
+<!-- TELA INICIAL -->
+<div id="inicio" class="aba ativa">
+
+    <h1>📚BEM-VINDO AO SISTEMA DA LIVRARIA</h1>
+    <p>ESCOLHA UMA DAS OPÇÕES:</p>
+
+    <div class="cards">
+
+        <div class="card conferencia" onclick="window.location.href='conferencia.html'">
+            📦
+            <span>Conferência</span>
+        </div>
+       <div class="card LocalBook" onclick="window.location.href='localizarbooks.html'">
+    📚
+    <span>Localizar Livros</span>
+    </div>
+        <!-- adds novos -->
+        <div class="card LocalBook" onclick="window.location.href='requisicao/login.html'">
+        🛒
+            <span>Requisição de Compra</span>
+        </div>
+
+    </div>
+
+</div>
+
+<!-- SEUS SCRIPTS -->
+<script src="../livraria/livraria.js"></script>
+<script src="../script.js"></script>
+
+</body>
+</html>

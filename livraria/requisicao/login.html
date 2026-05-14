@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Login Sistema</title>
+
+<style>
+/* RESET */
+* {
+    box-sizing: border-box;
+}
+
+/* BODY COM FUNDO DE IMAGEM + SOBREPOSIÇÃO */
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    margin: 0;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    z-index: 1;
+
+    /* Fundo de imagem */
+    background-image: url("../../assets/home.jpg");
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+
+    /* Transição suave se precisar trocar imagem dinamicamente */
+    transition: background 0.3s ease-in-out;
+}
+
+/* SOBREPOSIÇÃO ESCURA */
+body::before {
+    content: "";
+    position: fixed; /* mantém a sobreposição cobrindo toda a tela */
+    inset: 0; /* top:0; right:0; bottom:0; left:0; */
+    background: rgba(0, 0, 0, 0.45); /* leve escurecimento */
+    z-index: -1;
+
+    /* efeito suave ao aparecer */
+    pointer-events: none; /* garante que clique passe pelo overlay */
+    transition: background 0.3s ease-in-out;
+}
+
+/* 🔲 CARD */
+.box {
+    background: #fff;
+    padding: 25px;
+    border-radius: 15px;
+    width: 100%;
+    max-width: 350px;
+    text-align: center;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    animation: fadeIn .4s ease;
+}
+
+/* ✏️ INPUTS */
+input {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 15px;
+    transition: 0.2s;
+}
+
+input:focus {
+    border-color: #28a745;
+    outline: none;
+    box-shadow: 0 0 5px rgba(40,167,69,0.3);
+}
+
+/* 🔘 BOTÕES */
+button {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+/* BOTÃO LOGIN */
+.box button {
+    background: #28a745;
+    color: #fff;
+}
+
+.box button:hover {
+    background: #218838;
+    transform: scale(1.02);
+}
+
+/* BOTÃO CADASTRAR (TOPO) */
+.top-btn {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+}
+
+.top-btn button {
+    width: auto;
+    padding: 10px 15px;
+    background: #007bff;
+    color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 5px 10px rgba(0,0,0,0.1);
+}
+
+.top-btn button:hover {
+    background: #0056b3;
+    transform: scale(1.05);
+}
+.loading {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+/* 📱 RESPONSIVO */
+@media(max-width: 480px) {
+    body {
+        padding: 15px;
+        align-items: flex-start;
+    }
+
+    .box {
+        margin-top: 60px;
+        padding: 20px;
+    }
+
+    .top-btn {
+        top: 10px;
+        right: 10px;
+    }
+
+    .top-btn button {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+}
+
+/* MODAL */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-content {
+    background: #fff;
+    padding: 25px;
+    border-radius: 12px;
+    text-align: center;
+    max-width: 300px;
+    width: 90%;
+    animation: fadeIn .3s ease;
+}
+
+.modal-content p {
+    margin-bottom: 20px;
+    font-size: 16px;
+    color: #333;
+}
+
+.modal-content button {
+    background: #28a745;
+    color: #fff;
+}
+
+.modal-content button:hover {
+    background: #218838;
+}
+
+/* ✨ ANIMAÇÃO DO CARD */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="top-btn">
+    <button onclick="irCadastro()" style="background:#007bff;">
+        ➕ Cadastrar
+    </button>
+</div>
+
+<div class="box">
+    <h3>🔐 Login</h3>
+
+    <input type="text" id="user" placeholder="Usuário">
+    <input type="password" id="pass" placeholder="Senha">
+
+    <button id="btnLogin" onclick="login()">Entrar</button>
+</div>
+
+<div id="modalAviso" class="modal">
+    <div class="modal-content">
+        <p id="modalTexto"></p>
+        <button onclick="fecharModal()">OK</button>
+    </div>
+</div>
+
+
+<script>
+const API = "https://script.google.com/macros/s/AKfycbxMtt-wZAbBrJJrGj-hk0UccP76C3WWntByd7MBneZxS74BVcFPaEybfOhYvLBhQ7e7-A/exec";
+
+function irCadastro(){
+    const tipo = localStorage.getItem("tipoUsuario");
+    const usuario = localStorage.getItem("usuarioNome");
+
+    if(!usuario){
+    mostrarModal("⚠️ Faça login primeiro!");
+    return;
+    }
+
+    if(tipo !== "admin"){
+    mostrarModal("🔒 Apenas administradores podem acessar o cadastro!");
+    return;
+    }
+    // Se for admin, entra normalmente
+    window.location.href = "cadastro-usuarios.html";
+}
+
+async function login(){
+    const user = document.getElementById("user").value;
+    const pass = document.getElementById("pass").value;
+    const btn = document.getElementById("btnLogin");
+
+    if(!user || !pass){
+        mostrarModal("⚠️ Preencha usuário e senha!");
+        return;
+    }
+
+    // 🔥 ATIVA LOADING
+    btn.innerText = "Entrando...";
+    btn.classList.add("loading");
+
+    try{
+        const res = await fetch(API,{
+            method:"POST",
+            headers:{
+                "Content-Type":"application/x-www-form-urlencoded"
+            },
+            body:"dados=" + encodeURIComponent(JSON.stringify({
+                tipo:"login",
+                usuario:user,
+                senha:pass
+            }))
+        });
+
+        let data;
+
+        // 🔒 TRATAMENTO SEGURO DA RESPOSTA
+        try{
+            data = await res.json();
+        }catch(e){
+            const texto = await res.text();
+            console.error("Resposta inválida:", texto);
+            mostrarModal("❌ Erro no servidor");
+            return;
+        }
+
+        if(data.status === "ok"){
+
+            localStorage.setItem("tipoUsuario", data.tipo);
+            localStorage.setItem("usuarioNome", user);
+
+            // 🔥 REDIRECIONAMENTO
+            setTimeout(() => {
+                if(data.tipo === "admin"){
+                    window.location.href = "cadastro-usuarios.html";
+                }
+                else if(data.tipo === "livreiro"){
+                    window.location.href = "requisicao.html";
+                }
+                else if(data.tipo === "compradora"){
+                    window.location.href = "painel-aprovacao.html";
+                }
+            }, 500);
+
+        }else{
+            mostrarModal("❌ Login inválido");
+        }
+
+    }catch(e){
+        console.error(e);
+        mostrarModal("❌ Erro na conexão");
+    }finally{
+        // 🔄 SEMPRE EXECUTA (NUNCA TRAVA BOTÃO)
+        btn.innerText = "Entrar";
+        btn.classList.remove("loading");
+    }
+}
+
+
+function mostrarModal(msg){
+    document.getElementById("modalTexto").innerText = msg;
+    document.getElementById("modalAviso").style.display = "flex";
+}
+
+function fecharModal(){
+    document.getElementById("modalAviso").style.display = "none";
+}
+</script>
+
+</body>
+</html>

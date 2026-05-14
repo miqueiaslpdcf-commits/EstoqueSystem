@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOCALIZAÇÃO DE LIVROS</title>
+
+<link rel="stylesheet" href="../livraria/livraria.css">
+<link rel="stylesheet" href="../livraria/localizarbooks.css">
+</head>
+
+<body>
+
+<nav class="topo">
+    <a href="livraria.html" class="btn-menu">⬅ Voltar</a>
+    <a href="../index.html" class="btn-menu">🏠 Início</a>
+</nav>
+
+<h2>📚 Localização de Livros</h2>
+
+<div class="grid">
+
+    <div class="box">
+        <h3>⚙️ Configurar</h3>
+        <input type="number" id="qtdEstantes" placeholder="Qtd de estantes">
+        <input type="number" id="qtdPrateleiras" placeholder="Qtd de prateleiras">
+        <button onclick="gerarEstrutura()">Gerar Estrutura</button>
+    </div>
+
+    <div class="box">
+        <h3>📍 Local Atual</h3>
+        <select id="estante"></select>
+        <select id="prateleira"></select>
+
+        <div class="local-info" id="localInfo">
+            Nenhum local selecionado
+        </div>
+    </div>
+
+    <div class="box destaque">
+        <h3>📦 Scanner</h3>
+        <input type="text" id="ean" placeholder="Escaneie o EAN" autofocus>
+        <button onclick="registrarLivro()">Adicionar</button>
+        <button class="limpar" onclick="limparPrateleira()">Limpar</button>
+    </div>
+
+    <div class="box lista">
+        <h3>📚 Livros</h3>
+        <ul id="listaLivros"></ul>
+    </div>
+
+</div>
+<script>
+let banco = {};
+
+// CARREGAR DADOS SALVOS
+function carregar(){
+    const dados = localStorage.getItem("livros");
+    if(dados){
+        banco = JSON.parse(dados);
+    }
+}
+
+// SALVAR DADOS
+function salvar(){
+    localStorage.setItem("livros", JSON.stringify(banco));
+}
+
+carregar();
+
+// GERAR ESTANTES E PRATELEIRAS
+function gerarEstrutura(){
+    const estantes = document.getElementById("qtdEstantes").value;
+    const prateleiras = document.getElementById("qtdPrateleiras").value;
+
+    const selectEstante = document.getElementById("estante");
+    const selectPrateleira = document.getElementById("prateleira");
+
+    selectEstante.innerHTML = "";
+    selectPrateleira.innerHTML = "";
+
+    for(let i = 1; i <= estantes; i++){
+        let opt = new Option("Estante " + i, i);
+        selectEstante.add(opt);
+    }
+
+    for(let i = 1; i <= prateleiras; i++){
+        let opt = new Option("Prateleira " + i, i);
+        selectPrateleira.add(opt);
+    }
+}
+
+// GERAR CHAVE DO LOCAL
+function chave(){
+    const est = document.getElementById("estante").value;
+    const prat = document.getElementById("prateleira").value;
+    return "E" + est + "P" + prat;
+}
+
+// REGISTRAR LIVRO
+async function registrarLivro(){
+    const eanInput = document.getElementById("ean");
+    const ean = eanInput.value.trim();
+    const key = chave();
+
+    if(!ean){
+        alert("Escaneie um código!");
+        return;
+    }
+
+    if(!banco[key]){
+        banco[key] = [];
+    }
+
+    if(banco[key].some(l => l.ean === ean)){
+        alert("Livro já registrado nessa prateleira!");
+        return;
+    }
+
+    // 🔍 BUSCAR DADOS DO LIVRO
+    const info = await buscarLivroCompleto(ean);
+
+    const livro = {
+        ean: ean,
+        titulo: info ? info.titulo : "Livro não identificado",
+        autor: info ? info.autor : "-"
+    };
+
+    banco[key].push(livro);
+
+    salvar();
+
+    eanInput.value = "";
+    atualizarLista();
+}
+
+// ATUALIZAR LISTA
+function atualizarLista(){
+    const key = chave();
+    const lista = document.getElementById("listaLivros");
+
+    lista.innerHTML = "";
+
+    if(banco[key]){
+        banco[key].forEach(e => {
+            let li = document.createElement("li");
+            li.textContent = `${e.titulo} (${e.ean})`;
+            lista.appendChild(li);
+        });
+
+        let total = document.createElement("p");
+        total.style.marginTop = "10px";
+        total.style.fontWeight = "bold";
+        total.textContent = "Total de livros nesta prateleira: " + banco[key].length;
+        lista.appendChild(total);
+    }
+}
+
+// LIMPAR PRATELEIRA
+function limparPrateleira(){
+    const key = chave();
+
+    if(confirm("Deseja limpar todos os livros desta prateleira?")){
+        banco[key] = [];
+        salvar();
+        atualizarLista();
+    }
+}
+
+// ATUALIZAR AO TROCAR
+document.getElementById("estante").addEventListener("change", atualizarLista);
+document.getElementById("prateleira").addEventListener("change", atualizarLista);
+
+// ENTER DO SCANNER
+document.getElementById("ean").addEventListener("keypress", function(e){
+    if(e.key === "Enter"){
+        registrarLivro();
+    }
+});
+
+async function buscarLivroCompleto(ean){
+    ean = ean.replace(/\D/g, "");
+
+    // 1️⃣ BRASIL API
+    try {
+        let res = await fetch(`https://brasilapi.com.br/api/isbn/v1/${ean}`);
+        if(res.ok){
+            let data = await res.json();
+            return {
+                titulo: data.title,
+                autor: data.authors ? data.authors.join(", ") : "Autor desconhecido"
+            };
+        }
+    } catch {}
+
+    // 2️⃣ GOOGLE BOOKS
+    try {
+        let res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${ean}`);
+        let data = await res.json();
+
+        if(data.totalItems > 0){
+            let livro = data.items[0].volumeInfo;
+            return {
+                titulo: livro.title,
+                autor: livro.authors ? livro.authors.join(", ") : "Autor desconhecido"
+            };
+        }
+    } catch {}
+
+    // 3️⃣ OPEN LIBRARY
+    try {
+        let res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${ean}&format=json&jscmd=data`);
+        let data = await res.json();
+
+        let livro = data[`ISBN:${ean}`];
+
+        if(livro){
+            return {
+                titulo: livro.title,
+                autor: livro.authors ? livro.authors.map(a => a.name).join(", ") : "Autor desconhecido"
+            };
+        }
+    } catch {}
+
+    // 4️⃣ fallback
+    return null;
+}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,190 @@
+/* ----------------------------- */
+/* CONTAINER CENTRAL */
+/* ----------------------------- */
+.container {
+    max-width: 950px;
+    margin: auto;
+    padding: 20px;
+}
+
+/* ----------------------------- */
+/* BOX PREMIUM (EFEITO VIDRO) */
+/* ----------------------------- */
+.box {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #fff;
+    padding: 22px;
+    margin: 25px 0;
+    border-radius: 18px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.4);
+    transition: all 0.3s ease;
+}
+
+.box:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 45px rgba(0,0,0,0.6);
+}
+
+/* ----------------------------- */
+/* TÍTULOS */
+/* ----------------------------- */
+.box h3 {
+    margin-bottom: 12px;
+    font-size: 20px;
+    color: #f3e8dd;
+}
+
+/* ----------------------------- */
+/* INPUTS */
+/* ----------------------------- */
+input, select {
+    width: 100%;
+    padding: 12px;
+    margin: 8px 0;
+    font-size: 15px;
+    border-radius: 10px;
+    border: none;
+    outline: none;
+    background: rgba(255,255,255,0.9);
+    color: #000;
+    transition: 0.2s;
+}
+
+input:focus, select:focus {
+    box-shadow: 0 0 0 2px #007aff;
+}
+
+/* ----------------------------- */
+/* BOTÕES PREMIUM */
+/* ----------------------------- */
+button {
+    width: 100%;
+    padding: 13px;
+    margin-top: 12px;
+    font-size: 15px;
+    font-weight: bold;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    color: #fff;
+
+    background: linear-gradient(135deg, #007aff, #0051d4);
+    box-shadow: 0 8px 20px rgba(0,122,255,0.4);
+
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+/* brilho animado */
+button::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+    transition: 0.5s;
+}
+
+button:hover::after {
+    left: 100%;
+}
+
+button:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 12px 30px rgba(0,122,255,0.6);
+}
+
+/* BOTÃO LIMPAR (VERMELHO PREMIUM) */
+.limpar {
+    background: linear-gradient(135deg, #ff3b30, #b71c1c);
+    box-shadow: 0 8px 20px rgba(255,59,48,0.4);
+}
+
+.limpar:hover {
+    box-shadow: 0 12px 30px rgba(255,59,48,0.6);
+}
+
+/* ----------------------------- */
+/* LISTA */
+/* ----------------------------- */
+#listaLivros {
+    margin-top: 10px;
+    padding: 0;
+    list-style: none;
+}
+
+#listaLivros li {
+    background: rgba(255,255,255,0.9);
+    color: #000;
+    margin: 6px 0;
+    padding: 10px;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+#listaLivros li:hover {
+    transform: translateX(5px);
+}
+
+/* TOTAL */
+#listaLivros p {
+    margin-top: 10px;
+    font-weight: bold;
+    color: #f3e8dd;
+}
+
+/* ----------------------------- */
+/* RESPONSIVO */
+/* ----------------------------- */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    .box {
+        padding: 15px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+}
+
+/* GRID */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+/* BOX DESTAQUE (scanner) */
+.destaque {
+    border: 1px solid rgba(0,122,255,0.4);
+    box-shadow: 0 0 25px rgba(0,122,255,0.3);
+}
+
+/* LOCAL INFO */
+.local-info {
+    margin-top: 10px;
+    padding: 10px;
+    border-radius: 8px;
+    background: rgba(0,0,0,0.4);
+    font-weight: bold;
+}
+
+/* ANIMAÇÃO AO ADICIONAR */
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+.pulse {
+    animation: pulse 0.3s;
+}

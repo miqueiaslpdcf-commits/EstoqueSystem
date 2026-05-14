@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Status das Requisições</title>
+
+<style>
+body{
+    font-family: Arial;
+    background:#eef1f5;
+    padding:20px;
+}
+
+.box{
+    background:#fff;
+    padding:15px;
+    border-radius:10px;
+    margin-bottom:20px;
+}
+
+.aprovado{color:green;}
+.negado{color:red;}
+.pendente{color:orange;}
+
+/* 🔥 BOTÃO IMPORTAR */
+.btn-importar{
+    background: linear-gradient(135deg, #4facfe, #00c6ff);
+    color: #fff;
+    border: none;
+    padding: 8px 14px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.3s;
+}
+
+.btn-importar:hover{
+    transform: scale(1.05);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* 🔽 MENU */
+.menu-importar{
+    display:none;
+    margin-top:10px;
+    padding:10px;
+    background:#f1f3f6;
+    border-radius:10px;
+    flex-wrap:wrap;
+    gap:10px;
+}
+
+/* 🔘 BOTÕES INTERNOS */
+.menu-importar button{
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 13px;
+    transition: 0.2s;
+    color: #fff;
+}
+
+/* PDF IGUAL AO EXCEL */
+.btn-pdf{
+    width:100%;
+    padding:10px 12px;
+    margin:6px 0;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:bold;
+    transition:0.2s;
+
+    background: linear-gradient(135deg, #cb2d3e, #ef473a);
+    color:#fff;
+}
+
+/* hover IDÊNTICO ao Excel */
+.btn-pdf:hover{
+    transform: scale(1.03);
+    opacity:0.9;
+}
+.btn-txt{ background:#6c757d; }
+.btn-csv{ background:#27ae60; }
+.btn-word{ background:#2b579a; }
+.btn-sheets{ background:#0f9d58; }
+
+/* hover geral */
+.menu-importar button:hover{
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+.spinner{
+    width:40px;
+    height:40px;
+    border:4px solid #eee;
+    border-top:4px solid #4facfe;
+    border-radius:50%;
+    animation: spin 0.8s linear infinite;
+    margin:auto;
+}
+
+@keyframes spin{
+    to { transform: rotate(360deg); }
+}
+
+
+.btn-xlsx, .btn-csv-modal, .btn-cancel{
+    width:100%;
+    padding:10px 12px;
+    margin:6px 0;
+    border:none;
+    border-radius:10px;
+    cursor:pointer;
+    font-size:14px;
+    font-weight:bold;
+    transition:0.2s;
+}
+
+/* Excel */
+.btn-xlsx{
+    background: linear-gradient(135deg, #1d976c, #93f9b9);
+    color:#fff;
+}
+
+/* CSV */
+.btn-csv-modal{
+    background: linear-gradient(135deg, #ff9966, #ff5e62);
+    color:#fff;
+}
+
+/* Cancelar */
+.btn-cancel{
+    background:#f1f1f1;
+    color:#333;
+}
+
+/* hover */
+.btn-xlsx:hover,
+.btn-csv-modal:hover,
+.btn-cancel:hover{
+    transform: scale(1.03);
+    opacity:0.9;
+}
+
+/* animação */
+@keyframes pop{
+    from{
+        transform:scale(0.9);
+        opacity:0;
+    }
+    to{
+        transform:scale(1);
+        opacity:1;
+    }
+}
+
+
+</style>
+</head>
+
+<body>
+
+<h2>📊 Status das Minhas Requisições</h2>
+
+<div style="margin-bottom:20px;">
+    <button onclick="abrirModalImportacaoGeral()" class="btn-importar" style="font-size:14px; padding:10px 18px;">
+        📦 Importação Avulsa
+    </button>
+</div>
+
+<div id="lista"></div>
+
+
+<div id="modalExcel" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+    backdrop-filter: blur(4px);
+">
+
+    <div style="
+        background:#fff;
+        padding:28px;
+        border-radius:16px;
+        text-align:center;
+        width:320px;
+        box-shadow:0 15px 40px rgba(0,0,0,0.25);
+        font-family:Arial;
+        animation: pop .2s ease-in-out;
+    ">
+
+        <h3 style="
+            margin-bottom:15px;
+            font-size:18px;
+            color:#333;
+        ">
+            📁 Escolha o formato
+        </h3>
+
+        <p style="font-size:13px; color:#666; margin-bottom:20px;">
+            Selecione como deseja exportar o arquivo
+        </p>
+
+        <button onclick="baixarExcelEscolha('xlsx')" class="btn-xlsx">
+            📊 Excel (.xlsx)
+        </button>
+
+        <button onclick="baixarExcelEscolha('csv')" class="btn-csv-modal">
+            📄 CSV
+        </button>
+
+        <button onclick="fecharModal()" class="btn-cancel">
+            ❌ Cancelar
+        </button>
+
+    </div>
+</div>
+
+
+<div id="modalLoading" style="
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+">
+
+    <div style="
+        background:#fff;
+        padding:25px 30px;
+        border-radius:12px;
+        text-align:center;
+        min-width:180px;
+        font-family:Arial;
+    ">
+
+        <div class="spinner"></div>
+
+        <div style="margin-top:12px; font-size:15px;">
+            ⏳ Importando arquivo...
+        </div>
+
+    </div>
+
+</div>
+
+
+<div id="modalLoadingPage" style="
+    display:flex;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+">
+
+    <div style="
+        background:#fff;
+        padding:25px 30px;
+        border-radius:12px;
+        text-align:center;
+        min-width:200px;
+        font-family:Arial;
+    ">
+
+        <div class="spinner"></div>
+
+        <div style="margin-top:12px; font-size:15px;">
+            ⏳ Carregando todas as requisições...
+        </div>
+    </div>
+</div>
+
+
+<div id="modalSucesso" style="
+    display:none;
+    position:fixed;
+    top:0; left:0;
+    width:100%; height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+    z-index:99999;
+">
+
+    <div style="
+        background:#fff;
+        padding:25px 30px;
+        border-radius:12px;
+        text-align:center;
+        min-width:220px;
+        font-family:Arial;
+        color:green;
+        font-weight:bold;
+    ">
+        <div style="margin-bottom:15px;">
+            ✅ Arquivo importado com sucesso!
+        </div>
+
+        <button onclick="fecharSucesso()" style="
+            padding:8px 14px;
+            border:none;
+            border-radius:8px;
+            cursor:pointer;
+            background:#4facfe;
+            color:#fff;
+        ">
+            Fechar
+        </button>
+    </div>
+
+</div>
+
+<!-- 🔥 MODAL IMPORTAÇÃO GERAL -->
+<div id="modalImportacaoGeral" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+    z-index:999999;
+">
+
+    <div style="
+        background:#fff;
+        width:420px;
+        max-height:85vh;
+        overflow:auto;
+        border-radius:16px;
+        padding:25px;
+        font-family:Arial;
+        animation:pop .2s ease;
+    ">
+
+        <h2 style="margin-top:0;">
+            📦 Importação Avulsa
+        </h2>
+
+        <p style="color:#666; font-size:14px;">
+            Escolha se deseja importar todas as requisições ou selecionar manualmente.
+        </p>
+
+        <div style="margin:15px 0;">
+            <button onclick="selecionarTodasReq()" class="btn-xlsx">
+                ✅ Selecionar Todas
+            </button>
+
+            <button onclick="limparSelecaoReq()" class="btn-cancel">
+                ❌ Limpar Seleção
+            </button>
+        </div>
+
+        <div id="listaCheckboxReq" style="
+            max-height:300px;
+            overflow:auto;
+            border:1px solid #ddd;
+            border-radius:10px;
+            padding:10px;
+            margin-bottom:20px;
+        ">
+        </div>
+
+        <div style="display:flex; gap:10px;">
+    <button onclick="exportarGeralPDF()" class="btn-pdf" style="flex:1;">
+        📄 PDF
+    </button>
+
+    <button onclick="exportarGeralExcel()" class="btn-xlsx" style="flex:1;">
+        📊 EXCEL
+    </button>
+</div>
+
+        <button onclick="fecharModalImportacaoGeral()" class="btn-cancel" style="margin-top:10px;">
+            Fechar
+        </button>
+
+    </div>
+</div>
+
+
+<script>
+
+
+const API = "https://script.google.com/macros/s/AKfycbxMtt-wZAbBrJJrGj-hk0UccP76C3WWntByd7MBneZxS74BVcFPaEybfOhYvLBhQ7e7-A/exec";
+const tipo = localStorage.getItem("tipoUsuario");
+
+let requisicoesCache = [];
+let idAtualExcel = null;
+
+if(tipo !== "livreiro"){
+    alert("Acesso permitido apenas para livreiro!");
+    window.location.href = "login.html";
+}
+
+async function carregar(){
+    const lista = document.getElementById("lista");
+    const usuario = localStorage.getItem("usuarioNome") || "Desconhecido";
+
+    document.getElementById("modalLoadingPage").style.display = "flex";
+    try{
+        const res = await fetch(API);
+        const dados = await res.json();
+        requisicoesCache = dados;
+
+        const minhas = dados.filter(r => {
+        return (r.usuario || "")
+        .toString()
+        .trim()
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") ===
+        
+        (usuario || "")
+        .toString()
+        .trim()
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        });
+
+        if(minhas.length === 0){
+            lista.innerHTML = "Nenhuma requisição encontrada.";
+            return;
+        }
+
+        minhas.forEach(req => {
+
+            let cor = "pendente";
+            if(req.status === "Aprovado") cor = "aprovado";
+            if(req.status === "Negado") cor = "negado";
+
+            let itens = [];
+
+            try{
+                itens = JSON.parse(req.itens);
+            }catch(e){
+                itens = [];
+    }
+    mapaReq[String(req.id)] = itens;
+    let total = 0;
+    let html = `
+    <div class="box">
+    <h4>
+    📦 Requisição #${req.id}
+
+    <button class="btn-importar" onclick="abrirMenu(${req.id})">📥 Importar</button>
+    </h4>
+    <div id="menu-${req.id}" class="menu-importar" style="display:none;">
+    <button class="btn-pdf" onclick="exportarPDF(${req.id})">📄 PDF</button>
+    <button class="btn-txt" onclick="exportarTXT(${req.id})">📝 TXT</button>
+    <button class="btn-csv" onclick="abrirModalExcel(${req.id})">📊 Excel</button>
+    <button class="btn-word" onclick="exportarWord(${req.id})">📘 Word</button>
+    <button class="btn-sheets" onclick="exportarSheets(${req.id})">🟢 Google Planilhas</button>
+    </div>
+    <p>Status: <b class="${cor}">${req.status}</b></p>
+    <p>Data: ${req.data}</p>
+
+    <ul>
+        ${itens.map(i => {
+
+            const preco = parseFloat(i.preco?.toString().replace(",", ".")) || 0;
+            const subtotal = preco * i.qtd;
+            total += subtotal;
+
+            return `
+            <li style="margin-bottom:10px;">
+            📚 <b>${i.nome}</b><br>
+            💰 R$ ${preco.toFixed(2)} | Qtd: ${i.qtd}<br>
+            🧮 Subtotal: <b>R$ ${subtotal.toFixed(2)}</b>
+             </li>
+            `;
+        }).join("")}
+    </ul>
+
+    <p style="font-weight:bold; color:green; margin-top:10px;">
+        💰 Total: R$ ${total.toFixed(2)}
+    </p>
+</div>
+`;
+
+lista.innerHTML += html;
+
+document.getElementById("modalLoadingPage").style.display = "none";
+        });
+
+    }catch(e){
+        console.error(e);
+        lista.innerHTML = "❌ Erro ao carregar requisições";
+
+        }finally{
+        // 🔥 GARANTE QUE SEMPRE FECHA
+        document.getElementById("modalLoadingPage").style.display = "none";
+    }
+}
+
+function importar(id){
+    const dados = requisicoesCache;
+
+    const req = dados.find(r => r.id == id);
+
+    if(!req){
+        alert("Requisição não encontrada");
+        return;
+    }
+
+    let itens = [];
+
+    try{
+        itens = JSON.parse(req.itens);
+    }catch(e){}
+
+    let texto = `REQUISIÇÃO #${req.id}\n`;
+    texto += `Usuário: ${req.usuario}\n`;
+    texto += `Data: ${req.data}\n`;
+    texto += `Status: ${req.status}\n\n`;
+
+    let total = 0;
+
+    itens.forEach(i => {
+        const preco = parseFloat(i.preco?.toString().replace(",", ".")) || 0;
+        const subtotal = preco * i.qtd;
+        total += subtotal;
+
+        texto += `${i.nome} | Qtd: ${i.qtd} | R$ ${preco.toFixed(2)} | Subtotal: R$ ${subtotal.toFixed(2)}\n`;
+    });
+
+    texto += `\nTOTAL: R$ ${total.toFixed(2)}`;
+
+    // 🔥 download txt
+    const blob = new Blob([texto], { type: "text/plain" });
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+    link.download = `requisicao_${id}.txt`;
+    link.click();
+}
+function abrirMenu(id){
+    document.querySelectorAll("[id^='menu-']").forEach(m => m.style.display = "none");
+
+    const menu = document.getElementById("menu-" + id);
+    menu.style.display = "flex";
+}
+function exportarTXT(id){
+    const itens = mapaReq[id] || [];
+
+    let total = 0;
+
+    let texto = "";
+    texto += "=====================================\n";
+    texto += "        REQUISIÇÃO #" + id + "\n";
+    texto += "=====================================\n\n";
+
+    texto += "ITEM | QTD | PREÇO | SUBTOTAL\n";
+    texto += "-------------------------------------\n";
+
+    itens.forEach((i, index) => {
+        const preco = parseFloat(i.preco) || 0;
+        const subtotal = preco * i.qtd;
+        total += subtotal;
+
+        texto += `${index+1}. ${i.nome}\n`;
+        texto += `   Qtd: ${i.qtd} | R$ ${preco.toFixed(2)} | Subtotal: R$ ${subtotal.toFixed(2)}\n`;
+    });
+
+    texto += "\n-------------------------------------\n";
+    texto += `TOTAL: R$ ${total.toFixed(2)}\n`;
+    texto += "=====================================\n";
+
+    baixarArquivo(texto, `requisicao_${id}.txt`, "text/plain");
+    mostrarSucesso();
+}
+function exportarCSV(id){
+    const itens = mapaReq[id] || [];
+
+    let total = 0;
+
+    let csv = "Item;Nome;Quantidade;Preço;Subtotal\n";
+
+    itens.forEach((i, index) => {
+        const preco = parseFloat(i.preco) || 0;
+        const subtotal = preco * i.qtd;
+        total += subtotal;
+
+        csv += `${index+1};"${i.nome}";${i.qtd};${preco.toFixed(2)};${subtotal.toFixed(2)}\n`;
+    });
+
+    csv += `;;;;\n`;
+    csv += `;;;;\n`;
+    csv += `;;;TOTAL;${total.toFixed(2)}\n`;
+
+    // 🔥 CORRIGE ACENTUAÇÃO (Excel)
+    const blob = new Blob(
+        ["\uFEFF" + csv], // BOM UTF-8
+        { type: "text/csv;charset=utf-8;" }
+    );
+
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = `requisicao_${id}.csv`;
+    link.click();
+    mostrarSucesso();
+}
+
+function exportarWord(id){
+    const itens = mapaReq[id] || [];
+
+    let total = 0;
+
+    let html = `
+    <h2>Requisição #${id}</h2>
+    <table border="1" style="border-collapse:collapse; width:100%;">
+        <tr>
+            <th>Item</th>
+            <th>Nome</th>
+            <th>Qtd</th>
+            <th>Preço</th>
+            <th>Subtotal</th>
+        </tr>
+    `;
+
+    itens.forEach((i, index) => {
+        const preco = parseFloat(i.preco) || 0;
+        const subtotal = preco * i.qtd;
+        total += subtotal;
+
+        html += `
+        <tr>
+            <td>${index+1}</td>
+            <td>${i.nome}</td>
+            <td>${i.qtd}</td>
+            <td>R$ ${preco.toFixed(2)}</td>
+            <td>R$ ${subtotal.toFixed(2)}</td>
+        </tr>
+        `;
+    });
+
+    html += `
+    </table>
+    <h3>Total: R$ ${total.toFixed(2)}</h3>
+    `;
+
+    baixarArquivo(html, `requisicao_${id}.doc`, "application/msword");
+    mostrarSucesso();
+}
+function exportarPDF(id){
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+
+    const itens = mapaReq[id] || [];
+
+    let y = 10;
+    let total = 0;
+
+    doc.setFontSize(14);
+    doc.text("Requisição #" + id, 10, y);
+
+    y += 10;
+    doc.setFontSize(10);
+
+    itens.forEach((i, index) => {
+        const preco = parseFloat(i.preco) || 0;
+        const subtotal = preco * i.qtd;
+        total += subtotal;
+
+        doc.text(`${index+1}. ${i.nome}`, 10, y);
+        y += 5;
+        doc.text(`Qtd: ${i.qtd} | R$ ${preco.toFixed(2)} | Subtotal: R$ ${subtotal.toFixed(2)}`, 10, y);
+        y += 8;
+
+        if(y > 270){
+            doc.addPage();
+            y = 10;
+        }
+    });
+
+    y += 5;
+    doc.setFontSize(12);
+    doc.text(`TOTAL: R$ ${total.toFixed(2)}`, 10, y);
+
+    doc.save(`requisicao_${id}.pdf`);
+    mostrarSucesso();
+}
+async function exportarSheets(id){
+    const itens = mapaReq[id] || [];
+
+    if(!itens.length){
+        alert("❌ Nenhum item para exportar");
+        return;
+    }
+
+    mostrarLoading(); // 🔥 abre modal imediatamente
+
+    try{
+        const res = await fetch(API, {
+            method: "POST",
+            headers: {
+                "Content-Type": "text/plain;charset=utf-8"
+            },
+            body: JSON.stringify({
+                tipo: "criar_planilha",
+                itens: itens
+            })
+        });
+
+        const texto = await res.text();
+
+        let data;
+        try{
+            data = JSON.parse(texto);
+        }catch{
+            throw new Error("Resposta não é JSON");
+        }
+
+        if(data.status === "ok"){
+            window.open(data.url, "_blank");
+        }else{
+            throw new Error("Erro ao criar planilha");
+        }
+
+    }catch(e){
+        console.error(e);
+        alert("❌ Erro ao criar planilha");
+    }finally{
+        esconderLoading(); // 🔥 sempre fecha o modal
+    }
+}
+
+
+function baixarExcelEscolha(tipo){
+    fecharModal();
+
+    if(tipo === "csv"){
+        exportarCSV(idAtualExcel);
+    }else{
+        exportarXLSX(idAtualExcel);
+    }
+}
+function exportarXLSX(id){
+    const itens = mapaReq[id] || [];
+
+    if(!itens.length){
+        alert("❌ Nenhum item");
+        return;
+    }
+
+    let dados = [
+    ["Item", "EAN", "Nome", "Quantidade", "Preço", "Subtotal"]
+    ];
+
+    let total = 0;
+
+    itens.forEach((i, index) => {
+        const preco = parseFloat(i.preco) || 0;
+        const subtotal = preco * i.qtd;
+        total += subtotal;
+
+        dados.push([
+        index+1,
+        String(i.ean || "").replace(/-/g, "").trim(),
+        i.nome,
+        i.qtd,
+        preco,
+        subtotal
+        ]);
+    });
+
+    dados.push([]);
+    dados.push(["", "", "", "TOTAL", total]);
+
+    const ws = XLSX.utils.aoa_to_sheet(dados);
+
+    // 🔥 largura melhor
+    ws["!cols"] = [
+    { wch: 6 },   // item
+    { wch: 20 },  // ean
+    { wch: 45 },  // nome
+    { wch: 12 },  // qtd
+    { wch: 12 },  // preco
+    { wch: 15 }   // subtotal
+    ];
+
+    // 🔥 FORMATAÇÃO DE MOEDA
+    const range = XLSX.utils.decode_range(ws['!ref']);
+
+    for(let R = 1; R <= range.e.r; R++){
+        const precoCell = XLSX.utils.encode_cell({r:R, c:4});
+        const subtotalCell = XLSX.utils.encode_cell({r:R, c:5});
+
+        if(ws[precoCell]) ws[precoCell].z = '"R$" #,##0.00';
+        if(ws[subtotalCell]) ws[subtotalCell].z = '"R$" #,##0.00';
+    }
+
+    // 🔥 deixar cabeçalho em negrito (limitado)
+    const headers = ["A1","B1","C1","D1","E1","F1"];
+    headers.forEach(h => {
+        if(ws[h]) ws[h].s = { font: { bold: true } };
+    });
+
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Requisição");
+
+    XLSX.writeFile(wb, `requisicao_${id}.xlsx`);
+    mostrarSucesso();
+}
+
+
+function abrirModalExcel(id){
+    idAtualExcel = id;
+    document.getElementById("modalExcel").style.display = "flex";
+}
+
+function fecharModal(){
+    document.getElementById("modalExcel").style.display = "none";
+}
+
+
+function baixarArquivo(conteudo, nome, tipo){
+    const blob = new Blob([conteudo], { type: tipo });
+    const link = document.createElement("a");
+
+    link.href = URL.createObjectURL(blob);
+    link.download = nome;
+    link.click();
+}
+function mostrarLoading(){
+    document.getElementById("modalLoading").style.display = "flex";
+}
+
+function esconderLoading(){
+    document.getElementById("modalLoading").style.display = "none";
+}
+
+function mostrarSucesso(){
+    document.getElementById("modalSucesso").style.display = "flex";
+}
+
+function fecharSucesso(){
+    document.getElementById("modalSucesso").style.display = "none";
+}
+
+
+
+function abrirModalImportacaoGeral(){
+
+    const usuario = localStorage.getItem("usuarioNome") || "";
+
+    const minhas = requisicoesCache.filter(r => {
+
+        return (r.usuario || "")
+        .toString()
+        .trim()
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") ===
+
+        (usuario || "")
+        .toString()
+        .trim()
+        .toLowerCase()
+        .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    });
+
+    let html = "";
+
+    minhas.forEach(req => {
+
+        html += `
+        <label style="
+            display:flex;
+            align-items:center;
+            gap:10px;
+            padding:8px;
+            border-bottom:1px solid #eee;
+            cursor:pointer;
+        ">
+            <input type="checkbox" class="checkReq" value="${req.id}">
+
+            <div>
+                <b>📦 Requisição #${req.id}</b><br>
+                <small>${req.data} | ${req.status}</small>
+            </div>
+        </label>
+        `;
+    });
+
+    document.getElementById("listaCheckboxReq").innerHTML = html;
+
+    document.getElementById("modalImportacaoGeral").style.display = "flex";
+}
+
+function fecharModalImportacaoGeral(){
+    document.getElementById("modalImportacaoGeral").style.display = "none";
+}
+
+function selecionarTodasReq(){
+    document.querySelectorAll(".checkReq").forEach(c => c.checked = true);
+}
+
+function limparSelecaoReq(){
+    document.querySelectorAll(".checkReq").forEach(c => c.checked = false);
+}
+
+function obterReqSelecionadas(){
+
+    const checks = document.querySelectorAll(".checkReq:checked");
+
+    const ids = [...checks].map(c => c.value);
+
+    return requisicoesCache.filter(r => ids.includes(String(r.id)));
+}
+
+function exportarGeralPDF(){
+
+    const reqs = obterReqSelecionadas();
+
+    if(reqs.length === 0){
+        alert("❌ Selecione ao menos uma requisição");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF();
+
+    let y = 15;
+
+    let totalGeral = 0;
+
+    doc.setFontSize(18);
+    doc.text("RELATÓRIO GERAL DE REQUISIÇÕES", 10, y);
+
+    y += 15;
+
+    reqs.forEach(req => {
+
+        let itens = [];
+
+        try{
+            itens = JSON.parse(req.itens);
+        }catch(e){}
+
+        doc.setFontSize(13);
+
+        doc.text(`Requisição #${req.id}`, 10, y);
+
+        y += 7;
+
+        doc.setFontSize(10);
+
+        doc.text(`Data: ${req.data}`, 10, y);
+        y += 5;
+
+        doc.text(`Status: ${req.status}`, 10, y);
+        y += 8;
+
+        itens.forEach((i, index) => {
+
+            const preco = parseFloat(i.preco) || 0;
+            const subtotal = preco * i.qtd;
+
+            totalGeral += subtotal;
+
+            doc.text(
+                `${index+1}. ${i.nome} | Qtd: ${i.qtd} | R$ ${preco.toFixed(2)} | Subtotal: R$ ${subtotal.toFixed(2)}`,
+                12,
+                y
+            );
+
+            y += 6;
+
+            if(y > 270){
+                doc.addPage();
+                y = 15;
+            }
+        });
+
+        y += 10;
+    });
+
+    doc.setFontSize(14);
+
+    doc.text(`TOTAL GERAL: R$ ${totalGeral.toFixed(2)}`, 10, y);
+
+    doc.save("requisicoes_geral.pdf");
+
+    mostrarSucesso();
+}
+
+function exportarGeralExcel(){
+
+    const reqs = obterReqSelecionadas();
+
+    if(reqs.length === 0){
+        alert("❌ Selecione ao menos uma requisição");
+        return;
+    }
+
+    let dados = [];
+
+    let totalGeral = 0;
+
+    reqs.forEach(req => {
+
+        let itens = [];
+
+        try{
+            itens = JSON.parse(req.itens);
+        }catch(e){
+            itens = [];
+        }
+
+        // 🔥 TÍTULO DA REQUISIÇÃO
+        dados.push([`REQUISIÇÃO #${req.id}`]);
+
+        // 🔥 CABEÇALHO
+        dados.push([
+            "Item",
+            "EAN",
+            "Nome",
+            "Quantidade",
+            "Preço",
+            "Subtotal"
+        ]);
+
+        let contador = 1;
+
+        itens.forEach(i => {
+
+            const preco = parseFloat(i.preco) || 0;
+            const subtotal = preco * i.qtd;
+
+            totalGeral += subtotal;
+
+            dados.push([
+                contador++,
+                String(i.ean || "").replace(/-/g, "").trim(),
+                i.nome,
+                i.qtd,
+                preco,
+                subtotal
+            ]);
+        });
+
+        // 🔥 espaço entre requisições
+        dados.push([]);
+        dados.push([]);
+    });
+
+    // 🔥 TOTAL GERAL
+    dados.push(["", "", "", "TOTAL GERAL", totalGeral]);
+
+    const ws = XLSX.utils.aoa_to_sheet(dados);
+
+    // 🔥 larguras
+    ws["!cols"] = [
+        { wch: 6 },
+        { wch: 20 },
+        { wch: 45 },
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 15 }
+    ];
+
+    // 🔥 moeda
+    const range = XLSX.utils.decode_range(ws['!ref']);
+
+    for(let R = 0; R <= range.e.r; R++){
+
+        const precoCell = XLSX.utils.encode_cell({r:R, c:4});
+        const subtotalCell = XLSX.utils.encode_cell({r:R, c:5});
+
+        if(ws[precoCell]){
+            ws[precoCell].z = '"R$" #,##0.00';
+        }
+
+        if(ws[subtotalCell]){
+            ws[subtotalCell].z = '"R$" #,##0.00';
+        }
+    }
+
+    // 🔥 DEIXA LINHAS DE REQUISIÇÃO EM NEGRITO
+    for(let R = 0; R <= range.e.r; R++){
+
+        const cell = XLSX.utils.encode_cell({r:R, c:0});
+
+        if(ws[cell] && String(ws[cell].v).includes("REQUISIÇÃO #")){
+            ws[cell].s = {
+                font: {
+                    bold: true,
+                    sz: 14
+                }
+            };
+        }
+    }
+
+    // 🔥 cabeçalhos em negrito
+    for(let R = 0; R <= range.e.r; R++){
+
+        const a = XLSX.utils.encode_cell({r:R, c:0});
+
+        if(ws[a] && ws[a].v === "Item"){
+
+            ["A","B","C","D","E","F"].forEach(col => {
+
+                const ref = col + (R+1);
+
+                if(ws[ref]){
+                    ws[ref].s = {
+                        font: { bold:true }
+                    };
+                }
+            });
+        }
+    }
+
+    const wb = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(wb, ws, "Requisições");
+
+    XLSX.writeFile(wb, "requisicoes_geral.xlsx");
+
+    mostrarSucesso();
+}
+let mapaReq = {};
+carregar();
+
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+</body>
+</html>
