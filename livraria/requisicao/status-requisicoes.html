@@ -401,7 +401,7 @@ body{
 <script>
 
 
-const API = "https://script.google.com/macros/s/AKfycbxMtt-wZAbBrJJrGj-hk0UccP76C3WWntByd7MBneZxS74BVcFPaEybfOhYvLBhQ7e7-A/exec";
+const API = "https://script.google.com/macros/s/AKfycbzwksxryj7CWyXV2tjawg4-qIBSTx7Vat4vsIL50cTo5SH2_K8Ykc_JDVX2elhH729LSQ/exec";
 const tipo = localStorage.getItem("tipoUsuario");
 
 let requisicoesCache = [];
@@ -471,7 +471,7 @@ async function carregar(){
     <button class="btn-sheets" onclick="exportarSheets(${req.id})">🟢 Google Planilhas</button>
     </div>
     <p>Status: <b class="${cor}">${req.status}</b></p>
-    <p>Data: ${req.data}</p>
+    <p>Data: ${formatarData(req.data)}</p>
 
     <ul>
         ${itens.map(i => {
@@ -894,7 +894,7 @@ function abrirModalImportacaoGeral(){
 
             <div>
                 <b>📦 Requisição #${req.id}</b><br>
-                <small>${req.data} | ${req.status}</small>
+                <small>${formatarData(req.data)} | ${req.status}</small>
             </div>
         </label>
         `;
@@ -1138,6 +1138,23 @@ function exportarGeralExcel(){
 
     mostrarSucesso();
 }
+
+function formatarData(dataISO){
+
+    if(!dataISO) return "-";
+
+    const data = new Date(dataISO);
+
+    return data.toLocaleString("pt-BR", {
+        timeZone: "America/Sao_Paulo",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
 let mapaReq = {};
 carregar();
 

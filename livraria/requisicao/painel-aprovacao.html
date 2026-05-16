@@ -165,12 +165,18 @@ button{
 }
 
 
+
 </style>
 </head>
 
 <body>
 
 <h2>📊 Painel de Aprovação de Requisições</h2>
+<div style="margin-bottom:20px;">
+    <button onclick="abrirModalImportacaoGeral()" class="btn-importar" style="font-size:14px; padding:10px 18px;">
+        📦 Importação Avulsa
+    </button>
+</div>
 
 <div id="lista"></div>
 
@@ -306,9 +312,92 @@ z-index:99999;
     </div>
 </div>
 
+<!-- 🔥 MODAL IMPORTAÇÃO GERAL -->
+<div id="modalImportacaoGeral" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    justify-content:center;
+    align-items:center;
+    z-index:999999;
+">
+
+    <div style="
+        background:#fff;
+        width:420px;
+        max-height:85vh;
+        overflow:auto;
+        border-radius:16px;
+        padding:25px;
+        font-family:Arial;
+        animation:pop .2s ease;
+    ">
+
+        <h2 style="margin-top:0;">
+            📦 Importação Avulsa
+        </h2>
+
+        <p style="color:#666; font-size:14px;">
+            Escolha as requisições que deseja exportar.
+        </p>
+
+        <div style="margin:15px 0;">
+            <button onclick="selecionarTodasReq()" class="btn-importar">
+                ✅ Selecionar Todas
+            </button>
+
+            <button onclick="limparSelecaoReq()" style="
+                background:#eee;
+                color:#000;
+                margin-left:10px;
+            ">
+                ❌ Limpar
+            </button>
+        </div>
+
+        <div id="listaCheckboxReq" style="
+            max-height:300px;
+            overflow:auto;
+            border:1px solid #ddd;
+            border-radius:10px;
+            padding:10px;
+            margin-bottom:20px;
+        ">
+        </div>
+
+        <div style="display:flex; gap:10px;">
+
+            <button onclick="exportarGeralPDF()" class="btn-pdf" style="flex:1;">
+                📄 PDF
+            </button>
+
+            <button onclick="exportarGeralExcel()" class="btn-csv" style="flex:1;">
+                📊 Excel
+            </button>
+
+        </div>
+
+        <button onclick="fecharModalImportacaoGeral()" style="
+            margin-top:12px;
+            width:100%;
+            background:#ccc;
+            color:#000;
+            padding:10px;
+            border-radius:8px;
+        ">
+            Fechar
+        </button>
+
+    </div>
+</div>
+
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbxMtt-wZAbBrJJrGj-hk0UccP76C3WWntByd7MBneZxS74BVcFPaEybfOhYvLBhQ7e7-A/exec";
+const API = "https://script.google.com/macros/s/AKfycbzwksxryj7CWyXV2tjawg4-qIBSTx7Vat4vsIL50cTo5SH2_K8Ykc_JDVX2elhH729LSQ/exec";
 const tipo = localStorage.getItem("tipoUsuario");
 
 let filaAtualizacao = {};
@@ -399,7 +488,7 @@ async function carregar(){
                     </b>
                 </p>
 
-                <p>📅 ${req.data}</p>
+                <p class="data-req">📅 ${formatarData(req.data)}</p>
 
                 <table>
                     <tr>
@@ -1139,6 +1228,261 @@ async function abrirGooglePlanilhas(id){
     }
 
     fecharModalExportacao();
+}
+
+
+function abrirModalImportacaoGeral(){
+
+    let html = "";
+
+    document.querySelectorAll(".box").forEach(box => {
+
+        const id = box.dataset.id;
+
+        const titulo = box.querySelector("h4 span")?.innerText || "";
+
+        const status = box.querySelector(".status")?.innerText || "";
+
+        const data = box.querySelector(".data-req")?.innerText || "";
+
+        html += `
+        <label style="
+            display:flex;
+            align-items:center;
+            gap:10px;
+            padding:8px;
+            border-bottom:1px solid #eee;
+            cursor:pointer;
+        ">
+
+            <input
+                type="checkbox"
+                class="checkReq"
+                value="${id}"
+            >
+
+            <div>
+                <b>${titulo}</b><br>
+                <small>${formatarData(data)} | ${status}</small>
+            </div>
+
+        </label>
+        `;
+    });
+
+    document.getElementById("listaCheckboxReq").innerHTML = html;
+
+    document.getElementById("modalImportacaoGeral")
+    .style.display = "flex";
+}
+
+function fecharModalImportacaoGeral(){
+
+    document.getElementById("modalImportacaoGeral")
+    .style.display = "none";
+}
+
+function selecionarTodasReq(){
+
+    document
+    .querySelectorAll(".checkReq")
+    .forEach(c => c.checked = true);
+}
+
+function limparSelecaoReq(){
+
+    document
+    .querySelectorAll(".checkReq")
+    .forEach(c => c.checked = false);
+}
+
+function obterReqSelecionadas(){
+
+    const checks =
+    document.querySelectorAll(".checkReq:checked");
+
+    const ids = [...checks].map(c => c.value);
+
+    return ids;
+}
+
+function exportarGeralPDF(){
+
+    const ids = obterReqSelecionadas();
+
+    if(ids.length === 0){
+        alert("❌ Selecione ao menos uma requisição");
+        return;
+    }
+
+    const { jsPDF } = window.jspdf;
+
+    const doc = new jsPDF();
+
+    let y = 15;
+
+    let totalGeral = 0;
+
+    doc.setFontSize(18);
+
+    doc.text(
+        "RELATÓRIO GERAL DE REQUISIÇÕES",
+        10,
+        y
+    );
+
+    y += 15;
+
+    ids.forEach(id => {
+
+        const itens = mapaReq[id] || [];
+
+        doc.setFontSize(13);
+
+        doc.text(`Requisição #${id}`, 10, y);
+
+        y += 8;
+
+        itens.forEach((i,index)=>{
+
+            const preco = parseFloat(
+                i.preco?.toString().replace(",", ".")
+            ) || 0;
+
+            const subtotal = preco * i.qtd;
+
+            totalGeral += subtotal;
+
+            const texto =
+            `${index+1}. ${i.nome} | Qtd: ${i.qtd} | R$ ${preco.toFixed(2)} | Subtotal: R$ ${subtotal.toFixed(2)}`;
+
+            const linhas =
+            doc.splitTextToSize(texto, 180);
+
+            doc.text(linhas, 10, y);
+
+            y += linhas.length * 6;
+
+            if(y > 270){
+                doc.addPage();
+                y = 15;
+            }
+        });
+
+        y += 10;
+    });
+
+    doc.setFontSize(14);
+
+    doc.text(
+        `TOTAL GERAL: R$ ${totalGeral.toFixed(2)}`,
+        10,
+        y
+    );
+
+    doc.save("requisicoes_geral.pdf");
+
+    fecharModalImportacaoGeral();
+}
+
+function exportarGeralExcel(){
+
+    const ids = obterReqSelecionadas();
+
+    if(ids.length === 0){
+        alert("❌ Selecione ao menos uma requisição");
+        return;
+    }
+
+    let dados = [];
+
+    let totalGeral = 0;
+
+    ids.forEach(id => {
+
+        const itens = mapaReq[id] || [];
+
+        dados.push([`REQUISIÇÃO #${id}`]);
+
+        dados.push([]);
+
+        dados.push([
+            "Item",
+            "EAN",
+            "Nome",
+            "Quantidade",
+            "Preço",
+            "Subtotal"
+        ]);
+
+        itens.forEach((i,index)=>{
+
+            const preco = parseFloat(
+                i.preco?.toString().replace(",", ".")
+            ) || 0;
+
+            const subtotal = preco * i.qtd;
+
+            totalGeral += subtotal;
+
+            dados.push([
+                index + 1,
+                String(i.ean || "").replace(/-/g, ""),
+                i.nome,
+                i.qtd,
+                preco,
+                subtotal
+            ]);
+        });
+
+        dados.push([]);
+        dados.push([]);
+    });
+
+    dados.push([
+        "",
+        "",
+        "",
+        "",
+        "TOTAL GERAL",
+        totalGeral
+    ]);
+
+    const ws = XLSX.utils.aoa_to_sheet(dados);
+
+    ws["!cols"] = [
+        {wch:10},
+        {wch:22},
+        {wch:45},
+        {wch:15},
+        {wch:15},
+        {wch:15}
+    ];
+
+    const wb = XLSX.utils.book_new();
+
+    XLSX.utils.book_append_sheet(
+        wb,
+        ws,
+        "Requisições"
+    );
+
+    XLSX.writeFile(
+        wb,
+        "requisicoes_geral.xlsx"
+    );
+
+    fecharModalImportacaoGeral();
+}
+function formatarData(dataISO){
+
+    if(!dataISO) return "";
+
+    const data = new Date(dataISO);
+
+    return data.toLocaleString("pt-BR", {
+        timeZone: "America/Sao_Paulo"
+    });
 }
 
 // iniciar
