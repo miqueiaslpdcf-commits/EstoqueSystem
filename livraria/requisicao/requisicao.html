@@ -110,8 +110,33 @@ th, td{
 <div class="box">
     <h2>🛒 REQUISIÇÃO DE COMPRA</h2>
 
+    <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+
+    <select id="editoraSelecionada" style="
+        padding:10px;
+        border-radius:8px;
+        border:1px solid #ccc;
+        font-size:15px;
+        min-width:250px;
+    ">
+        <option value="">🏢 Selecione a Editora</option>
+
+        <option value="COMPANHIA DAS LETRAS">COMPANHIA DAS LETRAS</option>
+        <option value="INTRINSECA">INTRINSECA</option>
+        <option value="ROCCO">ROCCO</option>
+        <option value="PANINI">PANINI</option>
+        <option value="VR EDITORA">VR EDITORA</option>
+        <option value="TODAVIA">TODAVIA</option>
+
+    </select>
+
     <input type="text" id="ean" placeholder="Digite o EAN">
-    <button onclick="buscarLivro()">Buscar</button>
+
+    <button onclick="buscarLivro()">
+        Buscar
+    </button>
+
+    </div>
 
     <div id="produto"></div>
 </div>
@@ -202,9 +227,22 @@ z-index:9999;
     text-align:center;
     width:300px;
     ">
-        <h3>👤 Quem está enviando?</h3>
+        <h3>👤 Requisição feita por:</h3>
 
-        <input type="text" id="nomeUsuario" placeholder="Digite seu nome" style="width:100%; margin-top:10px;">
+        <input 
+        type="text" 
+        id="nomeUsuario" 
+        placeholder="Digite seu nome"
+        style="
+        width:100%;
+        margin-top:15px;
+        padding:12px;
+        border-radius:8px;
+        border:1px solid #ccc;
+        font-size:16px;
+        text-align:center;
+        box-sizing:border-box;
+        ">
 
         <button onclick="confirmarUsuario()" style="margin-top:15px;">
             Confirmar
@@ -357,13 +395,32 @@ z-index:999999;
 ">
 
     <div style="
-    background:#fff;
-    padding:25px;
-    border-radius:12px;
-    text-align:center;
-    width:320px;
-    box-shadow:0 5px 20px rgba(0,0,0,0.3);
+background:#fff;
+padding:25px;
+border-radius:12px;
+text-align:center;
+width:320px;
+box-shadow:0 5px 20px rgba(0,0,0,0.3);
+position:relative;
+">
+
+    <!-- BOTÃO FECHAR -->
+    <button onclick="fecharModalQuantidade()" style="
+    position:absolute;
+    top:10px;
+    right:10px;
+    background:red;
+    color:#fff;
+    border:none;
+    width:30px;
+    height:30px;
+    border-radius:50%;
+    font-weight:bold;
+    cursor:pointer;
+    padding:0;
     ">
+        ✕
+    </button>
 
         <h2>🛒 Quantidade</h2>
 
@@ -413,11 +470,9 @@ z-index:999999;
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbzwksxryj7CWyXV2tjawg4-qIBSTx7Vat4vsIL50cTo5SH2_K8Ykc_JDVX2elhH729LSQ/exec";
+const API = "https://script.google.com/macros/s/AKfycbx0aeVxAFA99AEvHwuqpGqTMGh2RKTJ7mIS6fm5fe4LPTL8XbmehxCVnLPfAXla716y7Q/exec";
 // 🔐 proteção de acesso
 const tipo = localStorage.getItem("tipoUsuario");
-
-let cacheLivros = {};
 
 
 if(tipo !== "livreiro"){
@@ -427,26 +482,30 @@ if(tipo !== "livreiro"){
 
 async function enviarRequisicao(){
 
+    const editora = document.getElementById("editoraSelecionada").value;
+
+    if(!editora){
+        alert("Selecione a editora!");
+        return;
+    }
+
     if(carrinho.length === 0){
         alert("Adicione itens antes!");
         return;
     }
 
-    let usuario = localStorage.getItem("usuarioNome");
+            document.getElementById("nomeUsuario").value = "";
+            document.getElementById("modalUsuario").style.display = "flex";
+            return;
 
-    // 🔥 se não tiver nome → abre modal
-    if(!usuario){
-        document.getElementById("modalUsuario").style.display = "flex";
-        return;
-    }
+             // 🔥 abre loading
+            document.getElementById("modalLoading").style.display = "flex";
 
-    // 🔥 abre loading
-    document.getElementById("modalLoading").style.display = "flex";
-
-    const payload = {
-        tipo: "nova_requisicao",
-        data: {
+            const payload = {
+            tipo: "nova_requisicao",
+            data:{
             id: Date.now(),
+            editora: editora,
             usuario: usuario,
             itens: carrinho,
             status: "Pendente",
@@ -501,168 +560,126 @@ function fecharModalSucesso(){
 }
 
 
-// 🔹 Banco simulado (mantido como fallback)
-const livros = {
-    "789123456": {
-        nome: "Livro Exemplo 1",
-        frente: "https://via.placeholder.com/120x180?text=Frente",
-        verso: "https://via.placeholder.com/120x180?text=Verso"
-    },
-    "789987654": {
-        nome: "Livro Exemplo 2",
-        frente: "https://via.placeholder.com/120x180?text=Frente",
-        verso: "https://via.placeholder.com/120x180?text=Verso"
-    }
-};
-
 let carrinho = [];
 let livroAtual = null;
+let cacheLivros = {};
 
 let qtdSelecionada = 1;
 let eanSelecionado = null;
 
 // 🔍 Buscar livro (AGORA COM API + FALLBACK LOCAL)
+
 async function buscarLivro(){
+
     const busca = document.getElementById("ean").value.trim();
+
+    const editora = document.getElementById("editoraSelecionada").value;
+
+    if(!editora){
+        alert("Selecione a editora antes!");
+        return;
+    }
     const div = document.getElementById("produto");
 
-    // 🚀 CACHE (AQUI!)
-   if(cacheLivros[busca] && cacheLivros[busca].nome){
-    const livro = cacheLivros[busca];
-
-    livroAtual = livro;
-
-    div.innerHTML = `
-    <img src="${livro.frente}" onerror="this.src='https://via.placeholder.com/120x180?text=Sem+Capa'">
-    <img src="${livro.verso}" onerror="this.src='https://via.placeholder.com/120x180?text=Sem+Capa'">
-    <div>
-        <h4>${livro.nome}</h4>
-        <p>${livro.autor || ""}</p>
-
-        <p><b>💰 R$:</b> ${livro.preco || "-"}</p>
-        <p><b>📖:</b> ${livro.descricao || ""}</p>
-
-        <p class="editora"><b>🏢 Editora(s):</b> ${livro.editora?.join(", ") || "Não informado"}</p>
-        <button onclick="abrirModalQuantidade('${busca}')"> Adicionar 🛒</button>
-    </div>
-`;
-
-    return;
-    }
-
     if(!busca){
-        div.innerHTML = "Digite ISBN ou nome do livro";
+        div.innerHTML = "Digite o EAN";
         return;
     }
 
-    div.innerHTML = "🔎 Buscando livro... Aguarde";
+    // 🔥 CACHE
+    if(cacheLivros[busca]){
 
-let livro = null;
+        livroAtual = cacheLivros[busca];
 
-// 🔥 1. BUSCA NA PLANILHA
-livro = await buscarNaPlanilha(busca);
+        renderProduto(livroAtual, busca);
 
-// 🔥 2. SÓ BUSCA NAS APIs SE NÃO ENCONTROU
-if(!livro){
+        return;
+    }
+
+    div.innerHTML = "🔎 Buscando livro...";
+
     try{
 
-        if(ehNumero(busca)){
-            const [google, open] = await Promise.all([
-                buscarGoogleBooks(busca),
-                buscarOpenLibrary(busca)
-            ]);
-            livro = google || open;
+        // 🔥 SOMENTE PLANILHA
+        const livro = await buscarNaPlanilha(busca);
+
+        if(!livro || !livro.nome){
+            div.innerHTML = "❌ Livro não encontrado";
+            return;
         }
 
-        if(!livro){
-            livro = await buscarPorTituloGoogle(busca);
-        }
+        livroAtual = livro;
 
-        if(!livro){
-            livro = await buscarPorTituloOpenLibrary(busca);
-        }
+        cacheLivros[busca] = livro;
+
+        renderProduto(livro, busca);
 
     }catch(e){
-        console.error("Erro na busca:", e);
+
+        console.error(e);
+
         div.innerHTML = "❌ Erro ao buscar livro";
-        return;
     }
 }
 
-    // ❌ fallback local
-    if(!livro && livros[busca]){
-        livro = livros[busca];
-    }
+function renderProduto(livro, busca){
 
-    if(!livro){
-        div.innerHTML = "❌ Livro não encontrado";
-        return;
-    }
-
-    // 🔥 EDITORA COMPLETA
-    if(!livro.editora || livro.editora.length === 0){
-    buscarEditoraCompleta(busca, livro.nome).then(editoras => {
-        livro.editora = editoras;
-
-        // 🔥 atualiza na tela depois (sem travar)
-       const elEditora = document.querySelector("#produto .editora");
-
-       if(elEditora){
-       elEditora.innerHTML = "<b>🏢 Editora(s):</b> " + editoras.join(", ");
-       }
-       // 🔥 atualiza cache com editora completa
-       cacheLivros[busca] = livro;
-       });
-    }
-
-    // 🖼️ CAPA GARANTIDA
-    if(!livro.frente){
-        livro.frente = `https://covers.openlibrary.org/b/isbn/${busca}-L.jpg`;
-    }
-
-    if(!livro.verso){
-        livro.verso = livro.frente;
-    }
-    livroAtual = livro;
-    cacheLivros[busca] = livro;
+    const div = document.getElementById("produto");
 
     div.innerHTML = `
-    <img src="${livro.frente}" onerror="this.src='https://via.placeholder.com/120x180?text=Sem+Capa'">
-    <img src="${livro.verso}" onerror="this.src='https://via.placeholder.com/120x180?text=Sem+Capa'">
-    <div>
-        <h4>${livro.nome}</h4>
-        <p>${livro.autor || ""}</p>
+        <img src="${livro.frente || 'https://via.placeholder.com/120x180?text=Sem+Capa'}"
+             onerror="this.src='https://via.placeholder.com/120x180?text=Sem+Capa'">
 
-        <p><b>💰 R$:</b> ${livro.preco || "-"}</p>
-        <p><b>📖:</b> ${livro.descricao || ""}</p>
+        <div>
+            <h4>${livro.nome}</h4>
 
-        <p class="editora"><b>🏢 Editora(s):</b> ${livro.editora?.join(", ") || "Não informado"}</p>
-        <button onclick="abrirModalQuantidade('${busca}')"> Adicionar 🛒</button>
-    </div>
-`;
+            <p>${livro.autor || ""}</p>
+
+            <p><b>💰 R$:</b> ${livro.preco || "-"}</p>
+
+            <p><b>📖:</b> ${livro.descricao || ""}</p>
+
+            <p>
+                <b>🏢 Editora:</b>
+                ${
+                    Array.isArray(livro.editora)
+                        ? livro.editora.join(", ")
+                        : (livro.editora || "Não informado")
+                }
+            </p>
+
+            <button onclick="abrirModalQuantidade('${busca}')">
+                Adicionar 🛒
+            </button>
+        </div>
+    `;
 }
 
-async function buscarGoogleBooks(isbn){
+async function buscarNaPlanilha(ean){
+
     try{
-        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
-        const data = await res.json();
 
-        if(data.totalItems > 0){
-            const livro = data.items[0].volumeInfo;
+        const editora = document.getElementById("editoraSelecionada").value;
 
-            return {
-                nome: livro.title,
-                autor: livro.authors?.join(", ") || "",
-                editora: livro.publisher ? [livro.publisher] : [],
-                frente: livro.imageLinks?.thumbnail?.replace("http://","https://") || "",
-                verso: livro.imageLinks?.thumbnail?.replace("http://","https://") || ""
-            };
-        }
+        const res = await fetch(
+        `${API}?tipo=buscar_livro&ean=${encodeURIComponent(ean)}&editora=${encodeURIComponent(editora)}`
+        );
+
+        return await res.json();
+
     }catch(e){
-        console.log("Erro Google Books:", e);
+
+        console.error("Erro planilha:", e);
+
+        return null;
     }
-    return null;
 }
+
+
+function fecharModalQuantidade(){
+    document.getElementById("modalQuantidade").style.display = "none";
+}
+
 
 function origemLivro(isbn){
     if(!isbn) return "❓";
@@ -672,56 +689,91 @@ function origemLivro(isbn){
     }
     return "🌍 Internacional";
 }
-function confirmarUsuario(){
+async function confirmarUsuario(){
+
     const nome = document.getElementById("nomeUsuario").value.trim();
 
     if(!nome){
-        alert("Digite seu nome!");
-        return;
+
+    alert("⚠️ Digite seu nome antes de enviar a requisição.");
+
+    document.getElementById("nomeUsuario").focus();
+
+    return;
     }
-
-    localStorage.setItem("usuarioNome", nome);
-
     document.getElementById("modalUsuario").style.display = "none";
 
-    // 🔥 agora envia de novo já com nome salvo
-    enviarRequisicao();
-}
+    // 🔥 abre loading
+    document.getElementById("modalLoading").style.display = "flex";
 
-async function buscarOpenLibrary(isbn){
-    try{
-        const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
-        const data = await res.json();
+    const editora = document.getElementById("editoraSelecionada").value;
 
-        const key = `ISBN:${isbn}`;
-
-        if(data[key]){
-            const livro = data[key];
-
-            return {
-                nome: livro.title,
-                autor: livro.authors?.map(a=>a.name).join(", ") || "",
-                editora: livro.publishers?.map(p=>p.name) || [],
-                frente: livro.cover?.large || livro.cover?.medium || "",
-                verso: livro.cover?.medium || livro.cover?.large || ""
-            };
+    const payload = {
+        tipo: "nova_requisicao",
+        data:{
+            id: Date.now(),
+            editora: editora,
+            usuario: nome,
+            itens: carrinho,
+            status: "Pendente",
+            data: new Date().toLocaleString("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            })
         }
+    };
+
+    try{
+
+        const res = await fetch(API, {
+            method: "POST",
+            headers:{
+                "Content-Type":"application/x-www-form-urlencoded"
+            },
+            body:"dados=" + encodeURIComponent(JSON.stringify(payload))
+        });
+
+        await res.text();
+
+        document.getElementById("modalLoading").style.display = "none";
+
+        carrinho = [];
+
+        renderTabela();
+
+        document.getElementById("modalSucesso").style.display = "flex";
+
     }catch(e){
-        console.log("Erro OpenLibrary:", e);
+
+        console.error(e);
+
+        document.getElementById("modalLoading").style.display = "none";
+
+        alert("❌ Erro ao enviar requisição");
     }
-    return null;
 }
+
 
 function atualizarEditoras(){
+
     const select = document.getElementById("filtroEditora");
 
-    // 🔥 guarda o filtro atual antes de recriar o select
     const filtroAtual = select.value;
 
     let editoras = new Set();
 
     carrinho.forEach(item => {
-        (item.editora || ["Não informado"]).forEach(e => editoras.add(e));
+
+        const listaEditoras = Array.isArray(item.editora)
+            ? item.editora
+            : [item.editora || "Não informado"];
+
+        listaEditoras.forEach(e => editoras.add(e));
+
     });
 
     select.innerHTML = '<option value="">Todas</option>';
@@ -730,13 +782,17 @@ function atualizarEditoras(){
         select.innerHTML += `<option value="${e}">${e}</option>`;
     });
 
-    // 🔥 restaura seleção anterior
     select.value = filtroAtual;
 }
+
+
 function filtrarEditora(){
     renderTabela();
 }
+
+
 function renderTabela(){
+
     const tabela = document.getElementById("tabela");
     const filtro = document.getElementById("filtroEditora").value;
 
@@ -744,7 +800,13 @@ function renderTabela(){
 
     carrinho.forEach((item, index) => {
 
-        if(filtro && !(item.editora || []).includes(filtro)){
+        // 🔥 garante compatibilidade com string ou array
+        const listaEditoras = Array.isArray(item.editora)
+            ? item.editora
+            : [item.editora || "Não informado"];
+
+        // 🔥 filtro seguro
+        if(filtro && !listaEditoras.includes(filtro)){
             return;
         }
 
@@ -752,86 +814,51 @@ function renderTabela(){
             <tr>
                 <td style="display:flex; align-items:center; gap:10px; text-align:left;">
     
-    <img src="${item.capa}" 
-         style="width:40px; height:60px; object-fit:cover; border-radius:5px; cursor:pointer;"
-         onclick="verCapa('${item.capa}')"
-         onerror="this.src='https://via.placeholder.com/40x60?text=Livro'">
+                    <img src="${item.capa}" 
+                        style="width:40px; height:60px; object-fit:cover; border-radius:5px; cursor:pointer;"
+                        onclick="verCapa('${item.capa}')"
+                        onerror="this.src='https://via.placeholder.com/40x60?text=Livro'">
 
-<div>
-    <b>${item.nome}</b><br>
+                    <div>
+                        <b>${item.nome}</b><br>
 
-    <span style="font-size:12px; color:#555;">
-        🏢 ${item.editora.join(", ")}
-    </span><br>
+                        <span style="font-size:12px; color:#555;">
+                            🏢 ${listaEditoras.join(", ")}
+                        </span><br>
 
-    <span style="font-size:12px; color:#777;">
-        ${item.descricao || ""}
-    </span><br>
+                        <span style="font-size:12px; color:#777;">
+                            ${item.descricao || ""}
+                        </span><br>
 
-    <span style="font-size:13px; font-weight:bold; color:#28a745;">
-        💰 ${item.preco ? "R$ " + item.preco : ""}
-    </span><br>
+                        <span style="font-size:13px; font-weight:bold; color:#28a745;">
+                            💰 ${item.preco ? "R$ " + item.preco : ""}
+                        </span><br>
 
-<span class="${origemLivro(item.ean).includes('Nacional') ? 'nacional' : 'internacional'}">
-    ${origemLivro(item.ean)}
-</span>
-</div>
+                        <span class="${origemLivro(item.ean).includes('Nacional') ? 'nacional' : 'internacional'}">
+                            ${origemLivro(item.ean)}
+                        </span>
+                    </div>
 
-            </td>
+                </td>
+
                 <td>
                     <button class="qtd-btn" onclick="diminuir(${index})">-</button>
                     ${item.qtd}
                     <button class="qtd-btn" onclick="aumentar(${index})">+</button>
                 </td>
+
                 <td>
                     <button class="remover" onclick="remover(${index})">❌</button>
                 </td>
             </tr>
         `;
     });
+
     document.getElementById("total").innerText = calcularTotal();
+
     atualizarEditoras();
 }
-async function buscarPorTituloGoogle(titulo){
-    try{
-        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(titulo)}`);
-        const data = await res.json();
 
-        if(data.items){
-            const livro = data.items[0].volumeInfo;
-
-            return {
-                nome: livro.title,
-                autor: livro.authors?.join(", ") || "",
-                editora: livro.publisher ? [livro.publisher] : [],
-                frente: livro.imageLinks?.thumbnail?.replace?.("http://","https://"),
-                verso: livro.imageLinks?.smallThumbnail?.replace("http://","https://") || ""
-            };
-        }
-    }catch(e){}
-    return null;
-}
-
-// 🔹 Open Library
-async function buscarPorTituloOpenLibrary(titulo){
-    try{
-        const res = await fetch(`https://openlibrary.org/search.json?title=${encodeURIComponent(titulo)}`);
-        const data = await res.json();
-
-        if(data.docs && data.docs.length > 0){
-            const livro = data.docs[0];
-
-            return {
-                nome: livro.title,
-                autor: livro.author_name ? livro.author_name.join(", ") : "",
-                editora: livro.publisher ? livro.publisher : [],
-                frente: livro.isbn ? `https://covers.openlibrary.org/b/isbn/${livro.isbn[0]}-L.jpg` : "",
-                verso: livro.isbn ? `https://covers.openlibrary.org/b/isbn/${livro.isbn[0]}-L.jpg` : ""
-            };
-        }
-    }catch(e){}
-    return null;
-}
 
 function calcularTotal(){
     let total = 0;
@@ -842,16 +869,6 @@ function calcularTotal(){
     });
 
     return total.toFixed(2);
-}
-
-async function buscarNaPlanilha(ean){
-    try{
-        const res = await fetch(`${API}?tipo=buscar_livro&ean=${ean}`);
-        return await res.json();
-    }catch(e){
-        console.error("Erro planilha:", e);
-        return null;
-    }
 }
 
 // ➕ ADAPTADO (mantém lógica original)
@@ -870,7 +887,9 @@ function adicionarLivro(ean, quantidade = 1){
         carrinho.unshift({
             ean: ean,
             nome: livroAtual.nome,
-            editora: livroAtual.editora || ["Não informado"],
+            editora: Array.isArray(livroAtual.editora)
+            ? livroAtual.editora
+            : [livroAtual.editora || "Não informado"],
             capa: livroAtual.frente,
             descricao: livroAtual.descricao || "",
             preco: livroAtual.preco || "",
@@ -956,63 +975,8 @@ function remover(index){
     renderTabela();
 }
 
-function ehNumero(valor){
-    return /^[0-9]+$/.test(valor);
-}
-
 function verStatus(){
     window.location.href = "status-requisicoes.html";
-}
-
-async function buscarEditoraCompleta(isbn, titulo){
-    let editoras = new Set();
-
-    // 🔹 1. Google Books direto
-    try{
-        const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
-        const data = await res.json();
-
-        if(data.items){
-            const info = data.items[0].volumeInfo;
-            if(info.publisher){
-                editoras.add(info.publisher);
-            }
-        }
-    }catch(e){}
-
-    // 🔹 2. Open Library
-    try{
-        const res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&format=json&jscmd=data`);
-        const data = await res.json();
-
-        const key = `ISBN:${isbn}`;
-        if(data[key] && data[key].publishers){
-            data[key].publishers.forEach(p => editoras.add(p.name));
-        }
-    }catch(e){}
-
-    // 🔹 3. BUSCA POR TÍTULO (isso resolve MUITO)
-    if(editoras.size === 0 && titulo){
-        try{
-            const res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=intitle:${encodeURIComponent(titulo)}`);
-            const data = await res.json();
-
-            if(data.items){
-                data.items.slice(0,3).forEach(item=>{
-                    if(item.volumeInfo.publisher){
-                        editoras.add(item.volumeInfo.publisher);
-                    }
-                });
-            }
-        }catch(e){}
-    }
-
-    // 🔥 fallback inteligente
-    if(editoras.size === 0){
-        return ["Editora não encontrada"];
-    }
-
-    return [...editoras];
 }
 
 function verCapa(url){
