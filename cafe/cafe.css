@@ -99,43 +99,6 @@ transition:0.2s;
 background:#b88452;
 }
 
-/* TABELA */
-
-table{
-width:100%;
-border-collapse:collapse;
-margin-top:15px;
-background:#fffaf4;
-border-radius:12px;
-overflow:hidden;
-box-shadow:0 4px 10px rgba(0,0,0,0.05);
-}
-
-th{
-background:#e8d7c3;
-padding:12px;
-font-weight:600;
-text-align:center;
-}
-
-td{
-padding:10px;
-border-bottom:1px solid #eee;
-text-align:center;
-}
-
-tr:hover{
-background:#f7efe6;
-}
-
-/* ESTOQUE BAIXO */
-
-.estoque-baixo{
-background:#ffdddd !important;
-color:#ff2121;
-font-weight:bold;
-}
-
 .botaoRuptura{
 padding:10px 15px;
 border:none;

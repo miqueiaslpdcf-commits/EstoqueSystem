@@ -15,7 +15,7 @@
 <header><h2>CAFÉ</h2></header>
 
 <nav>
-<button onclick="abrir('geral')">📦ESTOQUE GERAL</button>
+<button onclick="window.location.href='produtos.html'">📦PRODUTOS</button>
 <button onclick="abrir('cadastro')">📋CADASTRO</button>
 <button onclick="abrir('mov')">🔄 MOVIMENTAÇÃO</button>
 <button onclick="window.location.href='painel.html'">📋CONTAGEM</button>
@@ -23,7 +23,7 @@
 <button onclick="abrirPedidos()">🛒 PEDIDOS DE COMPRA</button>
 </nav>
 
-<section id="entrada">
+<section id="entrada" class="active">
 <h3>📦 ENTRADA DE NOTA FISCAL</h3>
 <input id="eanEntrada" placeholder="EAN / Código de barras" onkeyup="buscarProdutoEntrada()">
 <input id="produtoEntrada" placeholder="Produto" readonly>
@@ -73,44 +73,6 @@ REGISTRAR ENTRADA
 
 </table>
 
-</section>
-
-<section id="geral" class="active">
-<h3>ESTOQUE GERAL</h3>
-
-<input type="text" id="buscaProduto" placeholder="Buscar por EAN ou Produto" onkeyup="buscarProduto()">
-
-<select id="filtroFamilia" onchange="filtrarFamilia()">
-<option value="">TODAS AS FAMÍLIAS</option>
-<option>BEBIDAS</option>
-<option>PROTEINAS</option>
-<option>DESCARTAVEIS</option>
-<option>LIMPEZA</option>
-<option>QUEIJOS</option>
-<option>SALGADOS</option>
-<option>ACOMPANHAMENTOS</option>
-<option>RECHEIOS</option>
-<option>DOCES</option>
-<option>BOMBONIERE</option>
-<option>INSUMOS</option>
-</select>
-
-<table>
-<thead>
-<tr>
-<th>EAN13</th>
-<th>Produto</th>
-<th>Família</th>
-<th>Estoque</th>
-<th>Cozinha</th>
-<th>Café</th>
-<th>Salão</th>
-<th>Total</th>
-<th>Ações</th>
-</tr>
-</thead>
-<tbody id="tabela"></tbody>
-</table>
 </section>
 
 <section id="cadastro">

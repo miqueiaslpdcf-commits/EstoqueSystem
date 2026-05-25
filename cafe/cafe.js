@@ -223,74 +223,6 @@ function contagem() {
 }
 */
 // =======================
-// Atualiza tabela HTML
-// =======================
-function atualizar(){
-
-let t = document.getElementById("tabela");
-t.innerHTML = "";
-
-let familias = {};
-
-produtos.forEach(p => {
-
-if(!familias[p.familia]){
-familias[p.familia] = [];
-}
-
-familias[p.familia].push(p);
-
-});
-
-for(let familia in familias){
-
-t.innerHTML += `
-<tr style="background:#0f172a;color:white;font-weight:bold">
-<td colspan="7">${familia}</td>
-</tr>
-`;
-
-familias[familia].forEach(p => {
-
-let total = 
-(Number(p.estoque) || 0) + 
-(Number(p.cozinha) || 0) + 
-(Number(p.cafe) || 0) + 
-(Number(p.salao) || 0);
-
-let classe = "";
-
-let minimo = Number(p.minimo) || 0;
-
-if(total <= minimo){
-classe = "class='estoque-baixo'";
-}
-
-t.innerHTML += `
-<tr ${classe}>
-<td>${p.ean}</td>
-<td>${p.produto}</td>
-<td>${p.familia}</td>
-<td>${p.estoque} ${p.unidade}</td>
-<td>${p.cozinha} ${p.unidade}</td>
-<td>${p.cafe} ${p.unidade}</td>
-<td>${p.salao || 0} ${p.unidade}</td>
-<td>${total} ${p.unidade}</td>
-
-<td>
-<button onclick="abrirModalEditar('${p.ean}')">✏️</button>
-<button onclick="excluirProduto('${p.ean}')">🗑</button>
-</td>
-
-</tr>
-`;
-
-});
-
-}
-
-}
-// =======================
 // Carrega produtos do Google Sheets
 // =======================
 function carregarProdutos() {
@@ -329,7 +261,6 @@ produtos.forEach(p=>{
 produtosMap.set(p.ean,p);
 });
 
-     atualizar();
      verificarPainelCafe();
      console.log("PRODUTOS CARREGADOS:", produtos);
      })
@@ -339,107 +270,7 @@ produtosMap.set(p.ean,p);
     });
 }
 
-function buscarProduto(){
 
-let termo = document.getElementById("buscaProduto").value.toLowerCase().trim();
-let t = document.getElementById("tabela");
-
-if(termo === ""){
-atualizar();
-return;
-}
-
-t.innerHTML = "";
-
-produtos
-.filter(p => 
-p.produto.toLowerCase().includes(termo) ||
-p.ean.includes(termo)
-)
-.forEach(p => {
-
-let total = 
-(Number(p.estoque) || 0) + 
-(Number(p.cozinha) || 0) + 
-(Number(p.cafe) || 0) + 
-(Number(p.salao) || 0);
-
-let classe = "";
-
-let minimo = Number(p.minimo) || 0;
-
-if(total <= minimo){
-classe = "class='estoque-baixo'";
-}
-
-t.innerHTML += `
-<tr ${classe}>
-<td>${p.ean}</td>
-<td>${p.produto}</td>
-<td>${p.familia}</td>
-<td>${p.estoque} ${p.unidade}</td>
-<td>${p.cozinha} ${p.unidade}</td>
-<td>${p.cafe} ${p.unidade}</td>
-<td>${p.salao || 0} ${p.unidade}</td>
-<td>${total} ${p.unidade}</td>
-
-<td>
-<button onclick="abrirModalEditar('${p.ean}')">✏️</button>
-<button onclick="excluirProduto('${p.ean}')">🗑</button>
-</td>
-
-</tr>`;
-});
-}
-function filtrarFamilia(){
-
-let familia = document.getElementById("filtroFamilia").value;
-let t = document.getElementById("tabela");
-
-t.innerHTML = "";
-
-let lista = produtos;
-
-if(familia !== ""){
-lista = produtos.filter(p => p.familia == familia);
-}
-
-lista.forEach(p => {
-
-let total = 
-(Number(p.estoque) || 0) + 
-(Number(p.cozinha) || 0) + 
-(Number(p.cafe) || 0) + 
-(Number(p.salao) || 0);
-
-let classe = "";
-
-let minimo = Number(p.minimo) || 0;
-
-if(total <= minimo){
-classe = "class='estoque-baixo'";
-}
-
-t.innerHTML += `
-<tr ${classe}>
-<td>${p.ean}</td>
-<td>${p.produto}</td>
-<td>${p.familia}</td>
-<td>${p.estoque} ${p.unidade}</td>
-<td>${p.cozinha} ${p.unidade}</td>
-<td>${p.cafe} ${p.unidade}</td>
-<td>${p.salao || 0} ${p.unidade}</td>
-<td>${total} ${p.unidade}</td>
-
-<td>
-<button onclick="abrirModalEditar('${p.ean}')">✏️</button>
-<button onclick="excluirProduto('${p.ean}')">🗑</button>
-</td>
-
-</tr>
-`;
-});
-}
 function produtosDoCafe() {
   return produtos.filter(p =>
     p.setor && p.setor.split(",").map(s => formatarSetor(s)).includes("Cafe")
