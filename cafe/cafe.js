@@ -1,5 +1,5 @@
 console.log("JS conectado!");
-const url="https://script.google.com/macros/s/AKfycby4gwho-0QULxI_vn7Hf-vaFlxREmMQZSi58y35Bz_Uz3j0mOs2nSjhU5QMmtZD5NSLKQ/exec";
+const url="https://script.google.com/macros/s/AKfycbxjBR53et0uyEuC3r4hzH1D-zwjxdp51XC7SPT-4hyhA5QqkYb2m0kZ__VKJq3W3dKQHA/exec";
 let produtos=[];
 let produtosMap = new Map();
 let contagensPendentes = [];
@@ -299,8 +299,10 @@ function carregarProdutos() {
     .then(dados => {
       produtos = [];
       for (let i = 1; i < dados.length; i++) {
+
+        let linha = dados[i];
         // Padroniza os setores com formatarSetor
-        let setoresFormatados = (dados[i][8] ? dados[i][8] : "")
+        let setoresFormatados = (linha[9] || "")
        .split(",")
        .map(s => formatarSetor(s))
        .join(",");
@@ -313,11 +315,12 @@ function carregarProdutos() {
         cozinha: Number(dados[i][4]) || 0,
         cafe: Number(dados[i][5]) || 0,
         salao: Number(dados[i][6]) || 0,
-        minimo: Number(dados[i][7]) || 0,
+        bomboniere: Number(linha[7]) || 0,
+        minimo: Number(linha[8]) || 0,
         setor: setoresFormatados,
-        imagem: dados[i][9] || "",
-        unidade: (dados[i][10] || "UN").toString().trim(),
-        subsetor: dados[i][11] || ""
+        imagem: linha[10] || "",
+        unidade: (linha[11] || "UN").toString().trim(),
+        subsetor: linha[12] || ""
       });
 }
 // 🚀 CRIA O MAPA DEPOIS DO LOOP
