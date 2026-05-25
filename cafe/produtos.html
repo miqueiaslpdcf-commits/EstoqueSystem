@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Visualizador de Produtos</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, Helvetica, sans-serif;
+    background:#f1f5f9;
+    padding:20px;
+}
+
+.container{
+    max-width:1600px;
+    margin:auto;
+}
+
+.topo{
+    background:#0f172a;
+    color:white;
+    padding:20px;
+    border-radius:15px;
+    margin-bottom:20px;
+}
+
+.topo h1{
+    font-size:28px;
+}
+
+.filtros{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-top:15px;
+}
+
+.filtros input,
+.filtros select{
+    padding:12px;
+    border:none;
+    border-radius:10px;
+    min-width:220px;
+    font-size:15px;
+}
+
+.card-info{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+    gap:15px;
+    margin-bottom:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+.card h2{
+    font-size:16px;
+    color:#64748b;
+    margin-bottom:10px;
+}
+
+.card span{
+    font-size:28px;
+    font-weight:bold;
+    color:#0f172a;
+}
+
+.tabela-container{
+    background:white;
+    border-radius:15px;
+    overflow:auto;
+    box-shadow:0 2px 8px rgba(0,0,0,.08);
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    min-width:1200px;
+}
+
+thead{
+    background:#0f172a;
+    color:white;
+    position:sticky;
+    top:0;
+    z-index:10;
+}
+
+thead tr{
+    background:#0f172a !important;
+}
+
+thead th{
+    background:#0f172a !important;
+    color:white !important;
+}
+
+th, td{
+    padding:14px;
+    border-bottom:1px solid #e2e8f0;
+    text-align:left;
+    font-size:14px;
+}
+
+tr:hover{
+    background:#f8fafc;
+}
+
+.estoque-baixo{
+    background:#ffe5e5 !important;
+}
+
+.badge{
+    padding:5px 10px;
+    border-radius:30px;
+    font-size:12px;
+    font-weight:bold;
+    display:inline-block;
+}
+
+.ok{
+    background:#dcfce7;
+    color:#166534;
+}
+
+.baixo{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+.setores{
+    display:flex;
+    gap:5px;
+    flex-wrap:wrap;
+}
+
+.tag{
+    background:#e2e8f0;
+    padding:5px 10px;
+    border-radius:30px;
+    font-size:12px;
+}
+
+img{
+    width:55px;
+    height:55px;
+    object-fit:cover;
+    border-radius:10px;
+}
+
+.loading{
+    padding:40px;
+    text-align:center;
+    font-size:18px;
+    color:#64748b;
+}
+
+@media(max-width:768px){
+
+    body{
+        padding:10px;
+    }
+
+    .topo h1{
+        font-size:22px;
+    }
+
+    th, td{
+        padding:10px;
+        font-size:12px;
+    }
+
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <div class="topo">
+        <h1>📦 VISUALIZADOR DE PRODUTOS</h1>
+
+        <div class="filtros">
+
+            <input
+                type="text"
+                id="busca"
+                placeholder="Buscar produto ou EAN..."
+                onkeyup="filtrarProdutos()"
+            >
+
+            <select id="filtroFamilia" onchange="filtrarProdutos()">
+                <option value="">Todas as famílias</option>
+            </select>
+
+            <select id="filtroSetor" onchange="filtrarProdutos()">
+                <option value="">Todos os setores</option>
+                <option value="Estoque">Estoque</option>
+                <option value="Cozinha">Cozinha</option>
+                <option value="Cafe">Café</option>
+                <option value="Salao">Salão</option>
+            </select>
+
+        </div>
+    </div>
+
+    <div class="card-info">
+
+        <div class="card">
+            <h2>Total de Produtos</h2>
+            <span id="totalProdutos">0</span>
+        </div>
+
+        <div class="card">
+            <h2>Estoque Total</h2>
+            <span id="estoqueTotal">0</span>
+        </div>
+
+        <div class="card">
+            <h2>Produtos em Ruptura</h2>
+            <span id="ruptura">0</span>
+        </div>
+
+        <div class="card">
+            <h2>Famílias</h2>
+            <span id="familias">0</span>
+        </div>
+
+    </div>
+
+    <div class="tabela-container">
+
+        <table>
+
+            <thead>
+                <tr>
+                    <th>Imagem</th>
+                    <th>EAN</th>
+                    <th>Produto</th>
+                    <th>Família</th>
+                    <th>Estoque</th>
+                    <th>Cozinha</th>
+                    <th>Café</th>
+                    <th>Salão</th>
+                    <th>Total</th>
+                    <th>Mínimo</th>
+                    <th>Status</th>
+                    <th>Setores</th>
+                    <th>Unidade</th>
+                </tr>
+            </thead>
+
+            <tbody id="tabela">
+                <tr>
+                    <td colspan="13" class="loading">
+                        Carregando produtos...
+                    </td>
+                </tr>
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+<script>
+
+console.log("VISUALIZADOR INICIADO");
+
+// ============================
+// URL DO APPS SCRIPT
+// ============================
+
+const url = "https://script.google.com/macros/s/AKfycbxjBR53et0uyEuC3r4hzH1D-zwjxdp51XC7SPT-4hyhA5QqkYb2m0kZ__VKJq3W3dKQHA/exec";
+
+// ============================
+// VARIÁVEIS
+// ============================
+
+let produtos = [];
+let produtosOriginais = [];
+
+// ============================
+// FORMATAR SETOR
+// ============================
+
+function formatarSetor(setor){
+
+    return (setor || "")
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g,"")
+    .toLowerCase()
+    .replace(/^./, c => c.toUpperCase());
+
+}
+
+// ============================
+// CARREGAR PRODUTOS
+// ============================
+
+async function carregarProdutos(){
+
+    try{
+
+        const response = await fetch(url);
+
+        const dados = await response.json();
+
+        if(!Array.isArray(dados)){
+            throw new Error("Resposta inválida");
+        }
+
+        produtos = [];
+
+        for(let i = 1; i < dados.length; i++){
+
+            const linha = dados[i];
+
+            const produto = {
+
+                ean: String(linha[0] || ""),
+                produto: linha[1] || "",
+                familia: linha[2] || "SEM FAMÍLIA",
+
+                estoque: Number(linha[3]) || 0,
+                cozinha: Number(linha[4]) || 0,
+                cafe: Number(linha[5]) || 0,
+                salao: Number(linha[6]) || 0,
+
+                minimo: Number(linha[8]) || 0,
+
+                setor: (linha[9] || "")
+                .split(",")
+                .map(s => formatarSetor(s)),
+
+                imagem: linha[10] || "",
+
+                unidade: (linha[11] || "UN").toString().trim(),
+
+                subsetor: linha[12] || ""
+
+            };
+
+            produto.total =
+                produto.estoque +
+                produto.cozinha +
+                produto.cafe +
+                produto.salao;
+
+            produtos.push(produto);
+
+        }
+
+        produtosOriginais = [...produtos];
+
+        atualizarCards();
+
+        carregarFiltroFamilias();
+
+        renderizarTabela(produtos);
+
+        console.log("PRODUTOS:", produtos);
+
+    }catch(err){
+
+        console.error(err);
+
+        document.getElementById("tabela").innerHTML = `
+            <tr>
+                <td colspan="13" style="color:red;padding:40px;text-align:center">
+                    Erro ao carregar produtos
+                </td>
+            </tr>
+        `;
+
+    }
+
+}
+
+// ============================
+// ATUALIZA CARDS
+// ============================
+
+function atualizarCards(){
+
+    document.getElementById("totalProdutos").innerText = produtos.length;
+
+    let estoqueTotal = 0;
+    let ruptura = 0;
+
+    const familias = new Set();
+
+    produtos.forEach(p => {
+
+        estoqueTotal += p.total;
+
+        familias.add(p.familia);
+
+        if(p.total <= p.minimo){
+            ruptura++;
+        }
+
+    });
+
+    document.getElementById("estoqueTotal").innerText = estoqueTotal;
+
+    document.getElementById("ruptura").innerText = ruptura;
+
+    document.getElementById("familias").innerText = familias.size;
+
+}
+
+// ============================
+// FILTRO DE FAMÍLIAS
+// ============================
+
+function carregarFiltroFamilias(){
+
+    const select = document.getElementById("filtroFamilia");
+
+    const familias = [...new Set(produtos.map(p => p.familia))];
+
+    familias.sort();
+
+    familias.forEach(f => {
+
+        select.innerHTML += `
+            <option value="${f}">
+                ${f}
+            </option>
+        `;
+
+    });
+
+}
+
+// ============================
+// RENDERIZAR TABELA
+// ============================
+
+function renderizarTabela(lista){
+
+    const tabela = document.getElementById("tabela");
+
+    if(lista.length === 0){
+
+        tabela.innerHTML = `
+            <tr>
+                <td colspan="13" style="padding:40px;text-align:center">
+                    Nenhum produto encontrado
+                </td>
+            </tr>
+        `;
+
+        return;
+
+    }
+
+    let html = "";
+
+    lista.forEach(p => {
+
+        const baixo = p.total <= p.minimo;
+
+        const classe = baixo ? "estoque-baixo" : "";
+
+        const status = baixo
+            ? `<span class="badge baixo">BAIXO</span>`
+            : `<span class="badge ok">OK</span>`;
+
+        const img = p.imagem
+            ? `<img src="${p.imagem}">`
+            : "📦";
+
+        const setores = p.setor.map(s =>
+            `<span class="tag">${s}</span>`
+        ).join("");
+
+        html += `
+
+        <tr class="${classe}">
+
+            <td>${img}</td>
+
+            <td>${p.ean}</td>
+
+            <td>
+                <strong>${p.produto}</strong>
+            </td>
+
+            <td>${p.familia}</td>
+
+            <td>${p.estoque} ${p.unidade}</td>
+
+            <td>${p.cozinha} ${p.unidade}</td>
+
+            <td>${p.cafe} ${p.unidade}</td>
+
+            <td>${p.salao} ${p.unidade}</td>
+
+            <td>
+                <strong>${p.total} ${p.unidade}</strong>
+            </td>
+
+            <td>${p.minimo}</td>
+
+            <td>${status}</td>
+
+            <td>
+                <div class="setores">
+                    ${setores}
+                </div>
+            </td>
+
+            <td>${p.unidade}</td>
+
+        </tr>
+
+        `;
+
+    });
+
+    tabela.innerHTML = html;
+
+}
+
+// ============================
+// FILTROS
+// ============================
+
+function filtrarProdutos(){
+
+    const busca = document
+    .getElementById("busca")
+    .value
+    .toLowerCase()
+    .trim();
+
+    const familia = document
+    .getElementById("filtroFamilia")
+    .value;
+
+    const setor = document
+    .getElementById("filtroSetor")
+    .value;
+
+    let filtrados = produtosOriginais.filter(p => {
+
+        const matchBusca =
+
+            p.produto.toLowerCase().includes(busca) ||
+
+            p.ean.includes(busca);
+
+        const matchFamilia =
+            !familia || p.familia === familia;
+
+        const matchSetor =
+            !setor || p.setor.includes(setor);
+
+        return matchBusca && matchFamilia && matchSetor;
+
+    });
+
+    renderizarTabela(filtrados);
+
+}
+
+// ============================
+// INICIAR
+// ============================
+
+window.onload = carregarProdutos;
+
+</script>
+
+</body>
+</html>
