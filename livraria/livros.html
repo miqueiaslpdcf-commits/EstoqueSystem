@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>📚 Sistema de Empréstimo de Livros</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:"Segoe UI",Arial,sans-serif;
+background:#efe4d6;
+color:#3b2a1f;
+}
+
+header{
+background:#6d4c41;
+color:white;
+padding:20px;
+text-align:center;
+box-shadow:0 2px 10px rgba(0,0,0,.15);
+}
+
+.container{
+padding:20px;
+max-width:1400px;
+margin:auto;
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:15px;
+margin-bottom:20px;
+}
+
+.card{
+background:white;
+padding:20px;
+border-radius:12px;
+box-shadow:0 2px 10px rgba(0,0,0,.08);
+text-align:center;
+}
+
+.card h2{
+font-size:34px;
+margin-bottom:5px;
+}
+
+.card span{
+font-size:14px;
+color:#777;
+}
+
+.emprestados{
+border-left:6px solid #2e7d32;
+}
+
+.vencidos{
+border-left:6px solid #d32f2f;
+}
+
+.devolvidos{
+border-left:6px solid #1976d2;
+}
+
+.faturados{
+border-left:6px solid #f57c00;
+}
+
+.topo{
+display:flex;
+gap:10px;
+margin-bottom:20px;
+flex-wrap:wrap;
+}
+
+input,select{
+padding:12px;
+border:1px solid #ccc;
+border-radius:8px;
+font-size:15px;
+}
+
+#pesquisa{
+flex:1;
+}
+
+button{
+padding:12px 18px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+}
+
+.btnNovo{
+background:#2e7d32;
+color:white;
+}
+
+.btnNovo:hover{
+background:#1b5e20;
+}
+
+.tabela-box{
+    background:white;
+    border-radius:12px;
+    overflow:visible;
+    box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+}
+
+th{
+background:#e8d18d;
+padding:14px;
+text-align:left;
+}
+
+td{
+padding:12px;
+border-bottom:1px solid #eee;
+}
+
+.status{
+padding:6px 12px;
+border-radius:20px;
+font-size:12px;
+font-weight:bold;
+color:white;
+}
+
+.ativo{
+background:#2e7d32;
+}
+
+.vencido{
+background:#d32f2f;
+}
+
+.devolvido{
+background:#1976d2;
+}
+
+.faturado{
+background:#ff6f00;
+}
+
+.btnAcao{
+padding:8px 12px;
+font-size:12px;
+margin:2px;
+}
+
+.btnDevolver{
+background:#1976d2;
+color:white;
+}
+
+.btnFaturar{
+background:#ff6f00;
+color:white;
+}
+
+.modal{
+position:fixed;
+top:0;
+left:0;
+width:100%;
+height:100%;
+background:rgba(0,0,0,.5);
+display:none;
+justify-content:center;
+align-items:center;
+z-index:999;
+}
+
+.modal-content{
+background:white;
+width:95%;
+max-width:700px;
+padding:25px;
+border-radius:12px;
+}
+
+.modal-content h2{
+margin-bottom:20px;
+}
+
+.grid{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+gap:10px;
+}
+
+.modal-buttons{
+margin-top:20px;
+display:flex;
+justify-content:flex-end;
+gap:10px;
+}
+
+.btnSalvar{
+background:#2e7d32;
+color:white;
+}
+
+.btnCancelar{
+background:#999;
+color:white;
+}
+
+@media(max-width:768px){
+
+table{
+font-size:12px;
+}
+
+th,td{
+padding:8px;
+}
+
+.card h2{
+font-size:28px;
+}
+
+}
+
+.prazo{
+    display:block;
+    margin-top:4px;
+    font-size:12px;
+    font-weight:600;
+}
+
+.prazo-atrasado{
+    color:#d32f2f;
+}
+
+.prazo-hoje{
+    color:#f57c00;
+}
+
+.prazo-normal{
+    color:#2e7d32;
+}
+
+.menu-acoes{
+    position:relative;
+    display:inline-block;
+}
+
+.btnMenu{
+    background:#6d4c41;
+    color:white;
+    padding:8px 12px;
+    border:none;
+    border-radius:6px;
+    cursor:pointer;
+    font-size:12px;
+}
+
+.dropdown{
+    display:none;
+    position:absolute;
+    bottom:100%;
+    right:0;
+    margin-bottom:5px;
+    background:white;
+    min-width:170px;
+    border-radius:8px;
+    box-shadow:0 8px 20px rgba(0,0,0,.20);
+    z-index:9999;
+}
+
+.dropdown button{
+    width:100%;
+    text-align:left;
+    padding:10px;
+    border:none;
+    background:white;
+    cursor:pointer;
+    font-size:13px;
+}
+
+.dropdown button:hover{
+    background:#f5f5f5;
+}
+
+.menu-acoes.ativo .dropdown{
+    display:block;
+}
+
+</style>
+</head>
+<body>
+
+<header>
+<h1>📚 EMPRÉSTIMO DE LIVROS</h1>
+</header>
+
+<div class="container">
+
+<div class="cards">
+
+<div class="card emprestados">
+<h2 id="totalEmprestados">0</h2>
+<span>Emprestados</span>
+</div>
+
+<div class="card vencidos">
+<h2 id="totalVencidos">0</h2>
+<span>Vencidos</span>
+</div>
+
+<div class="card devolvidos">
+<h2 id="totalDevolvidos">0</h2>
+<span>Devolvidos</span>
+</div>
+
+<div class="card faturados">
+<h2 id="totalFaturados">0</h2>
+<span>Faturados</span>
+</div>
+
+</div>
+
+<div class="topo">
+
+<input
+type="text"
+id="pesquisa"
+placeholder="Pesquisar livro ou funcionário..."
+onkeyup="filtrar()">
+
+<button class="btnNovo" onclick="abrirModal()">
+➕ Novo Empréstimo
+</button>
+
+</div>
+
+<div class="tabela-box">
+
+<table>
+
+<thead>
+<tr>
+<th>EAN</th>
+<th>Livro</th>
+<th>Funcionário</th>
+<th>Retirada</th>
+<th>Entrega</th>
+<th>Situação</th>
+<th>Ações</th>
+</tr>
+</thead>
+
+<tbody id="tbody"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+<div class="modal" id="modal">
+
+<div class="modal-content">
+
+<h2>Novo Empréstimo</h2>
+
+<div class="grid">
+
+<input id="ean" placeholder="EAN">
+
+<input id="titulo" placeholder="Título do Livro">
+
+<input
+    type="text"
+    id="funcionario"
+    placeholder="Nome do funcionário">
+
+<input
+type="number"
+id="dias"
+value="15"
+placeholder="Dias">
+
+</div>
+
+<div class="modal-buttons">
+
+<button
+class="btnCancelar"
+onclick="fecharModal()">
+Cancelar
+</button>
+
+<button
+class="btnSalvar"
+onclick="salvarEmprestimo()">
+Salvar
+</button>
+
+</div>
+
+</div>
+
+</div>
+
+<script>
+
+const URL = "https://script.google.com/macros/s/AKfycbw8C9LnE43XnbxY2_neiXP-40K3pIQVdaKR1zZ1sr8sWUvtOjMymX3sWQYBpoK_8gI_yQ/exec";
+
+let emprestimos = [];
+
+window.onload = () => {
+    carregar();
+};
+
+function abrirModal(){
+    document.getElementById("modal").style.display="flex";
+}
+
+function fecharModal(){
+    document.getElementById("modal").style.display="none";
+}
+
+async function carregar(){
+
+    try{
+
+        const resposta = await fetch(
+            URL + "?tipo=listar"
+        );
+
+        emprestimos = await resposta.json();
+
+        renderizar();
+
+    }catch(erro){
+
+        console.error(erro);
+
+        alert("Erro ao carregar dados");
+
+    }
+
+}
+
+async function salvarEmprestimo(){
+
+    const ean =
+    document.getElementById("ean").value.trim();
+
+    const titulo =
+    document.getElementById("titulo").value.trim();
+
+    const funcionario =
+    document.getElementById("funcionario").value;
+
+    const dias =
+    parseInt(
+        document.getElementById("dias").value
+    );
+
+    if(!ean || !titulo){
+
+        alert("Preencha todos os campos");
+
+        return;
+
+    }
+
+    let retirada = new Date();
+
+    let entrega = new Date();
+
+    entrega.setDate(
+        entrega.getDate() + dias
+    );
+
+    const dados = {
+
+        acao:"emprestar",
+
+        ean,
+
+        titulo,
+
+        funcionario,
+
+        retirada:
+        retirada.toLocaleDateString("pt-BR"),
+
+        entrega:
+        entrega.toLocaleDateString("pt-BR")
+
+    };
+
+    try{
+
+        const resposta = await fetch(URL,{
+
+            method:"POST",
+
+            body:JSON.stringify(dados)
+
+        });
+
+        const json =
+        await resposta.json();
+
+        if(json.sucesso){
+
+            alert("Empréstimo registrado!");
+
+            document.getElementById("ean").value="";
+            document.getElementById("titulo").value="";
+
+            fecharModal();
+
+            carregar();
+
+        }else{
+
+            alert(
+                json.mensagem ||
+                "Erro ao registrar"
+            );
+
+        }
+
+    }catch(erro){
+
+        console.error(erro);
+
+        alert("Erro ao comunicar com o servidor");
+
+    }
+
+}
+function diasRestantes(dataEntrega){
+
+    if(!dataEntrega) return "";
+
+    const entrega = new Date(dataEntrega);
+
+    const hoje = new Date();
+
+    hoje.setHours(0,0,0,0);
+    entrega.setHours(0,0,0,0);
+
+    const diff = Math.round(
+        (entrega - hoje) /
+        (1000 * 60 * 60 * 24)
+    );
+
+    if(diff < 0){
+        return `⚠️ ${Math.abs(diff)} dia(s) atrasado`;
+    }
+
+    if(diff === 0){
+        return "📅 Vence hoje";
+    }
+
+    if(diff === 1){
+        return "⏳ Vence amanhã";
+    }
+
+    return `⏳ ${diff} dia(s) restante(s)`;
+}
+
+function toggleMenu(botao){
+
+    document
+    .querySelectorAll(".menu-acoes")
+    .forEach(menu=>{
+
+        if(menu !== botao.parentElement){
+            menu.classList.remove("ativo");
+        }
+
+    });
+
+    botao.parentElement
+    .classList.toggle("ativo");
+}
+
+function renderizar(){
+
+    let tbody =
+    document.getElementById("tbody");
+
+    tbody.innerHTML="";
+
+    emprestimos.forEach((item,index)=>{
+
+        let classe="ativo";
+
+        if(item.situacao==="DEVOLVIDO")
+            classe="devolvido";
+
+        if(item.situacao==="VENCIDO")
+            classe="vencido";
+
+        if(item.situacao==="FATURADO")
+            classe="faturado";
+
+        tbody.innerHTML += `
+
+        <tr>
+
+            <td>${item.ean}</td>
+
+            <td>${item.titulo}</td>
+
+            <td>${item.funcionario}</td>
+
+            <td>${formatarData(item.retirada)}</td>
+
+<td>
+
+    ${formatarData(item.entrega)}
+
+    ${
+        item.situacao==="EMPRESTADO" ||
+        item.situacao==="VENCIDO"
+
+        ?
+
+        `<span class="prazo ${
+            diasRestantes(item.entrega).includes("atrasado")
+            ? "prazo-atrasado"
+            : diasRestantes(item.entrega).includes("Vence hoje")
+            ? "prazo-hoje"
+            : "prazo-normal"
+        }">
+            ${diasRestantes(item.entrega)}
+        </span>`
+
+        : ""
+    }
+
+</td>
+
+<td>
+    <span class="status ${classe}">
+        ${item.situacao}
+    </span>
+</td>
+
+<td>
+
+${
+(item.situacao==="EMPRESTADO" ||
+ item.situacao==="VENCIDO")
+
+?`
+
+<div class="menu-acoes">
+
+    <button
+        class="btnMenu"
+        onclick="toggleMenu(this)">
+        ⚙️ Ações ▼
+    </button>
+
+    <div class="dropdown">
+
+        <button onclick="devolver(${index})">
+            📥 Devolver
+        </button>
+
+        <button onclick="renovar(${index})">
+            🔄 Renovar
+        </button>
+
+        <button onclick="faturar(${index})">
+            💰 Faturar
+        </button>
+
+    </div>
+
+</div>
+
+`
+
+:""
+}
+
+</td>
+
+        </tr>
+
+        `;
+
+    });
+
+    atualizarDashboard();
+
+}
+
+async function devolver(index){
+
+    const id =
+    emprestimos[index].id;
+
+    if(!confirm("Confirmar devolução?"))
+        return;
+
+    try{
+
+        const resposta = await fetch(URL,{
+
+            method:"POST",
+
+            body:JSON.stringify({
+
+                acao:"devolver",
+
+                id
+
+            })
+
+        });
+
+        const json =
+        await resposta.json();
+
+        if(json.sucesso){
+
+            carregar();
+
+        }else{
+
+            alert("Erro ao devolver");
+
+        }
+
+    }catch(erro){
+
+        console.error(erro);
+
+        alert("Erro ao devolver");
+
+    }
+
+}
+
+function atualizarDashboard(){
+
+    document.getElementById(
+        "totalEmprestados"
+    ).innerText =
+    emprestimos.filter(
+        x => x.situacao==="EMPRESTADO"
+    ).length;
+
+    document.getElementById(
+        "totalVencidos"
+    ).innerText =
+    emprestimos.filter(
+        x => x.situacao==="VENCIDO"
+    ).length;
+
+    document.getElementById(
+        "totalDevolvidos"
+    ).innerText =
+    emprestimos.filter(
+        x => x.situacao==="DEVOLVIDO"
+    ).length;
+
+    document.getElementById(
+        "totalFaturados"
+    ).innerText =
+    emprestimos.filter(
+        x => x.situacao==="FATURADO"
+    ).length;
+
+}
+
+function filtrar(){
+
+    const termo =
+    document
+    .getElementById("pesquisa")
+    .value
+    .toLowerCase();
+
+    const linhas =
+    document.querySelectorAll(
+        "#tbody tr"
+    );
+
+    linhas.forEach(linha=>{
+
+        linha.style.display =
+
+        linha.innerText
+        .toLowerCase()
+        .includes(termo)
+
+        ? ""
+
+        : "none";
+
+    });
+}
+
+function formatarData(data){
+
+    return new Date(data)
+        .toLocaleDateString("pt-BR");
+}
+
+document.addEventListener("click", function(e){
+
+    if(!e.target.closest(".menu-acoes")){
+
+        document
+        .querySelectorAll(".menu-acoes")
+        .forEach(menu=>{
+
+            menu.classList.remove("ativo");
+
+        });
+
+    }
+
+});
+
+
+
+async function renovar(index){
+
+    const id = emprestimos[index].id;
+
+    const dias = prompt(
+        "Quantos dias deseja acrescentar?",
+        "15"
+    );
+
+    if(!dias) return;
+
+    try{
+
+        const resposta = await fetch(URL,{
+            method:"POST",
+            body:JSON.stringify({
+                acao:"renovar",
+                id:id,
+                dias:Number(dias)
+            })
+        });
+
+        const json = await resposta.json();
+
+        if(json.sucesso){
+
+            alert("Empréstimo renovado!");
+
+            carregar();
+
+        }else{
+
+            alert(json.mensagem);
+
+        }
+
+    }catch(erro){
+
+        console.error(erro);
+
+        alert("Erro ao renovar");
+
+    }
+
+}
+
+async function faturar(index){
+
+    const id = emprestimos[index].id;
+
+    if(!confirm(
+        "Confirmar faturamento deste livro?"
+    )) return;
+
+    try{
+
+        const resposta = await fetch(URL,{
+            method:"POST",
+            body:JSON.stringify({
+                acao:"faturar",
+                id:id
+            })
+        });
+
+        const json = await resposta.json();
+
+        if(json.sucesso){
+
+            alert("Livro faturado!");
+
+            carregar();
+
+        }else{
+
+            alert(json.mensagem);
+
+        }
+
+    }catch(erro){
+
+        console.error(erro);
+
+        alert("Erro ao faturar");
+
+    }
+
+}
+
+</script>
+
+</body>
+</html>
