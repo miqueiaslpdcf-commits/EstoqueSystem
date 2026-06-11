@@ -178,12 +178,18 @@ th, td {
     background: linear-gradient(135deg, #ff5f57, #ff3b30);
 }
 
-.estoque {
+.LocalBook {
     background: linear-gradient(135deg, #34c759, #28a745);
 }
 
-.LocalBook {
+.RequisicaoLiv {
     background: linear-gradient(135deg, #007aff, #0051d4);
+}
+.EmpBook {
+    background: linear-gradient(135deg, #e4dd03, #d9d200);
+}
+.ConsLiv {
+    background: linear-gradient(135deg, #e45d03, #f56f17);
 }
 
 /*aba de localização de livros*/

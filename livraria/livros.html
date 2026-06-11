@@ -381,9 +381,15 @@ onkeyup="filtrar()">
 
 <div class="grid">
 
-<input id="ean" placeholder="EAN">
+<input
+    id="ean"
+    placeholder="EAN"
+    onblur="buscarLivroPorEAN()">
 
-<input id="titulo" placeholder="Título do Livro">
+<input
+    id="titulo"
+    placeholder="Título do Livro"
+    readonly>
 
 <input
     type="text"
@@ -419,7 +425,7 @@ Salvar
 </div>
 
 <script>
-
+    
 const URL = "https://script.google.com/macros/s/AKfycbw8C9LnE43XnbxY2_neiXP-40K3pIQVdaKR1zZ1sr8sWUvtOjMymX3sWQYBpoK_8gI_yQ/exec";
 
 let emprestimos = [];
@@ -925,6 +931,53 @@ async function faturar(index){
         console.error(erro);
 
         alert("Erro ao faturar");
+
+    }
+
+}
+
+async function buscarLivroPorEAN(){
+
+    const ean =
+    document.getElementById("ean")
+    .value
+    .trim();
+
+    if(!ean) return;
+
+    try{
+
+        const resposta =
+        await fetch(
+            URL +
+            "?tipo=buscar&ean=" +
+            encodeURIComponent(ean)
+        );
+
+        const livro =
+        await resposta.json();
+
+        if(livro.sucesso){
+
+            document
+            .getElementById("titulo")
+            .value = livro.titulo;
+
+        }else{
+
+            document
+            .getElementById("titulo")
+            .value = "";
+
+            alert("Livro não encontrado");
+
+        }
+
+    }catch(erro){
+
+        console.error(erro);
+
+        alert("Erro ao buscar livro");
 
     }
 
