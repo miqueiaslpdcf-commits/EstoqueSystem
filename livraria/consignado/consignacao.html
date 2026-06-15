@@ -141,8 +141,9 @@ flex:1;
 overflow:auto;
 border:1px solid #ddd;
 border-radius:8px;
-padding:10px;
+padding:0 !important;
 }
+
 
 .tabela-itens{
 min-width:1000px;
@@ -189,6 +190,53 @@ padding:10px;
 }
 
 }
+
+
+.nota-header{
+  margin:0;
+  border-radius:0;
+  background:#0d2f57 !important;
+}
+/* =========================
+   NAVBAR DAS NFs (MELHORADO)
+========================= */
+
+.navbar-nf{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  margin-bottom:0;
+  padding:8px 10px;
+  background:#0d2f57;
+  border-radius:0;
+  margin:0;
+}
+
+.navbar-nf button{
+  background:transparent;
+  border:1px solid rgba(255,255,255,0.35);
+  color:#fff;
+  cursor:pointer;
+  transition:all .2s ease;
+
+  padding:10px 18px;
+  font-size:16px;
+  font-weight:500;
+  border-radius:0px; /* 👈 AQUI fica quadrado */
+}
+
+.navbar-nf button:hover{
+  background:rgba(255,255,255,0.15);
+  transform:translateY(-1px);
+}
+
+/* 🔵 BOTÃO ATIVO */
+.navbar-nf button.ativo{
+  background:#ffffff;
+  color:#1f4e79;
+  font-weight:bold;
+}
+
 
 </style>
 </head>
@@ -319,7 +367,7 @@ Pesquisar
 <script>
 
 const URL_API =
-"https://script.google.com/macros/s/AKfycbyX3ZQNbuJob-dhZESfzosUqgyg4P8aw2S1KIkYZEmSS3cBS3jOImoNxrxO4Rc4chMc1g/exec";
+"https://script.google.com/macros/s/AKfycbwpk9GnsIpkCTHt5tDIb4bQI-nlmUbnp8s6iIJnIBT48Q63aHoLNx89EP_RGuOJxWwi7Q/exec";
 
 async function carregarNotas(){
 
@@ -366,121 +414,258 @@ R$ ${Number(n[5]).toFixed(2)}
 });
 
 }
-
 async function abrirNota(idNota){
 
-const resposta =
-await fetch(
-URL_API +
-"?acao=listarItens&idNota=" +
-idNota
-);
+  const resposta =
+  await fetch(
+    URL_API +
+    "?acao=listarItens&idNota=" +
+    idNota
+  );
 
-const dados =
-await resposta.json();
+  const dados =
+  await resposta.json();
 
-const div =
-document.getElementById("itensNota");
+  const div =
+  document.getElementById("itensNota");
 
-let html = `
-<div style="overflow:auto;">
+  let conteudo = "";
 
-<table class="tabela-itens">
+  // =========================
+  // BLOCO SUPERIOR (ASSOCIAÇÃO + XML)
+  // =========================
 
-<thead>
-<tr>
-<th>ISBN</th>
-<th>Título</th>
-<th>Recebido</th>
-<th>Acertado</th>
-<th>Saldo</th>
-<th>Acerto</th>
-<th>Ações</th>
-</tr>
-</thead>
-<tbody>
-`;
+  conteudo += `
+    <div style="
+      background:#f5f5f5;
+      padding:15px;
+      margin-bottom:15px;
+      border-radius:8px;
+    ">
 
-dados.itens.forEach(item=>{
+      <h3>📦 Notas Associadas</h3>
 
-html += `
-<tr>
+      <div id="listaAssociadas">
+        Carregando...
+      </div>
 
-<td>${item.isbn}</td>
+      <br>
 
-<td class="col-titulo">
-${item.titulo}
-</td>
+      <select id="notaAssociar">
+        <option value="">Selecione uma nota</option>
+      </select>
 
-<td style="text-align:center;">
-${item.recebido}
-</td>
+      <button onclick="associarNota('${idNota}')">
+        ➕ Associar Nota
+      </button>
 
-<td style="text-align:center;">
-${item.acertado}
-</td>
+      <br><br>
 
-<td style="
-text-align:center;
-font-weight:bold;
-font-size:16px;
-color:${
-item.saldo > 0
-? '#0f7b0f'
-: '#c62828'
-};
-">
-${item.saldo}
-</td>
+      <input type="file" id="xmlAssociado" accept=".xml">
 
-<td>
+      <button onclick="importarXmlAssociado('${idNota}')">
+        📥 Importar XML e Associar
+      </button>
 
-<input
-type="number"
-min="1"
-max="${item.saldo}"
-value="${item.saldo > 0 ? 1 : 0}"
-data-saldo="${item.saldo}"
-id="qtd_${item.idItem}"
-class="input-acerto"
-${item.saldo <= 0 ? "disabled" : ""}>
+    </div>
+  `;
 
-</td>
+  // =========================
+  // 🔵 NAVBAR ÚNICO (CORRIGIDO)
+  // =========================
 
-<td>
+  conteudo += `
+    <div class="navbar-nf" id="navbarNF">
+      ${dados.notas.map(n => {
+        const nid = n.idNota || n.numeroNF;
 
-<button
-onclick="acertar('${item.idItem}')"
-${item.saldo <= 0 ? "disabled" : ""}>
-💾 Salvar
-</button>
+        return `
+          <button
+            id="btn_${nid}"
+            onclick="mostrarNota('${nid}')"
+          >
+            NF ${n.numeroNF}
+          </button>
+        `;
+      }).join("")}
+    </div>
+  `;
 
-<br><br>
+  // =========================
+  // NOTAS (BLOCOS)
+  // =========================
 
-<button
-onclick="abrirHistorico('${item.idItem}')">
-📜 Histórico
-</button>
+  dados.notas.forEach((nota, index) => {
 
-</td>
+    const id = nota.idNota || nota.numeroNF;
 
-</tr>
-`;
+    conteudo += `
+      <div
+        class="nota-bloco"
+        id="nota_${id}"
+        style="
+          display:${index === 0 ? "block" : "none"};
+          margin:0;
+          border:2px solid #1f4e79;
+          border-radius:0;
+          overflow:hidden;
+        "
+      >
 
-});
+        <!-- HEADER DA NF -->
+        <div style="
+          background:#1f4e79;
+          color:white;
+          padding:12px;
+          font-size:16px;
+          font-weight:bold;
+          border-radius:0;
+          margin:0;
+        ">
 
-html += `
+          📦 NF ${nota.numeroNF}
+          &nbsp;&nbsp;|&nbsp;&nbsp;
+          🏢 ${nota.fornecedor}
+          &nbsp;&nbsp;|&nbsp;&nbsp;
+          📅 ${formatarDataISO(nota.data)}
+          &nbsp;&nbsp;|&nbsp;&nbsp;
+          💰 R$ ${Number(nota.valor).toFixed(2)}
 
-</tbody>
-</table>
-</div>
-`;
+        </div>
 
-div.innerHTML = html;
+        <!-- TABELA -->
+        <div style="overflow:auto;">
+          <table class="tabela-itens">
 
-document.getElementById("modal")
-.style.display="block";
+            <thead>
+              <tr>
+                <th>ISBN</th>
+                <th>Título</th>
+                <th>Recebido</th>
+                <th>Acertado</th>
+                <th>Saldo</th>
+                <th>Acerto</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
 
+            <tbody>
+    `;
+
+    nota.itens.forEach(item => {
+
+      conteudo += `
+        <tr>
+
+          <td>${item.isbn}</td>
+
+          <td class="col-titulo">
+            ${item.titulo}
+          </td>
+
+          <td style="text-align:center;">
+            ${item.recebido}
+          </td>
+
+          <td style="text-align:center;">
+            ${item.acertado}
+          </td>
+
+          <td style="
+            text-align:center;
+            font-weight:bold;
+            color:${item.saldo > 0 ? "#0f7b0f" : "#c62828"};
+          ">
+            ${item.saldo}
+          </td>
+
+          <td>
+            <input
+              type="number"
+              min="1"
+              max="${item.saldo}"
+              value="0"
+              id="qtd_${item.idItem}"
+              class="input-acerto"
+              ${item.saldo <= 0 ? "disabled" : ""}
+            >
+          </td>
+
+          <td>
+            <button onclick="acertar('${item.idItem}')">
+              💾 Salvar
+            </button>
+
+            <br><br>
+
+            <button onclick="abrirHistorico('${item.idItem}')">
+              📜 Histórico
+            </button>
+          </td>
+
+        </tr>
+      `;
+    });
+
+    conteudo += `
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    `;
+  });
+
+  div.innerHTML = conteudo;
+
+  // =========================
+  // CARREGAMENTOS EXTRAS
+  // =========================
+
+  carregarNotasAssociacao(idNota);
+  carregarAssociadas(idNota);
+
+  // ativa primeira NF automaticamente
+  const primeiroId = dados.notas[0]?.idNota || dados.notas[0]?.numeroNF;
+
+  if(primeiroId){
+    setTimeout(() => {
+      mostrarNota(primeiroId);
+
+      const btn = document.getElementById("btn_" + primeiroId);
+      if(btn) btn.classList.add("ativo");
+    }, 50);
+  }
+
+  document.getElementById("modal").style.display = "block";
+}
+
+function mostrarNota(id){
+
+  const blocos = document.querySelectorAll(".nota-bloco");
+  const botoes = document.querySelectorAll(".navbar-nf button");
+
+  // esconde tudo imediatamente
+  blocos.forEach(b => {
+    b.style.display = "none";
+  });
+
+  // remove ativo dos botões
+  botoes.forEach(b => b.classList.remove("ativo"));
+
+  // mostra o selecionado
+  const alvo = document.getElementById("nota_" + id);
+
+  if(alvo){
+    alvo.style.display = "block";
+  }
+
+  // ativa botão correspondente
+  const btnAtivo = document.getElementById("btn_" + id);
+
+  if(btnAtivo){
+    btnAtivo.classList.add("ativo");
+  }
 }
 
 function fecharModal(){
@@ -701,6 +886,248 @@ function fecharHistorico(){
 document.getElementById(
 "modalHistorico"
 ).style.display = "none";
+
+}
+
+
+async function carregarNotasAssociacao(idNota){
+
+const resposta =
+await fetch(
+URL_API +
+"?acao=notasDisponiveis&idNota=" +
+idNota
+);
+
+const dados =
+await resposta.json();
+
+const select =
+document.getElementById(
+"notaAssociar"
+);
+
+select.innerHTML =
+'<option value="">Selecione</option>';
+
+dados.notas.forEach(n=>{
+
+select.innerHTML += `
+<option value="${n.id}">
+NF ${n.numero}
+</option>
+`;
+
+});
+
+}
+
+async function associarNota(idPrincipal){
+
+const idAssociada =
+document.getElementById(
+"notaAssociar"
+).value;
+
+if(!idAssociada){
+
+alert("Selecione uma nota");
+return;
+
+}
+
+const resposta =
+await fetch(URL_API,{
+
+method:"POST",
+
+body:JSON.stringify({
+
+acao:"associarNota",
+
+idPrincipal,
+idAssociada
+
+})
+
+});
+
+const dados =
+await resposta.json();
+
+alert(dados.mensagem);
+
+abrirNota(idPrincipal);
+
+}
+
+async function carregarAssociadas(idNota){
+
+const resposta =
+await fetch(
+URL_API +
+"?acao=listarAssociadas&idNota=" +
+idNota
+);
+
+const dados =
+await resposta.json();
+
+const div =
+document.getElementById("listaAssociadas");
+
+let html = `
+<div style="
+display:flex;
+flex-wrap:wrap;
+gap:8px;
+max-width:100%;
+">
+`;
+
+dados.notas.forEach(n=>{
+
+html += `
+<div style="
+padding:8px;
+margin:0;
+background:#fff;
+border:1px solid #ddd;
+display:flex;
+align-items:center;
+gap:6px;
+border-radius:6px;
+">
+
+📄 NF ${n.numero}
+
+<button
+onclick="removerAssociada(
+'${idNota}',
+'${n.id}'
+)">
+❌
+</button>
+
+</div>
+`;
+
+});
+
+html += `</div>`;
+
+div.innerHTML = html;
+
+}
+
+async function removerAssociada(
+idPrincipal,
+idAssociada
+){
+
+const confirmar =
+confirm(
+"Deseja remover esta associação?"
+);
+
+if(!confirmar)
+return;
+
+const resposta =
+await fetch(URL_API,{
+
+method:"POST",
+
+body:JSON.stringify({
+
+acao:"removerAssociada",
+
+idPrincipal,
+
+idAssociada
+
+})
+
+});
+
+const dados =
+await resposta.json();
+
+alert(dados.mensagem);
+
+if(dados.sucesso){
+
+carregarAssociadas(idPrincipal);
+
+abrirNota(idPrincipal);
+
+}
+
+}
+
+function formatarDataISO(dataISO){
+
+if(!dataISO) return "";
+
+const d = new Date(dataISO);
+
+return d.toLocaleDateString("pt-BR") + " " +
+d.toLocaleTimeString("pt-BR", {
+  hour: "2-digit",
+  minute: "2-digit"
+});
+
+}
+
+async function importarXmlAssociado(idPrincipal){
+
+const arquivo =
+document.getElementById(
+"xmlAssociado"
+).files[0];
+
+if(!arquivo){
+
+alert("Selecione XML");
+return;
+
+}
+
+const leitor =
+new FileReader();
+
+leitor.onload =
+async function(e){
+
+const xml =
+e.target.result;
+
+const resposta =
+await fetch(URL_API,{
+
+method:"POST",
+
+body:JSON.stringify({
+
+acao:"importarXmlAssociado",
+
+idPrincipal,
+xml
+
+})
+
+});
+
+const dados =
+await resposta.json();
+
+alert(dados.mensagem);
+
+abrirNota(idPrincipal);
+
+};
+
+leitor.readAsText(arquivo);
 
 }
 
