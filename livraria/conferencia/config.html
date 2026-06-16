@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Conferência de Notas</title>
+
+<style>
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:#f4f6f9;
+    min-height:100vh;
+}
+
+.topo{
+    background:#1f4e79;
+    padding:15px 20px;
+}
+
+.btn-menu{
+    color:#fff;
+    text-decoration:none;
+    background:#163a5a;
+    padding:10px 18px;
+    border-radius:8px;
+    font-weight:bold;
+    transition:.2s;
+}
+
+.btn-menu:hover{
+    background:#0f2c45;
+}
+
+.container{
+    text-align:center;
+    padding:50px 20px;
+}
+
+h1{
+    color:#1f4e79;
+    margin-bottom:10px;
+}
+
+p{
+    color:#666;
+    margin-bottom:40px;
+}
+
+.cards{
+    display:flex;
+    justify-content:center;
+    gap:30px;
+    flex-wrap:wrap;
+}
+
+.card{
+    width:260px;
+    height:180px;
+    background:#fff;
+    border-radius:15px;
+    box-shadow:0 4px 12px rgba(0,0,0,.15);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    cursor:pointer;
+    transition:.3s;
+    font-size:50px;
+}
+
+.card:hover{
+    transform:translateY(-8px);
+    box-shadow:0 8px 20px rgba(0,0,0,.2);
+}
+
+.card span{
+    margin-top:15px;
+    font-size:20px;
+    font-weight:bold;
+    color:#1f4e79;
+}
+
+.entrada{
+    border-top:6px solid #28a745;
+}
+
+.saida{
+    border-top:6px solid #dc3545;
+}
+</style>
+</head>
+
+<body>
+
+<nav class="topo">
+    <a href="../../index.html" class="btn-menu">🏠 Início</a>
+</nav>
+
+<div class="container">
+
+    <h1>📦 CONFERÊNCIA DE NOTAS</h1>
+    <p>Escolha uma das opções abaixo:</p>
+
+    <div class="cards">
+
+        <div class="card entrada"
+             onclick="window.location.href='conferencia.html'">
+            📥
+            <span>Entrada de Nota</span>
+        </div>
+
+        <div class="card saida"
+             onclick="window.location.href='conferencia_saida.html'">
+            📤
+            <span>Saída de Nota</span>
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>

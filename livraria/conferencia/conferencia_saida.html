@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Conferência Universal XML</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+font-family:Arial,sans-serif;
+background:#f4f6f9;
+padding:20px;
+}
+
+h1{
+margin-bottom:15px;
+color:#1f4e79;
+}
+
+.card{
+background:white;
+padding:15px;
+border-radius:10px;
+box-shadow:0 2px 8px rgba(0,0,0,.1);
+margin-bottom:15px;
+}
+
+input[type=file]{
+margin-bottom:10px;
+}
+
+#scanner{
+width:100%;
+padding:12px;
+font-size:18px;
+border:2px solid #1f4e79;
+border-radius:6px;
+}
+
+#progresso{
+margin-top:10px;
+font-weight:bold;
+}
+
+table{
+width:100%;
+border-collapse:collapse;
+background:white;
+}
+
+th{
+background:#1f4e79;
+color:white;
+padding:10px;
+}
+
+td{
+padding:8px;
+border-bottom:1px solid #ddd;
+}
+
+.ok{
+background:#d4edda;
+}
+
+.parcial{
+background:#fff3cd;
+}
+
+.faltando{
+background:#f8d7da;
+}
+
+.excedido{
+background:#ffb3b3;
+}
+
+.status{
+font-weight:bold;
+}
+
+</style>
+</head>
+<body>
+
+<h1>📦 Conferência Universal XML</h1>
+
+<div class="card">
+
+<input type="file" id="arquivo" accept=".xml,.txt">
+
+<input
+id="scanner"
+placeholder="Escaneie ou digite o código..."
+disabled>
+
+<div id="progresso">
+Nenhum XML carregado
+</div>
+
+</div>
+
+<table>
+
+<thead>
+<tr>
+<th>Código</th>
+<th>EAN</th>
+<th>Descrição</th>
+<th>Qtd Nota</th>
+<th>Qtd Lida</th>
+<th>Status</th>
+</tr>
+</thead>
+
+<tbody id="tabela"></tbody>
+
+</table>
+
+<audio id="bip">
+<source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg">
+</audio>
+
+<script>
+
+let nota = [];
+
+const bip = document.getElementById("bip");
+const scanner = document.getElementById("scanner");
+
+const TAGS = {
+
+codigo:[
+"cProd",
+"codigo",
+"cod",
+"sku",
+"idProduto"
+],
+
+ean:[
+"cEAN",
+"ean",
+"gtin",
+"codigoBarras"
+],
+
+descricao:[
+"xProd",
+"descricao",
+"descrição",
+"nome",
+"produto"
+],
+
+quantidade:[
+"qCom",
+"quantidade",
+"qtd",
+"qtde"
+]
+
+};
+
+function texto(el){
+return el ? el.textContent.trim() : "";
+}
+
+function buscarTag(elemento, lista){
+
+for(const nome of lista){
+
+const encontrado =
+Array.from(elemento.getElementsByTagName("*"))
+.find(e =>
+e.localName &&
+e.localName.toLowerCase() === nome.toLowerCase()
+);
+
+if(encontrado)
+return texto(encontrado);
+
+}
+
+return "";
+}
+
+function atualizarTela(){
+
+let html = "";
+
+let conferidos = 0;
+
+nota.forEach(item=>{
+
+let status="";
+let classe="";
+
+if(item.qtdLida===0){
+
+status="❌ Faltando";
+classe="faltando";
+
+}else if(item.qtdLida<item.qtdNota){
+
+status="⚠ Parcial";
+classe="parcial";
+
+}else if(item.qtdLida===item.qtdNota){
+
+status="✔ Conferido";
+classe="ok";
+conferidos++;
+
+}else{
+
+status="🚨 Excedido";
+classe="excedido";
+
+}
+
+html+=`
+<tr class="${classe}">
+<td>${item.codigo}</td>
+<td>${item.ean}</td>
+<td>${item.nome}</td>
+<td>${item.qtdNota}</td>
+<td>${item.qtdLida}</td>
+<td class="status">${status}</td>
+</tr>
+`;
+
+});
+
+document.getElementById("tabela").innerHTML=html;
+
+const perc =
+nota.length
+? Math.floor((conferidos/nota.length)*100)
+: 0;
+
+document.getElementById("progresso").innerHTML=
+`Itens conferidos: ${conferidos}/${nota.length} (${perc}%)`;
+
+}
+
+function tentarExtrairProdutos(xml){
+
+    let itens = [];
+
+    // ==========================
+    // PRIORIDADE 1 - NF-e
+    // ==========================
+
+    const dets = xml.querySelectorAll("det");
+
+    if(dets.length > 0){
+
+        dets.forEach(det=>{
+
+            const prod = det.querySelector("prod");
+
+            if(!prod) return;
+
+            const get = tag => {
+                const el = prod.querySelector(tag);
+                return el ? el.textContent.trim() : "";
+            };
+
+            const codigo = get("cProd");
+
+            let ean = get("cEAN");
+
+            if(ean === "SEM GTIN")
+                ean = "";
+
+            const descricao = get("xProd");
+
+            const qtd = parseFloat(
+                get("qCom")
+                .replace(",",".")
+            ) || 0;
+
+            if(!descricao || qtd <= 0)
+                return;
+
+            itens.push({
+                codigo,
+                ean,
+                nome: descricao,
+                qtdNota: qtd,
+                qtdLida: 0
+            });
+
+        });
+
+        return agruparItens(itens);
+    }
+
+    // ==========================
+    // PRIORIDADE 2 - XML Genérico
+    // ==========================
+
+    const candidatos = [
+
+        ...xml.querySelectorAll("item"),
+        ...xml.querySelectorAll("Item"),
+
+        ...xml.querySelectorAll("produto"),
+        ...xml.querySelectorAll("Produto"),
+
+        ...xml.querySelectorAll("prod"),
+        ...xml.querySelectorAll("Prod")
+
+    ];
+
+    candidatos.forEach(node=>{
+
+        const get = (...tags)=>{
+
+            for(const tag of tags){
+
+                const el = node.querySelector(tag);
+
+                if(el)
+                    return el.textContent.trim();
+
+            }
+
+            return "";
+        };
+
+        const codigo = get(
+            "codigo",
+            "cod",
+            "sku",
+            "idProduto",
+            "cProd"
+        );
+
+        let ean = get(
+            "ean",
+            "gtin",
+            "codigoBarras",
+            "cEAN"
+        );
+
+        if(ean === "SEM GTIN")
+            ean = "";
+
+        const descricao = get(
+            "descricao",
+            "descrição",
+            "nome",
+            "produto",
+            "xProd"
+        );
+
+        const qtd = parseFloat(
+            get(
+                "quantidade",
+                "qtd",
+                "qtde",
+                "qCom"
+            ).replace(",",".")
+        ) || 0;
+
+        if(!descricao || qtd <= 0)
+            return;
+
+        itens.push({
+            codigo,
+            ean,
+            nome: descricao,
+            qtdNota: qtd,
+            qtdLida: 0
+        });
+
+    });
+
+    return agruparItens(itens);
+}
+
+function agruparItens(itens){
+
+    const agrupados = [];
+
+    itens.forEach(item=>{
+
+        let existente = agrupados.find(p =>
+
+            (item.ean &&
+             p.ean &&
+             item.ean === p.ean)
+
+            ||
+
+            (!item.ean &&
+             item.codigo &&
+             p.codigo === item.codigo)
+
+        );
+
+        if(existente){
+
+            existente.qtdNota += item.qtdNota;
+
+        }else{
+
+            agrupados.push(item);
+
+        }
+
+    });
+
+    return agrupados;
+}
+
+document
+.getElementById("arquivo")
+.addEventListener("change",e=>{
+
+const file=e.target.files[0];
+
+if(!file) return;
+
+const reader=new FileReader();
+
+reader.onload=()=>{
+
+const conteudo=
+reader.result
+.replace(/^\uFEFF/,"")
+.trim();
+
+const parser=new DOMParser();
+
+const xml=
+parser.parseFromString(
+conteudo,
+"application/xml"
+);
+
+if(
+xml.getElementsByTagName("parsererror")
+.length
+){
+
+alert("XML inválido");
+return;
+
+}
+
+nota=tentarExtrairProdutos(xml);
+
+if(nota.length===0){
+
+alert(
+"Nenhum produto encontrado no XML."
+);
+
+return;
+
+}
+
+scanner.disabled=false;
+scanner.focus();
+
+atualizarTela();
+
+alert(
+`${nota.length} produtos importados.`
+);
+
+};
+
+reader.readAsText(file);
+
+});
+
+scanner.addEventListener("keypress",e=>{
+
+if(e.key!=="Enter")
+return;
+
+const codigo=
+scanner.value.trim();
+
+let produto=
+nota.find(p=>
+
+p.ean===codigo ||
+
+p.codigo===codigo
+
+);
+
+if(produto){
+
+produto.qtdLida++;
+
+if(
+produto.qtdLida>
+produto.qtdNota
+){
+
+bip.play();
+
+alert(
+"Quantidade excedida:\n\n"+
+produto.nome
+);
+
+}
+
+}else{
+
+bip.play();
+
+alert(
+"Código não encontrado:\n\n"+
+codigo
+);
+
+}
+
+scanner.value="";
+
+atualizarTela();
+
+});
+
+</script>
+
+</body>
+</html>
