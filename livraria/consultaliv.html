@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Consulta de Livros</title>
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:Arial, sans-serif;
+    background:#f4f6f9;
+    padding:30px;
+}
+
+.container{
+    max-width:900px;
+    margin:auto;
+}
+
+h1{
+    color:#1f4e79;
+    margin-bottom:20px;
+}
+
+.busca{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+input{
+    flex:1;
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:16px;
+}
+
+button{
+    background:#1f4e79;
+    color:white;
+    border:none;
+    padding:12px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    font-size:16px;
+}
+
+button:hover{
+    background:#173b5e;
+}
+
+table{
+    width:100%;
+    border-collapse:collapse;
+    background:white;
+}
+
+th{
+    background:#1f4e79;
+    color:white;
+    padding:12px;
+}
+
+td{
+    padding:12px;
+    border-bottom:1px solid #ddd;
+}
+
+.disponivel{
+    color:green;
+    font-weight:bold;
+}
+
+.indisponivel{
+    color:red;
+    font-weight:bold;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>📚 Consulta de Livros</h1>
+
+    <div class="busca">
+        <input type="text" id="txtBusca" placeholder="EAN ou nome do livro (mín. 3 letras)">
+        <button onclick="consultar()">🔍 Consultar</button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>EAN</th>
+                <th>Livro</th>
+                <th>Estoque</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+
+        <tbody id="resultado">
+            <tr>
+                <td colspan="4" style="text-align:center">
+                    Digite um livro para pesquisar
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+</div>
+
+<script>
+
+const URL_API = "https://script.google.com/macros/s/AKfycbwlNCD09Hh_SN58zdLk_cPZyVDvZOdLGvdWwZL2ana4Um_fppWuVV5ASEVCNwDeKhNNJA/exec";
+
+let timer = null;
+let ultimaRequisicao = 0;
+
+// 🔎 CONSULTA
+async function consultar(){
+
+    const idAtual = Date.now();
+    ultimaRequisicao = idAtual;
+
+    const busca = document.getElementById("txtBusca").value.trim();
+    const tbody = document.getElementById("resultado");
+
+    if(busca.length === 0){
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center">
+                    Digite um livro para pesquisar
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    try{
+
+        const resposta = await fetch(
+            `${URL_API}?busca=${encodeURIComponent(busca)}`
+        );
+
+        const texto = await resposta.text();
+
+        let livros = [];
+
+        try {
+            livros = JSON.parse(texto);
+        } catch(e){
+            console.error("Resposta inválida:", texto);
+            throw e;
+        }
+
+        if(idAtual !== ultimaRequisicao) return;
+
+        renderizar(livros);
+
+    }
+    catch(erro){
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center;color:red">
+                    Erro ao consultar servidor
+                </td>
+            </tr>
+        `;
+
+        console.error(erro);
+    }
+}
+
+
+// 📊 RENDERIZAÇÃO
+function renderizar(livros){
+
+    const tbody = document.getElementById("resultado");
+
+    if(!livros || livros.length === 0){
+
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="4" style="text-align:center">
+                    Nenhum livro encontrado
+                </td>
+            </tr>
+        `;
+        return;
+    }
+
+    tbody.innerHTML = "";
+
+    livros.forEach(livro => {
+
+        const status =
+            livro.estoque > 0
+            ? '<span class="disponivel">Disponível</span>'
+            : '<span class="indisponivel">Indisponível</span>';
+
+        tbody.innerHTML += `
+            <tr>
+                <td>${livro.ean}</td>
+                <td>${livro.nome}</td>
+                <td>${livro.estoque}</td>
+                <td>${status}</td>
+            </tr>
+        `;
+    });
+}
+
+
+// ⌨️ DEBOUNCE
+document.getElementById("txtBusca").addEventListener("input", function(){
+
+    clearTimeout(timer);
+
+    timer = setTimeout(() => {
+        consultar();
+    }, 300);
+
+});
+
+</script>
+
+</body>
+</html>

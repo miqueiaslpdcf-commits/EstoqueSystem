@@ -20,62 +20,13 @@ body::before {
     background: rgba(0,0,0,0.5);
     z-index: -1;
 }
-h2 { 
-    text-align: center; 
-    margin-bottom: 20px; 
-    color: #f3e8dd;
-    text-shadow: 2px 2px 6px rgba(0,0,0,0.5);
-}
-input, button { 
-    font-size: 18px; 
-    padding: 10px; 
-    margin-bottom: 10px; 
-    width: 100%; 
-    box-sizing: border-box; 
-    background: rgba(255,255,255,0.95);
-    color: #000;
-}
-table {
-     width: 100%;
-     border-collapse: collapse; 
-     margin-top: 20px; 
-    background: rgba(255,255,255,0.95);
-    color: #000;
-    }
     
-table, th, td {
-     border: 1px solid #333; 
-    }
-th, td {
-     padding: 10px; 
-     text-align: left; }
-.ok { 
-    background-color: #34ec3b !important; 
-    }       /* verde quando conferido */
-.parcial { 
-    background-color: #fff38c !important; 
-    } /* amarelo quando parcialmente conferido */
-.faltando { 
-    background-color: #fa2a2a !important; 
-    }  /* vermelho quando ainda não conferido */
-.progresso { 
-    font-size: 16px; 
-    margin-bottom: 20px; 
-    }
-.excedido 
-    {
-    background-color: #ff9a00 !important; /* laranja */
-}
-
-
-
 
 /* MENU SUPERIOR */
 .topo {
     display: flex;
     gap: 10px;
     padding: 15px;
-    background: rgba(0,0,0,0.7);
     backdrop-filter: blur(6px);
     position: sticky;
     top: 0;
@@ -190,6 +141,9 @@ th, td {
 }
 .ConsLiv {
     background: linear-gradient(135deg, #e45d03, #f56f17);
+}
+.ConsultarLivro {
+    background: linear-gradient(135deg, #2afc06, #5df517);
 }
 
 /*aba de localização de livros*/

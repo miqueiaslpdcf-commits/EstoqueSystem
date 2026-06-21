@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 
-<title>Conferência Universal XML</title>
+<title>Conferência de Saída de Nota</title>
 
 <style>
 
@@ -15,8 +15,12 @@ box-sizing:border-box;
 }
 
 body{
-font-family:Arial,sans-serif;
-background:#f4f6f9;
+font-family:Segoe UI,Arial,sans-serif;
+background:linear-gradient(
+180deg,
+#eef4fb,
+#f4f6f9
+);
 padding:20px;
 }
 
@@ -27,10 +31,11 @@ color:#1f4e79;
 
 .card{
 background:white;
-padding:15px;
-border-radius:10px;
-box-shadow:0 2px 8px rgba(0,0,0,.1);
-margin-bottom:15px;
+padding:20px;
+border-radius:12px;
+box-shadow:0 4px 12px rgba(0,0,0,.08);
+margin-bottom:20px;
+border-left:5px solid #1f4e79;
 }
 
 input[type=file]{
@@ -39,21 +44,56 @@ margin-bottom:10px;
 
 #scanner{
 width:100%;
-padding:12px;
-font-size:18px;
-border:2px solid #1f4e79;
-border-radius:6px;
+padding:18px;
+font-size:24px;
+font-weight:bold;
+border:3px solid #1f4e79;
+border-radius:10px;
+margin-bottom:15px;
+text-align:center;
+background:white;
+box-shadow:0 2px 8px rgba(0,0,0,.08);
 }
 
-#progresso{
+#scanner:focus{
+outline:none;
+box-shadow:0 0 0 4px rgba(31,78,121,.25);
+}
+
+.progresso-box{
 margin-top:10px;
-font-weight:bold;
+}
+
+.barra{
+height:24px;
+background:#ddd;
+border-radius:20px;
+overflow:hidden;
+}
+
+.barra-preenchida{
+height:100%;
+background:#28a745;
+width:0%;
+transition:.4s;
 }
 
 table{
 width:100%;
 border-collapse:collapse;
 background:white;
+border-radius:10px;
+overflow:hidden;
+box-shadow:0 2px 10px rgba(0,0,0,.08);
+}
+
+thead{
+position:sticky;
+top:0;
+}
+
+tbody tr:hover{
+background:#eef5ff;
 }
 
 th{
@@ -87,26 +127,184 @@ background:#ffb3b3;
 font-weight:bold;
 }
 
+
+
+
+.topo{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:20px;
+padding:20px;
+background:#1f4e79;
+color:white;
+border-radius:12px;
+box-shadow:0 4px 12px rgba(0,0,0,.15);
+}
+
+.topo h1{
+margin:0;
+color:white;
+font-size:28px;
+}
+
+.topo span{
+opacity:.8;
+font-size:14px;
+}
+
+.badge-status{
+background:#28a745;
+padding:8px 14px;
+border-radius:20px;
+font-size:13px;
+font-weight:bold;
+}
+
+button{
+
+border:none;
+padding:12px 18px;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold;
+transition:.2s;
+}
+
+button:hover{
+transform:translateY(-2px);
+}
+
+#btnCarregarPdf{
+background:#1f4e79;
+color:white;
+}
+
+#btnBaixarXml{
+background:#198754;
+color:white;
+}
+
+#btnBaixarXml:disabled{
+opacity:.5;
+cursor:not-allowed;
+}
+
+
+.cardsResumo{
+display:grid;
+grid-template-columns:repeat(3,1fr);
+gap:15px;
+margin-bottom:15px;
+}
+
+.resumo-card{
+background:white;
+padding:20px;
+border-radius:12px;
+text-align:center;
+box-shadow:0 3px 10px rgba(0,0,0,.08);
+}
+
+.resumo-card div{
+font-size:28px;
+font-weight:bold;
+color:#1f4e79;
+}
+
+.resumo-card span{
+color:#666;
+}
+
+
+
+
 </style>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+pdfjsLib.GlobalWorkerOptions.workerSrc =
+'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
+
 </head>
 <body>
 
-<h1>📦 Conferência Universal XML</h1>
 
 <div class="card">
 
-<input type="file" id="arquivo" accept=".xml,.txt">
+<h3>🔄 Conversor PDF → XML</h3>
+
+<input
+type="file"
+id="pdfConversor"
+accept=".pdf">
+
+<button id="btnCarregarPdf">
+📦 Carregar na Conferência
+</button>
+
+<button id="btnBaixarXml" disabled>
+📄 Baixar XML
+</button>
+
+<div id="statusConversor"></div>
+
+</div> 
+
+<header class="topo">
+    <div>
+        <h1>📦 Conferência de Saída de Notas</h1>
+    </div>
+
+    <div class="badge-status">
+        Sistema Online
+    </div>
+</header>
+
+<div class="cardsResumo">
+
+<div class="resumo-card">
+<div id="totalItens">0</div>
+<span>Itens</span>
+</div>
+
+<div class="resumo-card">
+<div id="totalConferidos">0</div>
+<span>Conferidos</span>
+</div>
+
+<div class="resumo-card">
+<div id="percentual">0%</div>
+<span>Progresso</span>
+</div>
+
+</div>
 
 <input
 id="scanner"
 placeholder="Escaneie ou digite o código..."
 disabled>
 
-<div id="progresso">
+<div class="card">
+
+<input type="file" id="arquivo" accept=".xml,.txt">
+
+<div class="progresso-box">
+
+<div id="textoProgresso">
 Nenhum XML carregado
 </div>
 
+<div class="barra">
+<div
+id="barraProgresso"
+class="barra-preenchida">
 </div>
+</div>
+
+</div>
+
 
 <table>
 
@@ -132,6 +330,8 @@ Nenhum XML carregado
 <script>
 
 let nota = [];
+let produtosConvertidos = [];
+
 
 const bip = document.getElementById("bip");
 const scanner = document.getElementById("scanner");
@@ -247,8 +447,20 @@ nota.length
 ? Math.floor((conferidos/nota.length)*100)
 : 0;
 
-document.getElementById("progresso").innerHTML=
+document.getElementById("textoProgresso").innerHTML =
 `Itens conferidos: ${conferidos}/${nota.length} (${perc}%)`;
+
+document.getElementById("barraProgresso").style.width =
+perc + "%";
+
+document.getElementById("totalItens").textContent =
+nota.length;
+
+document.getElementById("totalConferidos").textContent =
+conferidos;
+
+document.getElementById("percentual").textContent =
+perc + "%";
 
 }
 
@@ -424,9 +636,152 @@ function agruparItens(itens){
     return agrupados;
 }
 
-document
-.getElementById("arquivo")
-.addEventListener("change",e=>{
+
+function baixarXML(produtos){
+
+let xml =
+`<?xml version="1.0" encoding="UTF-8"?>
+<nfe>
+<produtos>
+`;
+
+produtos.forEach((item,index)=>{
+
+xml += `
+<det nItem="${index+1}">
+<prod>
+
+<cProd>${item.codigo}</cProd>
+
+<cEAN>${item.ean || item.codigo}</cEAN>
+
+<xProd>${item.nome}</xProd>
+
+<qCom>${item.qtdNota}</qCom>
+
+</prod>
+</det>
+`;
+
+});
+
+xml += `
+</produtos>
+</nfe>
+`;
+
+const blob =
+new Blob(
+[xml],
+{type:"application/xml"}
+);
+
+const url =
+URL.createObjectURL(blob);
+
+const a =
+document.createElement("a");
+
+a.href = url;
+a.download = "nota_convertida.xml";
+
+a.click();
+
+URL.revokeObjectURL(url);
+
+}
+
+function gerarXMLString(produtos){
+
+let xml =
+`<?xml version="1.0" encoding="UTF-8"?>
+<produtos>`;
+
+produtos.forEach(item=>{
+
+xml += `
+<produto>
+<codigo>${item.codigo}</codigo>
+<ean>${item.ean}</ean>
+<descricao>${item.nome}</descricao>
+<quantidade>${item.qtdNota}</quantidade>
+</produto>`;
+
+});
+
+xml += `
+</produtos>`;
+
+return xml;
+
+}
+
+function carregarXMLString(xmlString){
+
+const parser = new DOMParser();
+
+const xml = parser.parseFromString(
+    xmlString,
+    "application/xml"
+);
+
+nota = tentarExtrairProdutos(xml);
+
+nota.forEach(item=>{
+    item.qtdLida = 0;
+});
+
+atualizarTela();
+
+scanner.disabled = false;
+
+scanner.focus();
+
+}
+
+
+
+async function extrairTextoPDF(file){
+
+const arrayBuffer =
+await file.arrayBuffer();
+
+const pdf =
+await pdfjsLib.getDocument({
+data: arrayBuffer
+}).promise;
+
+let texto = "";
+
+for(
+let pagina=1;
+pagina<=pdf.numPages;
+pagina++
+){
+
+const page =
+await pdf.getPage(pagina);
+
+const content =
+await page.getTextContent();
+
+const linhas =
+content.items
+.map(item=>item.str);
+
+texto += linhas.join(" ") + "\n";
+
+}
+
+return texto;
+
+}
+
+/*
+--------------------------------
+*/
+
+document.getElementById("arquivo").addEventListener("change",e=>{
 
 const file=e.target.files[0];
 
@@ -537,6 +892,143 @@ scanner.value="";
 atualizarTela();
 
 });
+
+
+
+function extrairProdutosDanfe(texto){
+
+    const produtos = [];
+
+    texto = texto.replace(/\s+/g, " ");
+    const regex = /(97\d{11,13})\s+(.+?)\s+490\d{5}\s+\d+\s+\d+\s+\S+\s+(\d+)/gi;
+
+    let match;
+
+    while((match = regex.exec(texto)) !== null){
+
+        produtos.push({
+
+            codigo: match[1].trim(),
+
+            ean: match[1].trim(),
+
+            nome: match[2]
+                .replace(/\s+/g," ")
+                .trim(),
+
+            qtdNota: Number(match[3]) || 0
+
+        });
+
+    }
+
+    return produtos;
+
+}
+
+/*
+----------------------------------
+*/
+
+document
+.getElementById("btnCarregarPdf")
+.addEventListener(
+"click",
+async ()=>{
+
+const arquivo =
+document.getElementById(
+"pdfConversor"
+).files[0];
+
+if(!arquivo){
+
+alert(
+"Selecione um PDF."
+);
+
+return;
+
+}
+
+document.getElementById(
+"statusConversor"
+).innerHTML =
+"⏳ Lendo PDF...";
+
+const texto =
+await extrairTextoPDF(
+arquivo
+);
+console.log(texto);
+
+const textoLimpo =
+texto.replace(/\s+/g," ");
+
+const produtos =
+extrairProdutosDanfe(textoLimpo);
+
+console.log(produtos);
+
+if(produtos.length === 0){
+
+    alert("Nenhum produto encontrado.");
+
+    return;
+
+}
+
+// Carrega direto na conferência
+const xmlGerado =
+gerarXMLString(produtos);
+
+carregarXMLString(xmlGerado);
+
+produtosConvertidos = produtos;
+
+document.getElementById(
+"btnBaixarXml"
+).disabled = false;
+
+alert(
+    produtos.length +
+    " produto(s) convertidos."
+);
+
+document.getElementById(
+"statusConversor"
+).innerHTML =
+"✅ " +
+produtos.length +
+" produto(s) encontrado(s)";
+
+}
+);
+
+document
+.getElementById("btnBaixarXml")
+.addEventListener(
+"click",
+()=>{
+
+    if(
+        produtosConvertidos.length === 0
+    ){
+
+        alert(
+            "Nenhum PDF foi convertido."
+        );
+
+        return;
+
+    }
+
+    baixarXML(
+        produtosConvertidos
+    );
+
+}
+);
 
 </script>
 
