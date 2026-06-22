@@ -420,21 +420,18 @@ async function carregar(){
     try{
         const res = await fetch(API);
         const dados = await res.json();
+
+        console.log("USUARIO LOGADO:", usuario);
+
+dados.forEach(r=>{
+    console.log(
+        "ID:", r.id,
+        "USUARIO DA REQUISIÇÃO:", r.usuario
+    );
+});
         requisicoesCache = dados;
 
-        const minhas = dados.filter(r => {
-        return (r.usuario || "")
-        .toString()
-        .trim()
-        .toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") ===
-        
-        (usuario || "")
-        .toString()
-        .trim()
-        .toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-        });
+        const minhas = dados;
 
         if(minhas.length === 0){
             lista.innerHTML = "Nenhuma requisição encontrada.";
@@ -470,8 +467,11 @@ async function carregar(){
     <button class="btn-word" onclick="exportarWord(${req.id})">📘 Word</button>
     <button class="btn-sheets" onclick="exportarSheets(${req.id})">🟢 Google Planilhas</button>
     </div>
-    <p>Status: <b class="${cor}">${req.status}</b></p>
-    <p>Data: ${formatarData(req.data)}</p>
+    <p>👤 Solicitante: <b>${req.usuario || "Não informado"}</b></p>
+
+<p>Status: <b class="${cor}">${req.status}</b></p>
+
+<p>Data: ${formatarData(req.data)}</p>
 
     <ul>
         ${itens.map(i => {
@@ -862,20 +862,7 @@ function abrirModalImportacaoGeral(){
 
     const usuario = localStorage.getItem("usuarioNome") || "";
 
-    const minhas = requisicoesCache.filter(r => {
-
-        return (r.usuario || "")
-        .toString()
-        .trim()
-        .toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "") ===
-
-        (usuario || "")
-        .toString()
-        .trim()
-        .toLowerCase()
-        .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-    });
+    const minhas = requisicoesCache;
 
     let html = "";
 
