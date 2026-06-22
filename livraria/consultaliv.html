@@ -2,235 +2,334 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<title>Consulta de Livros</title>
+<title>Consultar Livro</title>
 
 <style>
-
-*{
-    margin:0;
-    padding:0;
-    box-sizing:border-box;
+body {
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: linear-gradient(135deg, #ece6da, #f7f3ea);
+  margin: 0;
+  padding: 30px;
+  color: #2b2b2b;
 }
 
-body{
-    font-family:Arial, sans-serif;
-    background:#f4f6f9;
-    padding:30px;
+/* painel principal */
+.container {
+  max-width: 900px;
+  margin: auto;
+  background: #fffdf7;
+  padding: 25px;
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0,0,0,0.08);
+  border: 1px solid #e7dcc6;
 }
 
-.container{
-    max-width:900px;
-    margin:auto;
+/* título estilo sistema */
+h2 {
+  text-align: center;
+  color: #2a3b4c;
+  margin-bottom: 25px;
+  font-size: 22px;
+  letter-spacing: 0.5px;
 }
 
-h1{
-    color:#1f4e79;
-    margin-bottom:20px;
+/* input moderno estilo search global */
+input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid #d6cbb3;
+  font-size: 15px;
+  outline: none;
+  background: #fff;
+  transition: 0.2s;
 }
 
-.busca{
-    display:flex;
-    gap:10px;
-    margin-bottom:20px;
+input:focus {
+  border-color: #3b5b7a;
+  box-shadow: 0 0 0 3px rgba(59,91,122,0.15);
 }
 
-input{
-    flex:1;
-    padding:12px;
-    border:1px solid #ccc;
-    border-radius:8px;
-    font-size:16px;
+/* botão moderno */
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 12px;
+  background: #3b5b7a;
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-button{
-    background:#1f4e79;
-    color:white;
-    border:none;
-    padding:12px 20px;
-    border-radius:8px;
-    cursor:pointer;
-    font-size:16px;
+button:hover {
+  background: #2f4a63;
+  transform: translateY(-1px);
 }
 
-button:hover{
-    background:#173b5e;
+/* sugestões dropdown */
+#sugestoes {
+  background: white;
+  border: 1px solid #e7dcc6;
+  position: absolute;
+  width: 100%;
+  z-index: 10;
+  border-radius: 0 0 12px 12px;
+  overflow: hidden;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
-table{
-    width:100%;
-    border-collapse:collapse;
-    background:white;
+#sugestoes div {
+  padding: 12px;
+  cursor: pointer;
+  transition: 0.15s;
+  border-bottom: 1px solid #f1eadc;
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
 }
 
-th{
-    background:#1f4e79;
-    color:white;
-    padding:12px;
+#sugestoes div:hover {
+  background: #f7f1e5;
 }
 
-td{
-    padding:12px;
-    border-bottom:1px solid #ddd;
+/* ===== CATÁLOGO (NÍVEL 2 VISUAL) ===== */
+
+#resultado {
+  margin-top: 20px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 15px;
 }
 
-.disponivel{
-    color:green;
-    font-weight:bold;
+/* card do livro */
+.item {
+  background: white;
+  border-radius: 14px;
+  border: 1px solid #eee3cc;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.05);
+  padding: 14px;
+  transition: 0.2s;
+  position: relative;
 }
 
-.indisponivel{
-    color:red;
-    font-weight:bold;
+.item:hover {
+  transform: translateY(-4px);
+}
+
+/* título do livro */
+.item b {
+  display: block;
+  font-size: 15px;
+  margin-bottom: 8px;
+  color: #2a3b4c;
+}
+
+/* linha de info */
+.item .info {
+  font-size: 13px;
+  margin-top: 4px;
+  color: #555;
+}
+
+/* badge estoque estilo etiqueta */
+.badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 5px 8px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+}
+
+.badge.ok {
+  background: #2e7d32;
+}
+
+.badge.bad {
+  background: #c62828;
+}
+
+/* status */
+.ok {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+.bad {
+  color: #c62828;
+  font-weight: 600;
+}
+
+/* cache label */
+.cache {
+  font-size: 12px;
+  color: #8a7d66;
+  margin-bottom: 10px;
+  display: block;
 }
 
 </style>
 </head>
+
 <body>
 
 <div class="container">
+  <h2>🔎 Consultar Livro</h2>
+  <div style="position:relative;">
+<input type="text" id="busca" placeholder="Digite EAN ou título" oninput="handleInput()" autocomplete="off">
+  <div id="sugestoes" style="background:white;border:1px solid #ddd;position:absolute;width:100%;z-index:10;"></div>
+  </div>
+  <button onclick="consultar()">Buscar</button>
 
-    <h1>📚 Consulta de Livros</h1>
-
-    <div class="busca">
-        <input type="text" id="txtBusca" placeholder="EAN ou nome do livro (mín. 3 letras)">
-        <button onclick="consultar()">🔍 Consultar</button>
-    </div>
-
-    <table>
-        <thead>
-            <tr>
-                <th>EAN</th>
-                <th>Livro</th>
-                <th>Estoque</th>
-                <th>Status</th>
-            </tr>
-        </thead>
-
-        <tbody id="resultado">
-            <tr>
-                <td colspan="4" style="text-align:center">
-                    Digite um livro para pesquisar
-                </td>
-            </tr>
-        </tbody>
-    </table>
-
+  <div id="resultado"></div>
 </div>
 
 <script>
 
-const URL_API = "https://script.google.com/macros/s/AKfycbwlNCD09Hh_SN58zdLk_cPZyVDvZOdLGvdWwZL2ana4Um_fppWuVV5ASEVCNwDeKhNNJA/exec";
+let timerInput;
+let timerSuggest;
+let requestId = 0;
 
-let timer = null;
-let ultimaRequisicao = 0;
 
-// 🔎 CONSULTA
-async function consultar(){
+const API_URL = "https://script.google.com/macros/s/AKfycbxVAOrp6lLFJfPpgOkrfwNS6UGXNFDr-zWql5bIeMjNHRJ-lQvKUgWUNmuSFs3bZOUyow/exec";
 
-    const idAtual = Date.now();
-    ultimaRequisicao = idAtual;
+// ⚡ CACHE simples no navegador
+const cache = JSON.parse(localStorage.getItem("cacheLivros") || "{}");
 
-    const busca = document.getElementById("txtBusca").value.trim();
-    const tbody = document.getElementById("resultado");
+async function consultar() {
+  const q = document.getElementById("busca").value.toLowerCase().trim();
+  const res = document.getElementById("resultado");
 
-    if(busca.length === 0){
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="4" style="text-align:center">
-                    Digite um livro para pesquisar
-                </td>
-            </tr>
-        `;
-        return;
-    }
+  if (!q) return;
 
-    try{
+  // ⚡ 1. verifica cache primeiro
+  if (cache[q]) {
+    render(cache[q], true);
+    return;
+  }
 
-        const resposta = await fetch(
-            `${URL_API}?busca=${encodeURIComponent(busca)}`
-        );
+  res.innerHTML = "Buscando...";
 
-        const texto = await resposta.text();
+  try {
+    const response = await fetch(`${API_URL}?q=${encodeURIComponent(q)}`);
+    const data = await response.json();
 
-        let livros = [];
+    // salva no cache
+    cache[q] = data.resultados;
+    localStorage.setItem("cacheLivros", JSON.stringify(cache));
 
-        try {
-            livros = JSON.parse(texto);
-        } catch(e){
-            console.error("Resposta inválida:", texto);
-            throw e;
-        }
+    render(data.resultados, false);
 
-        if(idAtual !== ultimaRequisicao) return;
-
-        renderizar(livros);
-
-    }
-    catch(erro){
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="4" style="text-align:center;color:red">
-                    Erro ao consultar servidor
-                </td>
-            </tr>
-        `;
-
-        console.error(erro);
-    }
+  } catch (err) {
+    res.innerHTML = "Erro na consulta";
+  }
 }
 
+function render(lista, fromCache) {
+  const res = document.getElementById("resultado");
 
-// 📊 RENDERIZAÇÃO
-function renderizar(livros){
+  if (!lista || lista.length === 0) {
+    res.innerHTML = "Nenhum livro encontrado";
+    return;
+  }
 
-    const tbody = document.getElementById("resultado");
+  res.innerHTML = `
+    <div style="grid-column:1/-1;">
+      <span class="cache">
+        ${fromCache ? "⚡ cache local" : "🌐 consulta ao catálogo"}
+      </span>
+    </div>
 
-    if(!livros || livros.length === 0){
+    ${lista.map(l => `
+      <div class="item">
+        
+        <div class="badge ${l.disponivel ? 'ok' : 'bad'}">
+          ${l.estoque}
+        </div>
 
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="4" style="text-align:center">
-                    Nenhum livro encontrado
-                </td>
-            </tr>
-        `;
+        <b>${l.titulo}</b>
+
+        <div class="info">EAN: ${l.ean}</div>
+
+        <div class="info">
+          Status: 
+          <span class="${l.disponivel ? 'ok' : 'bad'}">
+            ${l.disponivel ? "Disponível" : "Indisponível"}
+          </span>
+        </div>
+
+      </div>
+    `).join("")}
+  `;
+}
+async function autocomplete() {
+  const q = document.getElementById("busca").value.trim();
+  const box = document.getElementById("sugestoes");
+
+  clearTimeout(timerSuggest);
+
+  if (!q) {
+    box.innerHTML = "";
+    return;
+  }
+
+  const currentRequest = ++requestId;
+
+  timerSuggest = setTimeout(async () => {
+    try {
+      const res = await fetch(`${API_URL}?q=${encodeURIComponent(q)}&type=suggest`);
+      const data = await res.json();
+
+      // 🔥 ignora resposta antiga
+      if (currentRequest !== requestId) return;
+
+      if (!data.sugestoes || data.sugestoes.length === 0) {
+        box.innerHTML = "";
         return;
+      }
+
+      box.innerHTML = data.sugestoes.map(item => `
+        <div onclick="selecionarSugestao('${item.titulo.replace(/'/g, "\\'")}')">
+          📘 ${item.titulo}
+        </div>
+      `).join("");
+
+    } catch (err) {
+      console.log(err);
     }
-
-    tbody.innerHTML = "";
-
-    livros.forEach(livro => {
-
-        const status =
-            livro.estoque > 0
-            ? '<span class="disponivel">Disponível</span>'
-            : '<span class="indisponivel">Indisponível</span>';
-
-        tbody.innerHTML += `
-            <tr>
-                <td>${livro.ean}</td>
-                <td>${livro.nome}</td>
-                <td>${livro.estoque}</td>
-                <td>${status}</td>
-            </tr>
-        `;
-    });
+  }, 80);
 }
 
+function selecionarSugestao(titulo) {
+  document.getElementById("busca").value = titulo;
+  document.getElementById("sugestoes").innerHTML = "";
 
-// ⌨️ DEBOUNCE
-document.getElementById("txtBusca").addEventListener("input", function(){
+  consultar(); // usa sua busca já existente
+}
 
-    clearTimeout(timer);
+function handleInput() {
+  const q = document.getElementById("busca").value.trim();
 
-    timer = setTimeout(() => {
-        consultar();
-    }, 300);
+  clearTimeout(timerInput);
 
-});
+  const isEAN = /^[0-9]{8,13}$/.test(q);
+
+  if (isEAN && (q.length === 13 || q.length === 12)) {
+    consultar();
+    return;
+  }
+
+  timerInput = setTimeout(() => {
+    if (q.length >= 2) {
+      autocomplete();
+    }
+  }, 200);
+}
 
 </script>
 
