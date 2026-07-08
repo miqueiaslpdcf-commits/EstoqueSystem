@@ -515,9 +515,9 @@ async function carregar(){
                         ${
                             req.status === "Pendente"
                             ? `
-                                <button onclick="diminuir(${req.linha}, ${index}, this)">-</button>
+                                <button onclick="diminuir(${req.id}, ${index}, this)">-</button>
                                 <span class="qtd">${item.qtd}</span>
-                                <button onclick="aumentar(${req.linha}, ${index}, this)">+</button>
+                                <button onclick="aumentar(${req.id}, ${index}, this)">+</button>
                             `
                             : `<span class="qtd">${item.qtd}</span>`
                         }
@@ -595,17 +595,23 @@ function aprovar(id, linha){
             "Content-Type": "application/x-www-form-urlencoded"
         },
         body: "dados=" + encodeURIComponent(JSON.stringify({
-        tipo:"atualizar_status",
-        linha: linha,
-        status:"Aprovado"
-        }))
+    tipo:"atualizar_status",
+    id: id,
+    status:"Aprovado"
+}))
     })
-    .then(r => r.text())
-    .then(() => {
-        // 🔥 só recarrega DEPOIS que salvou
-        setTimeout(carregar, 300);
-    })
-    .catch(err => console.error("ERRO:", err));
+    .then(r => r.json())
+.then(res => {
+    console.log(res);
+
+    if(res.status !== "ok"){
+        alert(res.mensagem || "Erro ao aprovar.");
+        return;
+    }
+
+    setTimeout(carregar, 300);
+})
+.catch(err => console.error("ERRO:", err));
 }
 
 // ❌ Negar
@@ -624,16 +630,23 @@ function negar(id, linha){
             "Content-Type": "application/x-www-form-urlencoded"
         },
         body: "dados=" + encodeURIComponent(JSON.stringify({
-            tipo:"atualizar_status",
-            linha: linha,
-            status:"Negado"
-        }))
+    tipo:"atualizar_status",
+    id: id,
+    status:"Negado"
+}))
     })
-    .then(r => r.text())
-    .then(() => {
-        setTimeout(carregar, 300);
-    })
-    .catch(err => console.error("ERRO:", err));
+    .then(r => r.json())
+.then(res => {
+    console.log(res);
+
+    if(res.status !== "ok"){
+        alert(res.mensagem || "Erro ao negar.");
+        return;
+    }
+
+    setTimeout(carregar, 300);
+})
+.catch(err => console.error("ERRO:", err));
 }
 
 
@@ -659,7 +672,7 @@ function atualizarStatusLocal(id, novoStatus){
 }
 
 // ➕ Aumentar qtd
-function aumentar(linha, index, el){
+function aumentar(id, index, el){
     const box = el.closest(".box");
     const status = box.querySelector(".status").innerText;
 
@@ -674,7 +687,7 @@ function aumentar(linha, index, el){
 
     atualizarValoresLinha(td, qtd);
 
-    const chave = `${linha}-${index}`;
+    const chave = `${id}-${index}`;
     if(!filaAtualizacao[chave]) filaAtualizacao[chave] = 0;
     filaAtualizacao[chave]++;
 
@@ -682,7 +695,7 @@ function aumentar(linha, index, el){
 }
 
 // ➖ Diminuir qtd
-function diminuir(linha, index, el){
+function diminuir(id, index, el){
     const box = el.closest(".box");
     const status = box.querySelector(".status").innerText;
 
@@ -699,7 +712,7 @@ function diminuir(linha, index, el){
 
         atualizarValoresLinha(td, qtd);
 
-        const chave = `${linha}-${index}`;
+        const chave = `${id}-${index}`;
         if(!filaAtualizacao[chave]) filaAtualizacao[chave] = 0;
         filaAtualizacao[chave]--;
 
@@ -717,15 +730,15 @@ function enviarFila(){
     const dadosEnvio = [];
 
     for(let chave in filaAtualizacao){
-        const [linha, index] = chave.split("-");
+        const [id, index] = chave.split("-");
         const valor = filaAtualizacao[chave];
 
         if(valor !== 0){
             dadosEnvio.push({
-                linha: Number(linha),
-                index: Number(index),
-                valor: valor
-            });
+    id: id,
+    index: Number(index),
+    valor: valor
+});
         }
     }
 
