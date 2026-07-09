@@ -206,6 +206,80 @@ input[type=file]{
 }
 
 
+.controle-qtd{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:0;
+}
+
+.controle-qtd button{
+    width:34px;
+    height:34px;
+    border:none;
+    background:#1f4e79;
+    color:#fff;
+    font-size:22px;
+    font-weight:bold;
+    cursor:pointer;
+    transition:.2s;
+}
+
+.controle-qtd button:hover{
+    background:#16395a;
+}
+
+.controle-qtd button:active{
+    transform:scale(.95);
+}
+
+.controle-qtd .menos{
+    border-radius:8px 0 0 8px;
+}
+
+.controle-qtd .mais{
+    border-radius:0 8px 8px 0;
+}
+
+.controle-qtd input{
+    width:55px;
+    height:34px;
+    border:1px solid #1f4e79;
+    border-left:none;
+    border-right:none;
+    text-align:center;
+    font-size:16px;
+    font-weight:bold;
+    outline:none;
+    box-sizing:border-box;
+}
+
+.controle-qtd input::-webkit-inner-spin-button,
+.controle-qtd input::-webkit-outer-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+}
+
+.controle-qtd input{
+    appearance: textfield;
+    -webkit-appearance: none;
+    -moz-appearance: textfield;
+}
+
+.destacado{
+    animation: destaque .5s;
+}
+
+@keyframes destaque{
+    from{
+        background:#8cff9b;
+    }
+    to{
+        background:inherit;
+    }
+}
+
+
 </style>
 
 </head>
@@ -305,12 +379,14 @@ let nota = [];
 let bip = document.getElementById("bip");
 let input = document.getElementById("scanner");
 
+let ultimoEscaneado = null;
+
 /* ===== Atualiza tabela ===== */
 function atualizarTela(){
     let tabela = "";
     let itensConferidos = 0;
 
-    nota.forEach(p=>{
+    nota.forEach((p, i)=>{
         let status = "", classe = "";
 
         if(p.qtdLida === 0){
@@ -329,12 +405,31 @@ function atualizarTela(){
         }
 
         tabela += `
-        <tr class="${classe}">
+            <tr class="${classe} ${p.ean === ultimoEscaneado?.ean ? 'destacado':''}">
             <td>${p.codigo}</td>
             <td>${p.ean}</td>
             <td>${p.nome}</td>
             <td>${p.qtdNota}</td>
-            <td>${p.qtdLida}</td>
+           <td>
+    <div class="controle-qtd">
+
+        <button
+            class="menos"
+            onclick="alterarQuantidade(${i}, nota[${i}].qtdLida-1)">
+            −
+        </button>
+
+        <input
+            type="number"
+            min="0"
+            value="${p.qtdLida}"
+            onchange="alterarQuantidade(${i}, this.value)">
+            <button
+            class="mais"
+            onclick="alterarQuantidade(${i}, nota[${i}].qtdLida+1)"> +
+            </button>
+            </div>
+            </td>
             <td>${status}</td>
         </tr>`;
     });
@@ -365,17 +460,47 @@ function atualizarTela(){
 
 }
 
+function alterarQuantidade(indice, valor){
+
+    valor = Number(valor);
+
+    if(isNaN(valor) || valor < 0){
+        valor = 0;
+    }
+
+    nota[indice].qtdLida = valor;
+
+    atualizarTela();
+
+}
+
 /* ===== Lógica do scanner ===== */
 input.addEventListener("keypress", function(e){
     if(e.key === "Enter"){
         let codigo = input.value.trim();
         let produto = nota.find(p => p.ean === codigo || p.codigo === codigo);
         if(produto){
+
     produto.qtdLida++;
+
+     // Guarda o último produto escaneado
+    ultimoEscaneado = produto;
+
+    // 🔼 Move o produto escaneado para o topo da fila
+    const indice = nota.indexOf(produto);
+
+    if(indice > -1){
+        nota.splice(indice,1);
+        nota.unshift(produto);
+    }
+
 
     if(produto.qtdLida > produto.qtdNota){
         bip.play();
-        alert("⚠ Produto excedeu a quantidade da nota:\n\n" + produto.nome);
+        alert(
+            "⚠ Produto excedeu a quantidade da nota:\n\n" +
+            produto.nome
+        );
     }
     } else {
 
@@ -460,7 +585,7 @@ for(let i=0; i<dets.length; i++){
         });
     }
 }
-
+        ultimoEscaneado = null;
         input.disabled = false;
         input.focus();
         atualizarTela();

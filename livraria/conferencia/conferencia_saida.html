@@ -466,139 +466,105 @@ perc + "%";
 
 function tentarExtrairProdutos(xml){
 
-    let itens = [];
+let itens=[];
 
-    // ==========================
-    // PRIORIDADE 1 - NF-e
-    // ==========================
 
-    const dets = xml.querySelectorAll("det");
+// ==========================
+// XML NF-e ORIGINAL
+// ==========================
 
-    if(dets.length > 0){
+const dets = xml.querySelectorAll("det");
 
-        dets.forEach(det=>{
 
-            const prod = det.querySelector("prod");
+if(dets.length){
 
-            if(!prod) return;
+dets.forEach(det=>{
 
-            const get = tag => {
-                const el = prod.querySelector(tag);
-                return el ? el.textContent.trim() : "";
-            };
+const prod=det.querySelector("prod");
 
-            const codigo = get("cProd");
+if(!prod)return;
 
-            let ean = get("cEAN");
 
-            if(ean === "SEM GTIN")
-                ean = "";
+const get=t=>{
+let el=prod.querySelector(t);
+return el ? el.textContent.trim() : "";
+};
 
-            const descricao = get("xProd");
 
-            const qtd = parseFloat(
-                get("qCom")
-                .replace(",",".")
-            ) || 0;
+itens.push({
 
-            if(!descricao || qtd <= 0)
-                return;
+codigo:get("cProd"),
 
-            itens.push({
-                codigo,
-                ean,
-                nome: descricao,
-                qtdNota: qtd,
-                qtdLida: 0
-            });
+ean:get("cEAN"),
 
-        });
+nome:get("xProd"),
 
-        return agruparItens(itens);
-    }
+qtdNota:Number(
+get("qCom").replace(",",".")
+),
 
-    // ==========================
-    // PRIORIDADE 2 - XML Genérico
-    // ==========================
+qtdLida:0
 
-    const candidatos = [
+});
 
-        ...xml.querySelectorAll("item"),
-        ...xml.querySelectorAll("Item"),
 
-        ...xml.querySelectorAll("produto"),
-        ...xml.querySelectorAll("Produto"),
+});
 
-        ...xml.querySelectorAll("prod"),
-        ...xml.querySelectorAll("Prod")
 
-    ];
+return agruparItens(itens);
 
-    candidatos.forEach(node=>{
+}
 
-        const get = (...tags)=>{
 
-            for(const tag of tags){
 
-                const el = node.querySelector(tag);
+// ==========================
+// XML CONVERTIDO DO PDF
+// ==========================
 
-                if(el)
-                    return el.textContent.trim();
 
-            }
+const produtos =
+xml.querySelectorAll("produto");
 
-            return "";
-        };
 
-        const codigo = get(
-            "codigo",
-            "cod",
-            "sku",
-            "idProduto",
-            "cProd"
-        );
+produtos.forEach(p=>{
 
-        let ean = get(
-            "ean",
-            "gtin",
-            "codigoBarras",
-            "cEAN"
-        );
 
-        if(ean === "SEM GTIN")
-            ean = "";
+const get=t=>{
 
-        const descricao = get(
-            "descricao",
-            "descrição",
-            "nome",
-            "produto",
-            "xProd"
-        );
+let el=p.querySelector(t);
 
-        const qtd = parseFloat(
-            get(
-                "quantidade",
-                "qtd",
-                "qtde",
-                "qCom"
-            ).replace(",",".")
-        ) || 0;
+return el ?
+el.textContent.trim()
+:
+"";
 
-        if(!descricao || qtd <= 0)
-            return;
+};
 
-        itens.push({
-            codigo,
-            ean,
-            nome: descricao,
-            qtdNota: qtd,
-            qtdLida: 0
-        });
 
-    });
 
-    return agruparItens(itens);
+itens.push({
+
+codigo:get("codigo"),
+
+ean:get("ean"),
+
+nome:get("descricao"),
+
+qtdNota:Number(
+get("quantidade")
+),
+
+qtdLida:0
+
+});
+
+
+});
+
+
+return agruparItens(itens);
+
+
 }
 
 function agruparItens(itens){
@@ -702,7 +668,7 @@ produtos.forEach(item=>{
 xml += `
 <produto>
 <codigo>${item.codigo}</codigo>
-<ean>${item.ean}</ean>
+<ean>${item.ean || item.codigo}</ean>
 <descricao>${item.nome}</descricao>
 <quantidade>${item.qtdNota}</quantidade>
 </produto>`;
@@ -743,37 +709,55 @@ scanner.focus();
 
 async function extrairTextoPDF(file){
 
-const arrayBuffer =
-await file.arrayBuffer();
+    const arrayBuffer = await file.arrayBuffer();
 
-const pdf =
-await pdfjsLib.getDocument({
-data: arrayBuffer
-}).promise;
+    const pdf = await pdfjsLib.getDocument({
+        data: arrayBuffer
+    }).promise;
 
-let texto = "";
+    let texto = "";
 
-for(
-let pagina=1;
-pagina<=pdf.numPages;
-pagina++
-){
+    for(let pagina = 1; pagina <= pdf.numPages; pagina++){
 
-const page =
-await pdf.getPage(pagina);
+        const page = await pdf.getPage(pagina);
 
-const content =
-await page.getTextContent();
+        const content = await page.getTextContent();
 
-const linhas =
-content.items
-.map(item=>item.str);
+        // Organiza primeiro por linha (Y) e depois por coluna (X)
+        const itens = content.items.sort((a,b)=>{
 
-texto += linhas.join(" ") + "\n";
+            const y1 = a.transform[5];
+            const y2 = b.transform[5];
 
-}
+            if(Math.abs(y1 - y2) < 2){
+                return a.transform[4] - b.transform[4];
+            }
 
-return texto;
+            return y2 - y1;
+
+        });
+
+        let ultimaLinha = null;
+
+        itens.forEach(item=>{
+
+            const y = Math.round(item.transform[5]);
+
+            if(ultimaLinha !== null && Math.abs(y - ultimaLinha) > 3){
+                texto += "\n";
+            }
+
+            texto += item.str + " ";
+
+            ultimaLinha = y;
+
+        });
+
+        texto += "\n\n";
+
+    }
+
+    return texto;
 
 }
 
@@ -893,30 +877,57 @@ atualizarTela();
 
 });
 
-
-
 function extrairProdutosDanfe(texto){
 
     const produtos = [];
 
-    texto = texto.replace(/\s+/g, " ");
-    const regex = /(97\d{11,13})\s+(.+?)\s+490\d{5}\s+\d+\s+\d+\s+\S+\s+(\d+)/gi;
+    const linhas = texto
+        .split("\n")
+        .map(l => l.trim())
+        .filter(l => l);
 
-    let match;
+    for(let i=0;i<linhas.length;i++){
 
-    while((match = regex.exec(texto)) !== null){
+        const linha = linhas[i];
+        console.log(linha);
+
+        const match = linha.match(/^(\d{6,8})\s+(.+?)\s+49019900.*?UNID\s+(\d+)/i);
+        if(match){
+        console.log("ACHOU:", match);}
+        if(!match) continue;
+        
+
+        const codigo = match[1];
+
+        const descricao = match[2].trim();
+
+        const quantidade = Number(match[3]);
+
+        let ean = "";
+
+        if(
+            linhas[i+1] &&
+            linhas[i+1].startsWith("EAN")
+        ){
+
+            const e = linhas[i+1].match(/(\d{13})/);
+
+            if(e)
+                ean = e[1];
+
+        }
 
         produtos.push({
 
-            codigo: match[1].trim(),
+            codigo,
 
-            ean: match[1].trim(),
+            ean,
 
-            nome: match[2]
-                .replace(/\s+/g," ")
-                .trim(),
+            nome:descricao,
 
-            qtdNota: Number(match[3]) || 0
+            qtdNota:quantidade,
+
+            qtdLida:0
 
         });
 
@@ -962,13 +973,16 @@ arquivo
 );
 console.log(texto);
 
-const textoLimpo =
-texto.replace(/\s+/g," ");
+const textoLimpo = texto;
 
 const produtos =
 extrairProdutosDanfe(textoLimpo);
 
-console.log(produtos);
+console.log("TEXTO EXTRAÍDO:");
+console.log(texto);
+
+console.log("PRODUTOS ENCONTRADOS:");
+console.table(produtos);
 
 if(produtos.length === 0){
 
