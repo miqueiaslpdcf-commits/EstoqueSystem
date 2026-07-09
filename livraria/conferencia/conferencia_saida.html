@@ -886,36 +886,107 @@ function extrairProdutosDanfe(texto){
         .map(l => l.trim())
         .filter(l => l);
 
+
     for(let i=0;i<linhas.length;i++){
 
         const linha = linhas[i];
-        console.log(linha);
 
-        const match = linha.match(/^(\d{6,8})\s+(.+?)\s+49019900.*?UNID\s+(\d+)/i);
-        if(match){
-        console.log("ACHOU:", match);}
-        if(!match) continue;
-        
 
-        const codigo = match[1];
+        // Produto pelo NCM 49019900
+        if(!linha.includes("49019900"))
+            continue;
 
-        const descricao = match[2].trim();
 
-        const quantidade = Number(match[3]);
+        console.log("LINHA PRODUTO:", linha);
 
-        let ean = "";
 
-        if(
-            linhas[i+1] &&
-            linhas[i+1].startsWith("EAN")
-        ){
+        let partes = linha.match(
+            /^(\d+)\s+(.+?)\s+49019900(.*)$/i
+        );
 
-            const e = linhas[i+1].match(/(\d{13})/);
 
-            if(e)
-                ean = e[1];
+        if(!partes)
+            continue;
+
+
+        const codigo = partes[1];
+
+
+        const descricao = partes[2]
+            .replace(/\s+/g," ")
+            .trim();
+
+
+
+        let resto = partes[3];
+
+
+        /*
+        Procura quantidade depois da unidade
+        */
+
+        let qtd = resto.match(
+            /(?:UNID|UN|UND|PC)\s+(\d+)/i
+        );
+
+
+        /*
+        Caso venha antes da unidade
+        */
+
+        if(!qtd){
+
+            qtd = resto.match(
+                /(\d+)\s+(?:UNID|UN|UND|PC)/i
+            );
 
         }
+
+
+        if(!qtd){
+
+            console.log(
+                "Quantidade não encontrada:",
+                linha
+            );
+
+            continue;
+
+        }
+
+
+        const quantidade = Number(qtd[1]);
+
+
+
+        /*
+        Busca EAN nas próximas linhas
+        */
+
+        let ean="";
+
+
+        for(
+            let j=i;
+            j<=i+6 && j<linhas.length;
+            j++
+        ){
+
+            let busca =
+            linhas[j]
+            .replace(/\D/g,"");
+
+
+            if(busca.length===13){
+
+                ean = busca;
+                break;
+
+            }
+
+        }
+
+
 
         produtos.push({
 
@@ -931,7 +1002,11 @@ function extrairProdutosDanfe(texto){
 
         });
 
+
     }
+
+
+    console.table(produtos);
 
     return produtos;
 
