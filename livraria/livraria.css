@@ -86,6 +86,7 @@ body::before {
     margin-top: 60px;
 }
 
+/* GRID DOS CARDS - COMPUTADOR */
 /* GRID DOS CARDS */
 .cards {
     display: flex;
@@ -95,6 +96,14 @@ body::before {
     margin-top: 40px;
 }
 
+/* SOMENTE COMPUTADOR */
+@media (min-width: 769px) {
+    .cards {
+        width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
 /* CARD BASE */
 .card {
     width: 180px;
