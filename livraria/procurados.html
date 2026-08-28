@@ -1,0 +1,2261 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Livros Procurados</title>
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bordo:#7b1e2b;
+  --bordo-dark:#5d1621;
+  --dourado:#c79a45;
+  --bg:#f6f3ee;
+  --card:#fff;
+  --text:#292522;
+  --muted:#746d67;
+  --border:#e5dfd7;
+  --green:#2e7d5b;
+  --yellow:#b98218;
+  --red:#b43a3a;
+  --blue:#356da8;
+  --shadow:0 8px 25px rgba(55,40,25,.08);
+}
+body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer}
+.app{display:flex;min-height:100vh}
+.sidebar{
+  width:245px;background:var(--bordo);color:#fff;padding:24px 16px;
+  position:fixed;left:0;top:0;bottom:0;z-index:20
+}
+.logo{padding:4px 10px 25px;border-bottom:1px solid rgba(255,255,255,.16);margin-bottom:18px}
+.logo strong{font-family:Georgia,serif;font-size:22px;display:block}
+.logo span{font-size:12px;opacity:.75}
+.menu{display:flex;flex-direction:column;gap:7px}
+.menu button{
+  width:100%;border:0;background:transparent;color:#fff;text-align:left;
+  padding:13px 14px;border-radius:9px;opacity:.9
+}
+.menu button:hover,.menu button.active{background:rgba(255,255,255,.13);opacity:1}
+.menu button.active{box-shadow:inset 3px 0 var(--dourado)}
+.main{margin-left:245px;width:calc(100% - 245px);padding:30px;max-width:1500px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:25px}
+.topbar h1{font-family:Georgia,serif;font-size:29px;color:var(--bordo)}
+.user{font-size:13px;color:var(--muted)}
+.page{display:none}.page.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.card{
+  background:var(--card);border:1px solid var(--border);border-radius:13px;
+  padding:20px;box-shadow:var(--shadow)
+}
+.stat-label{color:var(--muted);font-size:13px;margin-bottom:8px}
+.stat-value{font-size:30px;font-weight:700;color:var(--bordo)}
+.stat-small{font-size:12px;color:var(--muted);margin-top:5px}
+.section-title{font-size:18px;margin-bottom:15px;color:var(--bordo)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px}
+.input,.select,.textarea{
+  border:1px solid var(--border);background:#fff;border-radius:8px;
+  padding:11px 12px;outline:none;width:100%
+}
+.input:focus,.select:focus,.textarea:focus{border-color:var(--dourado);box-shadow:0 0 0 3px rgba(199,154,69,.12)}
+.search-box{display:flex;gap:9px;max-width:850px}
+.search-box .input{flex:1}
+.btn{
+  border:0;border-radius:8px;padding:11px 16px;font-weight:600;
+  transition:.15s
+}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--bordo);color:#fff}
+.btn-primary:hover{background:var(--bordo-dark)}
+.btn-gold{background:var(--dourado);color:#fff}
+.btn-light{background:#f1ede7;color:var(--text)}
+.btn-danger{background:#f7e4e4;color:var(--red)}
+.btn-success{background:#e3f1ea;color:var(--green)}
+.btn-blue{background:#e5eef8;color:var(--blue)}
+.result-area{margin-top:18px}
+.book-result{
+  display:flex;align-items:center;justify-content:space-between;gap:18px;
+  padding:16px;border:1px solid var(--border);border-radius:10px;background:#fff;margin-bottom:10px
+}
+.book-info h3{font-size:17px;margin-bottom:5px}.book-info p{font-size:13px;color:var(--muted);line-height:1.5}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.badge{display:inline-block;padding:5px 9px;border-radius:20px;font-size:11px;font-weight:bold}
+.badge-yellow{background:#fff3d6;color:#94650e}
+.badge-blue{background:#e5eef8;color:#356da8}
+.badge-green{background:#e2f1e9;color:#2e7d5b}
+.badge-red{background:#f7e1e1;color:#a93333}
+.table-wrap{overflow:auto;background:#fff;border:1px solid var(--border);border-radius:12px}
+table{width:100%;border-collapse:collapse;min-width:800px}
+th,td{text-align:left;padding:13px 15px;border-bottom:1px solid var(--border);font-size:13px}
+th{background:#faf8f5;color:var(--muted);font-size:12px;text-transform:uppercase}
+tr:last-child td{border-bottom:0}
+.empty{text-align:center;padding:35px;color:var(--muted)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+.form-group label{display:block;font-size:12px;font-weight:bold;color:var(--muted);margin-bottom:6px}
+.full{grid-column:1/-1}
+.modal{
+  position:fixed;inset:0;background:rgba(0,0,0,.48);display:none;align-items:center;
+  justify-content:center;z-index:50;padding:20px
+}
+.modal.show{display:flex}
+.modal-box{width:min(650px,100%);background:#fff;border-radius:14px;padding:24px;box-shadow:0 20px 50px rgba(0,0,0,.2)}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.modal-head h2{font-family:Georgia,serif;color:var(--bordo);font-size:21px}
+.close{border:0;background:#f2eee9;border-radius:50%;width:34px;height:34px}
+.form-actions{display:flex;justify-content:flex-end;gap:9px;margin-top:20px}
+.alert{padding:13px 15px;border-radius:9px;margin:12px 0;font-size:13px}
+.alert-warning{background:#fff5dc;color:#805b12}.alert-success{background:#e6f3ec;color:#286b4c}
+.alert-info{background:#e7f0fa;color:#315e8d}.alert-danger{background:#f8e5e5;color:#983434}
+.mobile-menu{display:none}
+.loading{padding:20px;text-align:center;color:var(--muted)}
+.kpi-list{display:flex;flex-direction:column;gap:12px}
+.kpi-item{display:flex;justify-content:space-between;border-bottom:1px solid var(--border);padding-bottom:10px}
+.kpi-item:last-child{border:0}
+@media(max-width:900px){
+ .sidebar{transform:translateX(-100%);transition:.2s}.sidebar.open{transform:translateX(0)}
+ .main{margin-left:0;width:100%;padding:20px}.grid{grid-template-columns:1fr 1fr}
+ .mobile-menu{display:block;border:0;background:var(--bordo);color:#fff;border-radius:7px;padding:9px 12px}
+}
+@media(max-width:600px){
+ .grid{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}.full{grid-column:auto}
+ .search-box{flex-direction:column}.topbar h1{font-size:23px}.book-result{align-items:flex-start;flex-direction:column}
+}
+
+.status-menu-wrap{
+  position:relative;
+  display:inline-block;
+}
+
+.btn-dots{
+  width:38px;
+  height:38px;
+  padding:0;
+  border:1px solid var(--border);
+  background:#fff;
+  color:var(--text);
+  border-radius:8px;
+  font-size:22px;
+  line-height:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.btn-dots:hover{
+  background:#f5f1eb;
+}
+
+.status-menu{
+  position:fixed;
+  width:170px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:9px;
+  box-shadow:0 10px 30px rgba(0,0,0,.15);
+  padding:6px;
+  display:none;
+  z-index:9999;
+}
+
+.status-menu.show{
+  display:block;
+}
+
+.status-option{
+  width:100%;
+  border:0;
+  background:transparent;
+  text-align:left;
+  padding:9px 10px;
+  border-radius:6px;
+  font-size:13px;
+  color:var(--text);
+}
+
+.status-option:hover{
+  background:#f5f1eb;
+}
+
+.status-option.current{
+  font-weight:bold;
+  background:#f1ede7;
+}
+
+
+.client-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  max-height:420px;
+  overflow-y:auto;
+}
+
+.client-item{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:13px;
+  background:#faf9f7;
+}
+
+.client-item-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+}
+
+.client-name{
+  font-weight:bold;
+  font-size:14px;
+}
+
+.client-details{
+  font-size:12px;
+  color:var(--muted);
+  margin-top:5px;
+  line-height:1.5;
+}
+
+.client-status-select{
+  min-width:135px;
+  border:1px solid var(--border);
+  border-radius:7px;
+  padding:7px 9px;
+  background:#fff;
+  font-size:12px;
+  outline:none;
+}
+
+.client-status-select.status-disponivel{
+  border-color:#9bc9b2;
+  color:var(--green);
+}
+
+.client-status-select.status-indisponivel{
+  border-color:#e0aaaa;
+  color:var(--red);
+}
+
+.client-saving{
+  font-size:11px;
+  color:var(--muted);
+  margin-top:5px;
+}
+
+@media(max-width:600px){
+  .client-item-top{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .client-status-select{
+    width:100%;
+  }
+}
+
+/* ---------------- LOADING DE EXCLUSÃO ---------------- */
+
+.delete-loading{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.48);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+}
+
+.delete-loading.show{
+  display:flex;
+}
+
+.delete-loading-box{
+  background:#fff;
+  border-radius:14px;
+  padding:28px 40px;
+  min-width:220px;
+  text-align:center;
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+
+.delete-spinner{
+  width:42px;
+  height:42px;
+  margin:0 auto 15px;
+  border:4px solid #eee;
+  border-top:4px solid var(--bordo);
+  border-radius:50%;
+  animation:deleteSpin .8s linear infinite;
+}
+
+.delete-loading-text{
+  font-size:15px;
+  font-weight:600;
+  color:var(--bordo);
+}
+
+@keyframes deleteSpin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
+</style>
+</head>
+
+<body>
+<div class="app">
+
+<aside class="sidebar" id="sidebar">
+  <div class="logo">
+    <strong>Livraria da Praça</strong>
+    <span>Controle de livros procurados</span>
+  </div>
+  <nav class="menu">
+    <button class="active" data-page="dashboard">📊 Dashboard</button>
+    <button data-page="nova-procura">🔎 Nova procura</button>
+    <button data-page="procurados">📚 Livros procurados</button>
+    <button data-page="sugestoes">💡 Sugestões</button>
+  </nav>
+</aside>
+
+<main class="main">
+  <div class="topbar">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="mobile-menu" id="mobileMenu">☰</button>
+      <h1 id="pageTitle">Dashboard</h1>
+    </div>
+    <div class="user">Sistema de controle</div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <section class="page active" id="page-dashboard">
+    <div class="grid">
+      <div class="card"><div class="stat-label">Livros procurados</div><div class="stat-value" id="statLivros">0</div><div class="stat-small">livros únicos</div></div>
+      <div class="card"><div class="stat-label">Clientes interessados</div><div class="stat-value" id="statClientes">0</div><div class="stat-small">registros ativos</div></div>
+      <div class="card"><div class="stat-label">Sugestões</div><div class="stat-value" id="statSugestoes">0</div><div class="stat-small">sugestões cadastradas</div></div>
+      <div class="card"><div class="stat-label">Aguardando</div><div class="stat-value" id="statAguardando">0</div><div class="stat-small">livros ainda não resolvidos</div></div>
+    </div>
+
+    <div class="card">
+      <div class="section-title">🔥 Livros mais procurados</div>
+      <div id="ranking" class="kpi-list"><div class="empty">Nenhum dado cadastrado.</div></div>
+    </div>
+  </section>
+
+  <!-- NOVA PROCURA -->
+  <section class="page" id="page-nova-procura">
+    <div class="card">
+      <div class="section-title">Pesquisar livro</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:14px">
+        Pesquise primeiro pelo ISBN/EAN, título ou autor. O sistema verifica se o livro já foi registrado para evitar duplicidade.
+      </p>
+      <div class="search-box">
+        <input class="input" id="searchInput" placeholder="Digite ISBN, EAN, título ou autor..." autocomplete="off">
+        <button class="btn btn-primary" id="searchBtn">Pesquisar</button>
+      </div>
+      <div id="searchResults" class="result-area"></div>
+    </div>
+  </section>
+
+  <!-- PROCURADOS -->
+  <section class="page" id="page-procurados">
+    <div class="card">
+      <div class="toolbar">
+        <input class="input" id="filterBooks" placeholder="Filtrar por título, autor ou ISBN..." style="max-width:450px">
+        <select class="select" id="filterStatus" style="max-width:190px">
+          <option value="">Todos os status</option>
+          <option>Aguardando</option>
+          <option>Solicitado</option>
+          <option>Encomendado</option>
+          <option>Chegou</option>
+          <option>Indisponível</option>
+          <option>Cancelado</option>
+        </select>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Livro</th><th>ISBN/EAN</th><th>Clientes</th><th>Data</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="booksTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUGESTÕES -->
+  <section class="page" id="page-sugestoes">
+    <div class="card">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:18px">
+        <div class="section-title" style="margin:0">Sugestões de livros</div>
+        <button class="btn btn-primary" id="newSuggestionBtn">+ Nova sugestão</button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+  <tr>
+    <th>Título</th>
+    <th>Autor</th>
+    <th>Cliente</th>
+    <th>Data</th>
+    <th>Status</th>
+    <th>Ações</th>
+  </tr>
+</thead>
+          <tbody id="suggestionsTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+</div>
+
+<!-- MODAL CLIENTE -->
+<div class="modal" id="clientModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Adicionar cliente interessado</h2>
+      <button class="close" onclick="closeModal('clientModal')">×</button>
+    </div>
+    <div id="clientBookInfo" class="alert alert-info"></div>
+    <div class="form-grid">
+      <div class="form-group"><label>Nome do cliente *</label><input class="input" id="clientName"></div>
+      <div class="form-group"><label>Telefone</label><input class="input" id="clientPhone"></div>
+      <div class="form-group full"><label>Observação</label><textarea class="textarea" id="clientObs" rows="3"></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-light" onclick="closeModal('clientModal')">Cancelar</button>
+      <button class="btn btn-primary" id="saveClientBtn">Adicionar cliente</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VER CLIENTES -->
+<div class="modal" id="viewClientsModal">
+  <div class="modal-box">
+
+    <div class="modal-head">
+      <h2>Clientes interessados</h2>
+      <button class="close" onclick="closeModal('viewClientsModal')">×</button>
+    </div>
+
+    <div id="viewClientsBookInfo" class="alert alert-info"></div>
+
+    <div id="clientsList" class="client-list"></div>
+
+    <div class="form-actions">
+      <button
+        class="btn btn-light"
+        onclick="closeModal('viewClientsModal')">
+        Fechar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL NOVO LIVRO -->
+<div class="modal" id="bookModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Cadastrar livro procurado</h2>
+      <button class="close" onclick="closeModal('bookModal')">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Título *</label><input class="input" id="bookTitle"></div>
+      <div class="form-group"><label>Autor</label><input class="input" id="bookAuthor"></div>
+      <div class="form-group"><label>ISBN/EAN</label><input class="input" id="bookIsbn"></div>
+      <div class="form-group"><label>Editora</label><input class="input" id="bookPublisher"></div>
+      <div class="form-group"><label>Cliente *</label><input class="input" id="bookClient"></div>
+      <div class="form-group"><label>Telefone</label><input class="input" id="bookPhone"></div>
+      <div class="form-group full"><label>Observação</label><textarea class="textarea" id="bookObs" rows="3"></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-light" onclick="closeModal('bookModal')">Cancelar</button>
+      <button class="btn btn-primary" id="saveBookBtn">Cadastrar procura</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL SUGESTÃO -->
+<div class="modal" id="suggestionModal">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Nova sugestão</h2>
+      <button class="close" onclick="closeModal('suggestionModal')">×</button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full"><label>Título *</label><input class="input" id="suggestTitle"></div>
+      <div class="form-group"><label>Autor</label><input class="input" id="suggestAuthor"></div>
+      <div class="form-group"><label>Cliente</label><input class="input" id="suggestClient"></div>
+      <div class="form-group full"><label>Observação</label><textarea class="textarea" id="suggestObs" rows="3"></textarea></div>
+    </div>
+    <div class="form-actions">
+      <button class="btn btn-light" onclick="closeModal('suggestionModal')">Cancelar</button>
+      <button class="btn btn-primary" id="saveSuggestionBtn">Salvar sugestão</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR EXCLUSÃO -->
+<div class="modal" id="deleteBookModal">
+  <div class="modal-box">
+
+    <div class="modal-head">
+      <h2>Excluir livro procurado</h2>
+
+      <button
+        class="close"
+        onclick="closeModal('deleteBookModal')">
+        ×
+      </button>
+    </div>
+
+    <div
+      id="deleteBookInfo"
+      class="alert alert-warning">
+    </div>
+
+    <p style="font-size:13px;color:var(--muted);line-height:1.5">
+      Tem certeza que deseja excluir este livro procurado?
+      Essa ação também poderá remover os clientes interessados
+      vinculados a este livro.
+    </p>
+
+    <div class="form-actions">
+
+      <button
+        class="btn btn-light"
+        onclick="closeModal('deleteBookModal')">
+        Cancelar
+      </button>
+
+      <button
+        class="btn btn-danger"
+        id="confirmDeleteBookBtn">
+        Confirmar exclusão
+      </button>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL RESULTADO DA EXCLUSÃO -->
+<div class="modal" id="deleteResultModal">
+  <div class="modal-box">
+
+    <div class="modal-head">
+      <h2 id="deleteResultTitle">Resultado</h2>
+
+      <button
+        class="close"
+        onclick="closeModal('deleteResultModal')">
+        ×
+      </button>
+    </div>
+
+    <div
+      id="deleteResultInfo"
+      class="alert">
+    </div>
+
+    <div class="form-actions">
+      <button
+        class="btn btn-primary"
+        onclick="closeModal('deleteResultModal')">
+        Fechar
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- LOADING EXCLUSÃO -->
+<div class="delete-loading" id="deleteLoading">
+
+  <div class="delete-loading-box">
+
+    <div class="delete-spinner"></div>
+
+    <div class="delete-loading-text">
+      Excluindo...
+    </div>
+
+  </div>
+
+</div>
+
+<!-- MODAL CONFIRMAR EXCLUSÃO DE SUGESTÃO -->
+
+<div class="modal" id="deleteSuggestionModal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <h2>Excluir sugestão</h2>
+
+      <button
+        class="close"
+        onclick="closeModal('deleteSuggestionModal')">
+        ×
+      </button>
+
+    </div>
+
+    <div
+      id="deleteSuggestionInfo"
+      class="alert alert-warning">
+    </div>
+
+    <p style="font-size:13px;color:var(--muted);line-height:1.5">
+
+      Tem certeza que deseja excluir esta sugestão?
+
+      <br><br>
+
+      Essa ação não poderá ser desfeita.
+
+    </p>
+
+    <div class="form-actions">
+
+      <button
+        class="btn btn-light"
+        onclick="closeModal('deleteSuggestionModal')">
+        Cancelar
+      </button>
+
+      <button
+        class="btn btn-danger"
+        id="confirmDeleteSuggestionBtn">
+        Confirmar exclusão
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<script>
+/*
+ * ============================================================
+ * CONFIGURAÇÃO
+ * ============================================================
+ *
+ * Para usar com Google Apps Script, publique o Apps Script como
+ * aplicativo da web e cole a URL abaixo.
+ * Enquanto a URL estiver vazia, o sistema usa dados locais de
+ * demonstração no navegador (localStorage).
+ */
+
+const API_URL = "https://script.google.com/macros/s/AKfycbwZaHI0wStUuYqFbqi4Ln_pt1Om_bd7cRfOqFJltZfG1wIik6vx6U20JpFzwkEeclKUfw/exec";
+
+const STORAGE_KEY = "livrosProcurados_v1";
+const CLIENTS_KEY = "clientesInteressados_v1";
+const SUGGESTIONS_KEY = "sugestoesLivros_v1";
+
+let books = [];
+let clients = [];
+let suggestions = [];
+let selectedBookId = null;
+
+function load(key, fallback){
+  try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+  catch(e){ return fallback; }
+}
+function saveLocal(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(books));
+  localStorage.setItem(CLIENTS_KEY, JSON.stringify(clients));
+  localStorage.setItem(SUGGESTIONS_KEY, JSON.stringify(suggestions));
+}
+function uid(prefix){
+  return prefix + "_" + Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+}
+function today(){
+  return new Date().toLocaleDateString("pt-BR");
+}
+function normalize(text){
+  return String(text || "")
+    .normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .toLowerCase().replace(/[^a-z0-9]/g,"");
+}
+function escapeHtml(text){
+  return String(text ?? "").replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
+function statusClass(status){
+  if(status === "Chegou") return "badge-green";
+  if(status === "Encomendado" || status === "Solicitado") return "badge-blue";
+  if(status === "Indisponível" || status === "Cancelado") return "badge-red";
+  return "badge-yellow";
+}
+
+/* ---------------- NAVEGAÇÃO ---------------- */
+const titles = {
+  dashboard:"Dashboard",
+  "nova-procura":"Nova procura",
+  procurados:"Livros procurados",
+  sugestoes:"Sugestões"
+};
+
+document.querySelectorAll(".menu button").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    showPage(btn.dataset.page);
+    document.getElementById("sidebar").classList.remove("open");
+  });
+});
+function showPage(page){
+  document.querySelectorAll(".menu button").forEach(b=>b.classList.toggle("active",b.dataset.page===page));
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page-"+page).classList.add("active");
+  document.getElementById("pageTitle").textContent = titles[page];
+  if(page==="dashboard") renderDashboard();
+  if(page==="procurados") renderBooks();
+  if(page==="sugestoes") renderSuggestions();
+}
+document.getElementById("mobileMenu").onclick=()=>document.getElementById("sidebar").classList.toggle("open");
+
+/* ---------------- PESQUISA ---------------- */
+document.getElementById("searchBtn").onclick = searchBooks;
+document.getElementById("searchInput").addEventListener("keydown",e=>{
+  if(e.key==="Enter") searchBooks();
+});
+
+function searchBooks(){
+  const q = document.getElementById("searchInput").value.trim();
+  const area = document.getElementById("searchResults");
+
+  if(!q){
+    area.innerHTML='<div class="alert alert-warning">Digite um ISBN/EAN, título ou autor para pesquisar.</div>';
+    return;
+  }
+
+  const nq = normalize(q);
+  const found = books.filter(b =>
+    normalize(b.isbn).includes(nq) ||
+    normalize(b.title).includes(nq) ||
+    normalize(b.author).includes(nq)
+  );
+
+  if(found.length){
+    area.innerHTML = found.map(bookCard).join("");
+    return;
+  }
+
+  area.innerHTML = `
+    <div class="alert alert-warning">
+      <strong>Livro não encontrado nos livros procurados.</strong><br>
+      Verifique também o catálogo da livraria. Se realmente não estiver cadastrado,
+      você pode registrar uma nova procura.
+    </div>
+    <button class="btn btn-primary" onclick="openNewBook('${escapeHtml(q)}')">
+      + Cadastrar livro procurado
+    </button>`;
+}
+
+function bookCard(book){
+  const count = clients.filter(c=>c.bookId===book.id).length;
+  return `
+    <div class="book-result">
+      <div class="book-info">
+        <h3>${escapeHtml(book.title)}</h3>
+        <p>${escapeHtml(book.author || "Autor não informado")}</p>
+        <p>${book.isbn ? "ISBN/EAN: "+escapeHtml(book.isbn)+" · " : ""}${count} cliente(s) interessado(s)}</p>
+       <span class="badge ${statusClass(book.status)}">${escapeHtml(book.status || "Indisponível")}</span>
+      </div>
+      <div class="actions">
+        <button class="btn btn-primary" onclick="openClient('${book.id}')">+ Cliente</button>
+        <button class="btn btn-light" onclick="viewClients('${book.id}')">Ver clientes</button>
+      </div>
+    </div>`;
+}
+
+/* ---------------- LIVROS ---------------- */
+document.getElementById("saveBookBtn").onclick = saveBook;
+
+function openNewBook(prefill=""){
+  document.getElementById("bookTitle").value = prefill;
+  document.getElementById("bookAuthor").value = "";
+  document.getElementById("bookIsbn").value = "";
+  document.getElementById("bookPublisher").value = "";
+  document.getElementById("bookClient").value = "";
+  document.getElementById("bookPhone").value = "";
+  document.getElementById("bookObs").value = "";
+  openModal("bookModal");
+}
+
+function findDuplicate(isbn,title,author){
+  const ni = normalize(isbn);
+  const nt = normalize(title);
+  const na = normalize(author);
+
+  if(ni && books.some(b=>normalize(b.isbn)===ni))
+    return books.find(b=>normalize(b.isbn)===ni);
+
+  if(nt && na){
+    const exact = books.find(b=>normalize(b.title)===nt && normalize(b.author)===na);
+    if(exact) return exact;
+  }
+
+  return books.find(b=>normalize(b.title)===nt && nt.length>=5);
+}
+
+async function saveBook(){
+
+  const title =
+    document.getElementById("bookTitle").value.trim();
+
+  const author =
+    document.getElementById("bookAuthor").value.trim();
+
+  const isbn =
+    document.getElementById("bookIsbn").value.trim();
+
+  const publisher =
+    document.getElementById("bookPublisher").value.trim();
+
+  const client =
+    document.getElementById("bookClient").value.trim();
+
+  const phone =
+    document.getElementById("bookPhone").value.trim();
+
+  const obs =
+    document.getElementById("bookObs").value.trim();
+
+
+  /* ---------------- VALIDAÇÃO ---------------- */
+
+  if(!title || !client){
+
+    alert(
+      "Preencha o título e o nome do cliente."
+    );
+
+    return;
+  }
+
+
+  /* ---------------- ENVIA PARA O BANCO ---------------- */
+
+  const resultado = await sync(
+    "createBook",
+    {
+      title: title,
+      author: author,
+      isbn: isbn,
+      publisher: publisher,
+      client: client,
+      phone: phone,
+      obs: obs
+    }
+  );
+
+
+  /* ---------------- VERIFICA RESPOSTA ---------------- */
+
+  if(!resultado || !resultado.sucesso){
+
+    alert(
+      "Não foi possível cadastrar o livro.\n\n" +
+      (resultado?.erro || "Erro desconhecido.")
+    );
+
+    return;
+  }
+
+
+  const dados = resultado.resultado;
+
+
+  /* ==================================================
+   * LIVRO NOVO
+   * ================================================== */
+
+  if(dados.tipo === "novo"){
+
+    /*
+     * O Apps Script já criou o ID.
+     * Não usamos mais uid() no navegador.
+     */
+
+    const livroBanco = dados.livro;
+
+    const livro = {
+      id: String(livroBanco.ID || ""),
+      isbn: String(livroBanco.ISBN_EAN || ""),
+      title: String(livroBanco.TITULO || ""),
+      author: String(livroBanco.AUTOR || ""),
+      publisher: String(livroBanco.EDITORA || ""),
+      date: formatarDataBanco(livroBanco.DATA),
+      status: String(livroBanco.STATUS || "Indisponível"),
+      obs: String(livroBanco.OBSERVACAO || "")
+    };
+
+
+    /*
+     * Adiciona o livro somente depois
+     * que o servidor confirmou o cadastro.
+     */
+
+    books.push(livro);
+
+
+    /*
+     * O Apps Script também criou o interessado.
+     */
+
+    if(dados.interessado){
+
+      const interessadoBanco =
+        dados.interessado;
+
+      clients.push({
+        id: String(interessadoBanco.ID || ""),
+        bookId: String(interessadoBanco.LIVRO_ID || ""),
+        name: String(interessadoBanco.CLIENTE || ""),
+        phone: String(interessadoBanco.TELEFONE || ""),
+        date: formatarDataBanco(interessadoBanco.DATA),
+        status: String(interessadoBanco.STATUS || "Indisponível"),
+        obs: String(interessadoBanco.OBSERVACAO || "")
+      });
+    }
+
+
+    closeModal("bookModal");
+
+    renderDashboard();
+    renderBooks();
+
+    alert(
+      "Livro procurado cadastrado com sucesso."
+    );
+
+    return;
+  }
+
+
+  /* ==================================================
+   * LIVRO JÁ EXISTENTE
+   * ================================================== */
+
+  if(dados.tipo === "existente"){
+
+    /*
+     * O backend encontrou o livro.
+     *
+     * Não criamos outro livro.
+     *
+     * Apenas adicionamos o novo interessado.
+     */
+
+    const livroBanco =
+      dados.livro;
+
+    const livroExistente = {
+      id: String(livroBanco.ID || ""),
+      isbn: String(livroBanco.ISBN_EAN || ""),
+      title: String(livroBanco.TITULO || ""),
+      author: String(livroBanco.AUTOR || ""),
+      publisher: String(livroBanco.EDITORA || ""),
+      date: formatarDataBanco(livroBanco.DATA),
+      status: String(livroBanco.STATUS || "Indisponível"),
+      obs: String(livroBanco.OBSERVACAO || "")
+    };
+
+
+    /*
+     * Garante que o livro existente
+     * esteja atualizado no navegador.
+     */
+
+    const indiceLivro =
+      books.findIndex(
+        b => b.id === livroExistente.id
+      );
+
+
+    if(indiceLivro >= 0){
+
+      books[indiceLivro] =
+        livroExistente;
+
+    } else {
+
+      books.push(
+        livroExistente
+      );
+    }
+
+
+    /*
+     * Adiciona o interessado retornado
+     * pelo Apps Script.
+     */
+
+    if(dados.interessado){
+
+      const interessadoBanco =
+        dados.interessado;
+
+      clients.push({
+        id: String(interessadoBanco.ID || ""),
+        bookId: String(interessadoBanco.LIVRO_ID || ""),
+        name: String(interessadoBanco.CLIENTE || ""),
+        phone: String(interessadoBanco.TELEFONE || ""),
+        date: formatarDataBanco(interessadoBanco.DATA),
+        status: String(interessadoBanco.STATUS || "Aguardando"),
+        obs: String(interessadoBanco.OBSERVACAO || "")
+      });
+    }
+
+
+    closeModal("bookModal");
+
+    renderDashboard();
+    renderBooks();
+
+    alert(
+      "Este livro já estava cadastrado.\n\n" +
+      "O cliente foi adicionado ao registro existente."
+    );
+
+    return;
+  }
+
+
+  /*
+   * Caso o backend retorne um tipo inesperado.
+   */
+
+  alert(
+    "O servidor retornou uma resposta inesperada."
+  );
+}
+
+let bookToDelete = null;
+
+function confirmDeleteBook(bookId){
+
+  const book = books.find(
+    b => b.id === bookId
+  );
+
+  if(!book) return;
+
+  bookToDelete = bookId;
+
+  const count = clients.filter(
+    c => c.bookId === bookId
+  ).length;
+
+  document.getElementById("deleteBookInfo").innerHTML =
+    "<strong>" +
+    escapeHtml(book.title) +
+    "</strong><br>" +
+    (book.isbn
+      ? "ISBN/EAN: " + escapeHtml(book.isbn) + "<br>"
+      : "") +
+    count +
+    " cliente(s) interessado(s) vinculado(s).";
+
+  openModal("deleteBookModal");
+}
+
+
+document.getElementById("confirmDeleteBookBtn").onclick =
+  deleteBook;
+
+async function deleteBook(){
+
+  if(!bookToDelete){
+    return;
+  }
+
+  const book = books.find(
+    b => b.id === bookToDelete
+  );
+
+  if(!book){
+    closeModal("deleteBookModal");
+    bookToDelete = null;
+    return;
+  }
+
+  /*
+   * Fecha o modal de confirmação
+   */
+  closeModal("deleteBookModal");
+
+  /*
+   * Mostra o carregamento no centro da tela
+   */
+  const loading =
+    document.getElementById("deleteLoading");
+
+  loading.classList.add("show");
+
+
+  const resultado = await sync(
+    "deleteBook",
+    {
+      id: book.id
+    }
+  );
+
+
+  /*
+   * Esconde o carregamento
+   */
+  loading.classList.remove("show");
+
+
+  /*
+   * Verifica resposta
+   */
+  if(
+    !resultado ||
+    !resultado.sucesso
+  ){
+
+    showDeleteResult(
+      false,
+      "Não foi possível excluir o livro.\n\n" +
+      (
+        resultado?.erro ||
+        "Erro desconhecido."
+      )
+    );
+
+    return;
+  }
+
+
+  /*
+   * Só remove do navegador depois
+   * que o Google Sheets confirmou.
+   */
+
+  books = books.filter(
+    b => b.id !== book.id
+  );
+
+
+  /*
+   * Remove também os clientes
+   * vinculados ao livro.
+   */
+
+  clients = clients.filter(
+    c => c.bookId !== book.id
+  );
+
+
+  bookToDelete = null;
+
+
+  /*
+   * Atualiza a tela
+   */
+
+  renderBooks();
+  renderDashboard();
+
+
+  /*
+   * Mostra resultado da exclusão
+   */
+
+  showDeleteResult(
+    true,
+    "Livro procurado excluído com sucesso."
+  );
+}
+
+/* ---------------- CLIENTES ---------------- */
+document.getElementById("saveClientBtn").onclick = saveClient;
+
+function openClient(bookId,prefill={}){
+  selectedBookId = bookId;
+  const book = books.find(b=>b.id===bookId);
+  if(!book)return;
+
+  document.getElementById("clientBookInfo").innerHTML =
+    "<strong>"+escapeHtml(book.title)+"</strong><br>"+
+    escapeHtml(book.author || "Autor não informado");
+
+  document.getElementById("clientName").value = prefill.name || "";
+  document.getElementById("clientPhone").value = prefill.phone || "";
+  document.getElementById("clientObs").value = prefill.obs || "";
+  openModal("clientModal");
+}
+
+async function saveClient(){
+
+  const name =
+    document.getElementById("clientName").value.trim();
+
+  if(!name){
+    alert("Informe o nome do cliente.");
+    return;
+  }
+
+  const dados = {
+    bookId: selectedBookId,
+    name: name,
+    phone: document.getElementById("clientPhone").value.trim(),
+    obs: document.getElementById("clientObs").value.trim()
+  };
+
+  const resultado = await sync(
+    "addClient",
+    dados
+  );
+
+  if(
+    !resultado ||
+    !resultado.sucesso
+  ){
+    alert(
+      "Não foi possível adicionar o cliente.\n\n" +
+      (
+        resultado?.erro ||
+        "Erro desconhecido."
+      )
+    );
+
+    return;
+  }
+
+  /*
+   * O ID agora vem do Google Sheets.
+   */
+  const interessadoBanco =
+    resultado.resultado?.interessado;
+
+  if(!interessadoBanco){
+    alert(
+      "O servidor confirmou o cadastro, mas não retornou os dados do cliente."
+    );
+    return;
+  }
+
+  clients.push(
+    converterInteressadoDoBanco(
+      interessadoBanco
+    )
+  );
+
+  closeModal("clientModal");
+
+  document.getElementById("clientName").value = "";
+  document.getElementById("clientPhone").value = "";
+  document.getElementById("clientObs").value = "";
+
+  renderDashboard();
+  renderBooks();
+  searchBooks();
+
+  alert("Cliente adicionado ao livro.");
+}
+
+
+async function changeClientStatus(clientId, newStatus, selectElement){
+
+  const client = clients.find(
+    c => c.id === clientId
+  );
+
+  if(!client) return;
+
+  const oldStatus =
+    client.status === "Indisponível"
+      ? "Indisponível"
+      : "Disponível";
+
+  if(oldStatus === newStatus){
+    return;
+  }
+
+  const confirmacao = confirm(
+    'Alterar o status do cliente "' +
+    client.name +
+    '" para "' +
+    newStatus +
+    '"?'
+  );
+
+  if(!confirmacao){
+
+    if(selectElement){
+      selectElement.value = oldStatus;
+    }
+
+    return;
+  }
+
+  if(selectElement){
+    selectElement.disabled = true;
+  }
+
+  const resultado = await sync(
+    "updateClient",
+    {
+      id: client.id,
+      status: newStatus
+    }
+  );
+
+  if(
+    !resultado ||
+    !resultado.sucesso
+  ){
+
+    if(selectElement){
+      selectElement.value = oldStatus;
+      selectElement.disabled = false;
+    }
+
+    alert(
+      "Não foi possível atualizar o status.\n\n" +
+      (
+        resultado?.erro ||
+        "Erro desconhecido."
+      )
+    );
+
+    return;
+  }
+
+  /*
+   * Google Sheets confirmou.
+   */
+  client.status = newStatus;
+
+  if(selectElement){
+
+    selectElement.disabled = false;
+
+    selectElement.classList.remove(
+      "status-disponivel",
+      "status-indisponivel"
+    );
+
+    selectElement.classList.add(
+      newStatus === "Disponível"
+        ? "status-disponivel"
+        : "status-indisponivel"
+    );
+  }
+
+  renderDashboard();
+  renderBooks();
+
+  console.log(
+    "✅ Status do cliente atualizado:",
+    client.name,
+    newStatus
+  );
+}
+
+
+function viewClients(bookId){
+
+  const book = books.find(
+    b => b.id === bookId
+  );
+
+  if(!book) return;
+
+  const list = clients.filter(
+    c => c.bookId === bookId
+  );
+
+  document.getElementById("viewClientsBookInfo").innerHTML =
+    "<strong>" +
+    escapeHtml(book.title) +
+    "</strong><br>" +
+    escapeHtml(book.author || "Autor não informado") +
+    (book.isbn
+      ? "<br>ISBN/EAN: " + escapeHtml(book.isbn)
+      : "");
+
+  const container =
+    document.getElementById("clientsList");
+
+  if(!list.length){
+
+    container.innerHTML =
+      '<div class="empty">Nenhum cliente interessado neste livro.</div>';
+
+    openModal("viewClientsModal");
+
+    return;
+  }
+
+  container.innerHTML = list.map(client => {
+
+const status =
+  client.status === "Disponível"
+    ? "Disponível"
+    : "Indisponível";
+
+    return `
+      <div class="client-item">
+
+        <div class="client-item-top">
+
+          <div>
+            <div class="client-name">
+              ${escapeHtml(client.name)}
+            </div>
+
+            <div class="client-details">
+              ${client.phone
+                ? "Telefone: " + escapeHtml(client.phone)
+                : "Telefone não informado"}
+
+              ${client.obs
+                ? "<br>Obs.: " + escapeHtml(client.obs)
+                : ""}
+            </div>
+          </div>
+
+          <select
+            class="client-status-select ${
+              status === "Disponível"
+                ? "status-disponivel"
+                : "status-indisponivel"
+            }"
+            onchange="changeClientStatus('${client.id}', this.value, this)"
+          >
+
+            <option
+              value="Disponível"
+              ${status === "Disponível" ? "selected" : ""}>
+              Disponível
+            </option>
+
+            <option
+              value="Indisponível"
+              ${status === "Indisponível" ? "selected" : ""}>
+              Indisponível
+            </option>
+
+          </select>
+
+        </div>
+
+      </div>
+    `;
+
+  }).join("");
+
+  openModal("viewClientsModal");
+}
+
+/* ---------------- TABELA DE LIVROS ---------------- */
+document.getElementById("filterBooks").addEventListener("input",renderBooks);
+document.getElementById("filterStatus").addEventListener("change",renderBooks);
+
+function renderBooks(){
+  const q=normalize(document.getElementById("filterBooks").value);
+  const status=document.getElementById("filterStatus").value;
+
+  const filtered=books.filter(b=>{
+    const text=normalize(b.title+" "+b.author+" "+b.isbn);
+    return (!q || text.includes(q)) && (!status || b.status===status);
+  });
+
+  const tbody=document.getElementById("booksTable");
+
+  if(!filtered.length){
+    tbody.innerHTML='<tr><td colspan="6" class="empty">Nenhum livro encontrado.</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML=filtered.map(b=>{
+    const count=clients.filter(c=>c.bookId===b.id).length;
+    return `<tr>
+      <td><strong>${escapeHtml(b.title)}</strong><br><span style="color:#888">${escapeHtml(b.author||"")}</span></td>
+      <td>${escapeHtml(b.isbn||"—")}</td>
+      <td>${count}</td>
+      <td>${escapeHtml(b.date||"—")}</td>
+      <td><span class="badge ${statusClass(b.status)}">${escapeHtml(b.status||"Indisponível")}</span></td>
+<td>
+  <div class="actions">
+
+    <button class="btn btn-primary" onclick="openClient('${b.id}')">
+      + Cliente
+    </button>
+
+    <button class="btn btn-light" onclick="viewClients('${b.id}')">
+    Ver clientes
+    </button>
+    
+    <button class="btn btn-danger" onclick="confirmDeleteBook('${b.id}')">
+    Excluir
+    </button>
+
+    <div class="status-menu-wrap">
+
+      <button
+        class="btn-dots"
+        onclick="toggleStatusMenu(event,'${b.id}')">
+        ⋮
+      </button>
+
+      <div
+        class="status-menu"
+        id="status-menu-${b.id}">
+
+        ${[
+          "Aguardando",
+          "Solicitado",
+          "Encomendado",
+          "Chegou",
+          "Indisponível",
+          "Cancelado"
+        ].map(status => `
+          <button
+            class="status-option ${b.status === status ? "current" : ""}"
+            onclick="selectBookStatus('${b.id}','${status}')">
+            ${escapeHtml(status)}
+          </button>
+        `).join("")}
+
+      </div>
+
+    </div>
+
+  </div>
+</td>
+    </tr>`;
+  }).join("");
+}
+function toggleStatusMenu(event, bookId){
+
+  event.stopPropagation();
+
+  document.querySelectorAll(".status-menu").forEach(menu => {
+    if(menu.id !== "status-menu-" + bookId){
+      menu.classList.remove("show");
+    }
+  });
+
+  const menu =
+    document.getElementById("status-menu-" + bookId);
+
+  if(menu){
+    menu.classList.toggle("show");
+  }
+}
+
+
+async function selectBookStatus(bookId, newStatus){
+
+  const book = books.find(
+    b => b.id === bookId
+  );
+
+  if(!book) return;
+
+  /*
+   * Fecha o menu
+   */
+  document.querySelectorAll(".status-menu")
+    .forEach(menu => menu.classList.remove("show"));
+
+
+  /*
+   * Se já estiver nesse status,
+   * não precisa fazer nada.
+   */
+  if(book.status === newStatus){
+    return;
+  }
+
+
+  /*
+   * Confirma a alteração
+   */
+  if(!confirm(
+    'Alterar o status de "' +
+    book.title +
+    '" para "' +
+    newStatus +
+    '"?'
+  )){
+    return;
+  }
+
+
+  /*
+   * Envia para o Google Sheets
+   */
+  const resultado = await sync(
+    "updateBook",
+    {
+      id: book.id,
+      status: newStatus
+    }
+  );
+
+
+  /*
+   * Verifica resposta
+   */
+  if(
+    !resultado ||
+    !resultado.sucesso
+  ){
+
+    alert(
+      "Não foi possível atualizar o status.\n\n" +
+      (
+        resultado?.erro ||
+        "Erro desconhecido."
+      )
+    );
+
+    return;
+  }
+
+
+  /*
+   * Atualiza somente depois
+   * da confirmação do servidor.
+   */
+  book.status = newStatus;
+
+
+  /*
+   * Atualiza a tela
+   */
+  renderBooks();
+  renderDashboard();
+}
+
+document.addEventListener("click", function(){
+
+  document.querySelectorAll(".status-menu")
+    .forEach(menu => {
+      menu.classList.remove("show");
+    });
+
+});
+
+/* ---------------- SUGESTÕES ---------------- */
+document.getElementById("newSuggestionBtn").onclick=()=>openModal("suggestionModal");
+document.getElementById("saveSuggestionBtn").onclick=saveSuggestion;
+
+async function saveSuggestion(){
+
+  const title =
+    document.getElementById("suggestTitle").value.trim();
+
+  if(!title){
+    alert("Informe o título da sugestão.");
+    return;
+  }
+
+  const dados = {
+    title: title,
+    author: document.getElementById("suggestAuthor").value.trim(),
+    client: document.getElementById("suggestClient").value.trim(),
+    obs: document.getElementById("suggestObs").value.trim()
+  };
+
+  const resultado = await sync(
+    "createSuggestion",
+    dados
+  );
+
+  if(
+    !resultado ||
+    !resultado.sucesso
+  ){
+    alert(
+      "Não foi possível cadastrar a sugestão.\n\n" +
+      (
+        resultado?.erro ||
+        "Erro desconhecido."
+      )
+    );
+
+    return;
+  }
+
+  const sugestaoBanco =
+    resultado.resultado;
+
+  if(!sugestaoBanco){
+    alert(
+      "O servidor confirmou o cadastro, mas não retornou os dados da sugestão."
+    );
+    return;
+  }
+
+  suggestions.push(
+    converterSugestaoDoBanco(
+      sugestaoBanco
+    )
+  );
+
+  closeModal("suggestionModal");
+
+  document.getElementById("suggestTitle").value = "";
+  document.getElementById("suggestAuthor").value = "";
+  document.getElementById("suggestClient").value = "";
+  document.getElementById("suggestObs").value = "";
+
+  renderSuggestions();
+  renderDashboard();
+
+  alert("Sugestão cadastrada.");
+}
+
+function renderSuggestions(){
+
+  const tbody =
+    document.getElementById("suggestionsTable");
+
+  if(!suggestions.length){
+
+    tbody.innerHTML =
+      '<tr><td colspan="6" class="empty">Nenhuma sugestão cadastrada.</td></tr>';
+
+    return;
+  }
+
+  tbody.innerHTML =
+    suggestions.slice().reverse().map(s => `
+
+      <tr>
+
+        <td>
+          <strong>
+            ${escapeHtml(s.title)}
+          </strong>
+        </td>
+
+        <td>
+          ${escapeHtml(s.author || "—")}
+        </td>
+
+        <td>
+          ${escapeHtml(s.client || "—")}
+        </td>
+
+        <td>
+          ${escapeHtml(s.date || "—")}
+        </td>
+
+        <td>
+          <span class="badge badge-blue">
+            ${escapeHtml(s.status || "Nova")}
+          </span>
+        </td>
+
+        <td>
+
+          <button
+            class="btn btn-danger"
+            onclick="confirmDeleteSuggestion('${s.id}')">
+            Excluir
+          </button>
+
+        </td>
+
+      </tr>
+
+    `).join("");
+}
+
+/* ---------------- EXCLUSÃO DE SUGESTÃO ---------------- */
+
+let suggestionToDelete = null;
+
+
+/*
+ * Abre o modal de confirmação
+ */
+function confirmDeleteSuggestion(suggestionId){
+
+  const suggestion =
+    suggestions.find(
+      s => s.id === suggestionId
+    );
+
+  if(!suggestion){
+    return;
+  }
+
+  suggestionToDelete =
+    suggestionId;
+
+  document.getElementById(
+    "deleteSuggestionInfo"
+  ).innerHTML =
+    "<strong>" +
+    escapeHtml(suggestion.title) +
+    "</strong>" +
+
+    (
+      suggestion.author
+        ? "<br>Autor: " +
+          escapeHtml(suggestion.author)
+        : ""
+    ) +
+
+    (
+      suggestion.client
+        ? "<br>Cliente: " +
+          escapeHtml(suggestion.client)
+        : ""
+    );
+
+  openModal(
+    "deleteSuggestionModal"
+  );
+}
+
+
+/*
+ * Botão confirmar exclusão
+ */
+document.getElementById(
+  "confirmDeleteSuggestionBtn"
+).onclick =
+  deleteSuggestion;
+
+
+/*
+ * Exclui a sugestão
+ */
+async function deleteSuggestion(){
+
+  if(!suggestionToDelete){
+    return;
+  }
+
+  const suggestion =
+    suggestions.find(
+      s => s.id === suggestionToDelete
+    );
+
+  if(!suggestion){
+
+    closeModal(
+      "deleteSuggestionModal"
+    );
+
+    suggestionToDelete = null;
+
+    return;
+  }
+
+
+  /*
+   * Fecha confirmação
+   */
+  closeModal(
+    "deleteSuggestionModal"
+  );
+
+
+  /*
+   * Mostra carregamento
+   */
+  const loading =
+    document.getElementById(
+      "deleteLoading"
+    );
+
+  loading.classList.add("show");
+
+
+  /*
+   * Envia para o Google Apps Script
+   */
+  const resultado =
+    await sync(
+      "deleteSuggestion",
+      {
+        id: suggestion.id
+      }
+    );
+
+
+  /*
+   * Esconde carregamento
+   */
+  loading.classList.remove("show");
+
+
+  /*
+   * Verifica resposta
+   */
+  if(
+    !resultado ||
+    !resultado.sucesso
+  ){
+
+    showDeleteResult(
+      false,
+      "Não foi possível excluir a sugestão.\n\n" +
+      (
+        resultado?.erro ||
+        "Erro desconhecido."
+      )
+    );
+
+    return;
+  }
+
+
+  /*
+   * Remove somente depois
+   * da confirmação do Google Sheets
+   */
+  suggestions =
+    suggestions.filter(
+      s => s.id !== suggestion.id
+    );
+
+
+  suggestionToDelete = null;
+
+
+  /*
+   * Atualiza a interface
+   */
+  renderSuggestions();
+  renderDashboard();
+
+
+  /*
+   * Mostra confirmação
+   */
+  showDeleteResult(
+    true,
+    "Sugestão excluída com sucesso."
+  );
+}
+
+
+
+
+/* ---------------- DASHBOARD ---------------- */
+function renderDashboard(){
+  document.getElementById("statLivros").textContent=books.length;
+  document.getElementById("statClientes").textContent=clients.length;
+  document.getElementById("statSugestoes").textContent=suggestions.length;
+  document.getElementById("statAguardando").textContent=
+    books.filter(b=>!["Chegou","Cancelado","Indisponível"].includes(b.status)).length;
+
+  const ranking=books.map(b=>({
+    book:b,
+    count:clients.filter(c=>c.bookId===b.id).length
+  })).sort((a,b)=>b.count-a.count).slice(0,8);
+
+  const el=document.getElementById("ranking");
+
+  if(!ranking.length){
+    el.innerHTML='<div class="empty">Nenhum livro procurado cadastrado.</div>';
+    return;
+  }
+
+  el.innerHTML=ranking.map((r,i)=>`
+    <div class="kpi-item">
+      <div>
+        <strong>${i+1}. ${escapeHtml(r.book.title)}</strong>
+        <div style="font-size:12px;color:#888">${escapeHtml(r.book.author||"Autor não informado")}</div>
+      </div>
+      <strong>${r.count} ${r.count===1?"cliente":"clientes"}</strong>
+    </div>
+  `).join("");
+}
+
+/* ---------------- MODAIS ---------------- */
+function openModal(id){document.getElementById(id).classList.add("show")}
+function closeModal(id){document.getElementById(id).classList.remove("show")}
+document.querySelectorAll(".modal").forEach(m=>{
+  m.addEventListener("click",e=>{
+    if(e.target===m)m.classList.remove("show");
+  });
+});
+
+function showDeleteResult(success, message){
+
+  const title =
+    document.getElementById("deleteResultTitle");
+
+  const info =
+    document.getElementById("deleteResultInfo");
+
+  if(success){
+
+    title.textContent = "Exclusão concluída";
+
+    info.className = "alert alert-success";
+
+    info.innerHTML =
+      escapeHtml(message);
+
+  }else{
+
+    title.textContent = "Não foi possível excluir";
+
+    info.className = "alert alert-danger";
+
+    info.innerHTML =
+      escapeHtml(message);
+
+  }
+
+  openModal("deleteResultModal");
+}
+
+/* ---------------- API GOOGLE APPS SCRIPT ---------------- */
+async function sync(action, data) {
+
+  if (!API_URL) {
+    console.warn("API_URL não configurada.");
+    return {
+      sucesso: false,
+      erro: "API_URL não configurada."
+    };
+  }
+
+  try {
+
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "text/plain;charset=utf-8"
+      },
+      body: JSON.stringify({
+        action: action,
+        data: data
+      })
+    });
+
+    const resultado = await response.json();
+
+    console.log("Resposta do servidor:", resultado);
+
+    return resultado;
+
+  } catch (erro) {
+
+    console.error(
+      "Erro ao comunicar com o Apps Script:",
+      erro
+    );
+
+    alert(
+      "Não foi possível conectar ao banco de dados."
+    );
+
+    return {
+      sucesso: false,
+      erro: erro.message
+    };
+  }
+}
+
+
+/* ---------------- CONVERSÃO GOOGLE SHEETS ---------------- */
+
+function converterLivroDoBanco(livro) {
+
+  return {
+    id: String(livro.ID || ""),
+    isbn: String(livro.ISBN_EAN || ""),
+    title: String(livro.TITULO || ""),
+    author: String(livro.AUTOR || ""),
+    publisher: String(livro.EDITORA || ""),
+    date: formatarDataBanco(livro.DATA),
+    status: String(livro.STATUS || "Indisponível"),
+    obs: String(livro.OBSERVACAO || "")
+  };
+}
+
+
+function converterInteressadoDoBanco(interessado) {
+
+  return {
+    id: String(interessado.ID || ""),
+    bookId: String(interessado.LIVRO_ID || ""),
+    name: String(interessado.CLIENTE || ""),
+    phone: String(interessado.TELEFONE || ""),
+    date: formatarDataBanco(interessado.DATA),
+    status: String(interessado.STATUS || "Indisponível"),
+    obs: String(interessado.OBSERVACAO || "")
+  };
+}
+
+
+function converterSugestaoDoBanco(sugestao) {
+
+  return {
+    id: String(sugestao.ID || ""),
+    title: String(sugestao.TITULO || ""),
+    author: String(sugestao.AUTOR || ""),
+    client: String(sugestao.CLIENTE || ""),
+    date: formatarDataBanco(sugestao.DATA),
+    status: String(sugestao.STATUS || "Nova"),
+    obs: String(sugestao.OBSERVACAO || "")
+  };
+}
+
+
+function formatarDataBanco(data) {
+
+  if (!data) {
+    return "";
+  }
+
+  const d = new Date(data);
+
+  if (isNaN(d.getTime())) {
+    return String(data);
+  }
+
+  return d.toLocaleDateString("pt-BR");
+}
+
+/* ---------------- CARREGAR BANCO ---------------- */
+
+async function carregarBanco() {
+
+  if (!API_URL) {
+
+    console.error(
+      "API_URL não configurada."
+    );
+
+    return false;
+  }
+
+  try {
+
+    console.log(
+      "🔄 Carregando dados do Google Sheets..."
+    );
+
+    const response = await fetch(
+      API_URL + "?action=getAll"
+    );
+
+    if (!response.ok) {
+
+      throw new Error(
+        "Erro HTTP: " + response.status
+      );
+    }
+
+    const resultado =
+      await response.json();
+
+    console.log(
+      "Resposta do banco:",
+      resultado
+    );
+
+
+    if (!resultado.sucesso) {
+
+      throw new Error(
+        resultado.erro ||
+        "Erro desconhecido no banco."
+      );
+    }
+
+
+    /*
+     * Converte os dados do Apps Script
+     * para o formato que seu HTML já utiliza.
+     */
+
+    books =
+      (resultado.dados.livros || [])
+        .map(converterLivroDoBanco);
+
+
+    clients =
+      (resultado.dados.interessados || [])
+        .map(converterInteressadoDoBanco);
+
+
+    suggestions =
+      (resultado.dados.sugestoes || [])
+        .map(converterSugestaoDoBanco);
+
+
+    console.log(
+      "✅ Banco carregado:",
+      {
+        livros: books.length,
+        interessados: clients.length,
+        sugestoes: suggestions.length
+      }
+    );
+
+
+    /*
+     * Atualiza a interface.
+     */
+
+    renderDashboard();
+    renderBooks();
+    renderSuggestions();
+
+
+    return true;
+
+  } catch (erro) {
+
+    console.error(
+      "❌ Erro ao carregar banco:",
+      erro
+    );
+
+    alert(
+      "Não foi possível carregar os dados do Google Sheets."
+    );
+
+    return false;
+  }
+}
+
+
+/*
+ * IMPORTANTE:
+ * Este arquivo já funciona sozinho no navegador usando localStorage.
+ *
+ * Para transformar em sistema compartilhado entre os computadores da
+ * livraria, basta preencher API_URL com a URL do seu Google Apps Script
+ * e implementar no Code.gs as ações:
+ *
+ * createBook
+ * addClient
+ * updateBook
+ * createSuggestion
+ *
+ * A estrutura de dados enviada pelo frontend já está pronta.
+ */
+
+carregarBanco();
+
+</script>
+</body>
+</html>

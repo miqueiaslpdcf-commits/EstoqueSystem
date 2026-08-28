@@ -145,6 +145,9 @@ body::before {
 .ConsultarLivro {
     background: linear-gradient(135deg, #2afc06, #5df517);
 }
+.LivrosProcurados {
+    background: linear-gradient(135deg, #d706fc, #dd04cb);
+}
 
 /*aba de localização de livros*/
 .box {
