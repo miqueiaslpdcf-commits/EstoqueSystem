@@ -302,6 +302,53 @@ tr:last-child td{border-bottom:0}
   }
 }
 
+/* ---------------- LOADING CADASTRO LIVRO ---------------- */
+
+.book-save-loading{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.48);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:99999;
+}
+
+.book-save-loading.show{
+  display:flex;
+}
+
+.book-save-loading-box{
+  background:#fff;
+  border-radius:14px;
+  padding:28px 40px;
+  min-width:220px;
+  text-align:center;
+  box-shadow:0 20px 50px rgba(0,0,0,.25);
+}
+
+.book-save-spinner{
+  width:42px;
+  height:42px;
+  margin:0 auto 15px;
+  border:4px solid #eee;
+  border-top:4px solid var(--bordo);
+  border-radius:50%;
+  animation:bookSaveSpin .8s linear infinite;
+}
+
+.book-save-loading-text{
+  font-size:15px;
+  font-weight:600;
+  color:var(--bordo);
+}
+
+@keyframes bookSaveSpin{
+  to{
+    transform:rotate(360deg);
+  }
+}
+
 </style>
 </head>
 
@@ -641,6 +688,59 @@ tr:last-child td{border-bottom:0}
 </div>
 
 
+<!-- LOADING CADASTRO LIVRO PROCURADO -->
+<div class="book-save-loading" id="bookSaveLoading">
+
+  <div class="book-save-loading-box">
+
+    <div class="book-save-spinner"></div>
+
+    <div class="book-save-loading-text">
+      Cadastrando livro...
+    </div>
+
+  </div>
+
+</div>
+
+<!-- MODAL RESULTADO CADASTRO LIVRO -->
+<div class="modal" id="bookResultModal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+
+      <h2 id="bookResultTitle">
+        Cadastro concluído
+      </h2>
+
+      <button
+        class="close"
+        onclick="closeModal('bookResultModal')">
+        ×
+      </button>
+
+    </div>
+
+    <div
+      id="bookResultInfo"
+      class="alert">
+    </div>
+
+    <div class="form-actions">
+
+      <button
+        class="btn btn-primary"
+        onclick="closeModal('bookResultModal')">
+        Fechar
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
+
 
 <script>
 /*
@@ -806,8 +906,23 @@ function findDuplicate(isbn,title,author){
 
   return books.find(b=>normalize(b.title)===nt && nt.length>=5);
 }
-
 async function saveBook(){
+
+  const button =
+    document.getElementById("saveBookBtn");
+
+  const loading =
+    document.getElementById("bookSaveLoading");
+
+
+  /* ---------------- PROTEÇÃO CONTRA DUPLO CLIQUE ---------------- */
+
+  if(button.disabled){
+    return;
+  }
+
+
+  /* ---------------- CAPTURA DOS DADOS ---------------- */
 
   const title =
     document.getElementById("bookTitle").value.trim();
@@ -835,7 +950,8 @@ async function saveBook(){
 
   if(!title || !client){
 
-    alert(
+    showBookResult(
+      false,
       "Preencha o título e o nome do cliente."
     );
 
@@ -843,201 +959,426 @@ async function saveBook(){
   }
 
 
-  /* ---------------- ENVIA PARA O BANCO ---------------- */
-
-  const resultado = await sync(
-    "createBook",
-    {
-      title: title,
-      author: author,
-      isbn: isbn,
-      publisher: publisher,
-      client: client,
-      phone: phone,
-      obs: obs
-    }
-  );
-
-
-  /* ---------------- VERIFICA RESPOSTA ---------------- */
-
-  if(!resultado || !resultado.sucesso){
-
-    alert(
-      "Não foi possível cadastrar o livro.\n\n" +
-      (resultado?.erro || "Erro desconhecido.")
-    );
-
-    return;
-  }
-
-
-  const dados = resultado.resultado;
-
-
   /* ==================================================
-   * LIVRO NOVO
+   * BLOQUEIA O BOTÃO IMEDIATAMENTE
    * ================================================== */
 
-  if(dados.tipo === "novo"){
+  button.disabled = true;
 
-    /*
-     * O Apps Script já criou o ID.
-     * Não usamos mais uid() no navegador.
-     */
+  button.dataset.originalText =
+    button.textContent;
 
-    const livroBanco = dados.livro;
-
-    const livro = {
-      id: String(livroBanco.ID || ""),
-      isbn: String(livroBanco.ISBN_EAN || ""),
-      title: String(livroBanco.TITULO || ""),
-      author: String(livroBanco.AUTOR || ""),
-      publisher: String(livroBanco.EDITORA || ""),
-      date: formatarDataBanco(livroBanco.DATA),
-      status: String(livroBanco.STATUS || "Indisponível"),
-      obs: String(livroBanco.OBSERVACAO || "")
-    };
-
-
-    /*
-     * Adiciona o livro somente depois
-     * que o servidor confirmou o cadastro.
-     */
-
-    books.push(livro);
-
-
-    /*
-     * O Apps Script também criou o interessado.
-     */
-
-    if(dados.interessado){
-
-      const interessadoBanco =
-        dados.interessado;
-
-      clients.push({
-        id: String(interessadoBanco.ID || ""),
-        bookId: String(interessadoBanco.LIVRO_ID || ""),
-        name: String(interessadoBanco.CLIENTE || ""),
-        phone: String(interessadoBanco.TELEFONE || ""),
-        date: formatarDataBanco(interessadoBanco.DATA),
-        status: String(interessadoBanco.STATUS || "Indisponível"),
-        obs: String(interessadoBanco.OBSERVACAO || "")
-      });
-    }
-
-
-    closeModal("bookModal");
-
-    renderDashboard();
-    renderBooks();
-
-    alert(
-      "Livro procurado cadastrado com sucesso."
-    );
-
-    return;
-  }
-
-
-  /* ==================================================
-   * LIVRO JÁ EXISTENTE
-   * ================================================== */
-
-  if(dados.tipo === "existente"){
-
-    /*
-     * O backend encontrou o livro.
-     *
-     * Não criamos outro livro.
-     *
-     * Apenas adicionamos o novo interessado.
-     */
-
-    const livroBanco =
-      dados.livro;
-
-    const livroExistente = {
-      id: String(livroBanco.ID || ""),
-      isbn: String(livroBanco.ISBN_EAN || ""),
-      title: String(livroBanco.TITULO || ""),
-      author: String(livroBanco.AUTOR || ""),
-      publisher: String(livroBanco.EDITORA || ""),
-      date: formatarDataBanco(livroBanco.DATA),
-      status: String(livroBanco.STATUS || "Indisponível"),
-      obs: String(livroBanco.OBSERVACAO || "")
-    };
-
-
-    /*
-     * Garante que o livro existente
-     * esteja atualizado no navegador.
-     */
-
-    const indiceLivro =
-      books.findIndex(
-        b => b.id === livroExistente.id
-      );
-
-
-    if(indiceLivro >= 0){
-
-      books[indiceLivro] =
-        livroExistente;
-
-    } else {
-
-      books.push(
-        livroExistente
-      );
-    }
-
-
-    /*
-     * Adiciona o interessado retornado
-     * pelo Apps Script.
-     */
-
-    if(dados.interessado){
-
-      const interessadoBanco =
-        dados.interessado;
-
-      clients.push({
-        id: String(interessadoBanco.ID || ""),
-        bookId: String(interessadoBanco.LIVRO_ID || ""),
-        name: String(interessadoBanco.CLIENTE || ""),
-        phone: String(interessadoBanco.TELEFONE || ""),
-        date: formatarDataBanco(interessadoBanco.DATA),
-        status: String(interessadoBanco.STATUS || "Aguardando"),
-        obs: String(interessadoBanco.OBSERVACAO || "")
-      });
-    }
-
-
-    closeModal("bookModal");
-
-    renderDashboard();
-    renderBooks();
-
-    alert(
-      "Este livro já estava cadastrado.\n\n" +
-      "O cliente foi adicionado ao registro existente."
-    );
-
-    return;
-  }
+  button.textContent =
+    "Cadastrando...";
 
 
   /*
-   * Caso o backend retorne um tipo inesperado.
+   * Mostra o carregamento
    */
+  loading.classList.add("show");
 
-  alert(
-    "O servidor retornou uma resposta inesperada."
-  );
+
+  try{
+
+    /* ---------------- ENVIA PARA O BANCO ---------------- */
+
+    const resultado = await sync(
+      "createBook",
+      {
+        title: title,
+        author: author,
+        isbn: isbn,
+        publisher: publisher,
+        client: client,
+        phone: phone,
+        obs: obs
+      }
+    );
+
+
+    /* ---------------- VERIFICA RESPOSTA ---------------- */
+
+    if(!resultado || !resultado.sucesso){
+
+      loading.classList.remove("show");
+
+      showBookResult(
+        false,
+        "Não foi possível cadastrar o livro.\n\n" +
+        (
+          resultado?.erro ||
+          "Erro desconhecido."
+        )
+      );
+
+      return;
+    }
+
+
+    const dados =
+      resultado.resultado;
+
+
+    /* ==================================================
+     * LIVRO NOVO
+     * ================================================== */
+
+    if(dados.tipo === "novo"){
+
+      const livroBanco =
+        dados.livro;
+
+
+      const livro = {
+
+        id: String(
+          livroBanco.ID || ""
+        ),
+
+        isbn: String(
+          livroBanco.ISBN_EAN || ""
+        ),
+
+        title: String(
+          livroBanco.TITULO || ""
+        ),
+
+        author: String(
+          livroBanco.AUTOR || ""
+        ),
+
+        publisher: String(
+          livroBanco.EDITORA || ""
+        ),
+
+        date:
+          formatarDataBanco(
+            livroBanco.DATA
+          ),
+
+        status: String(
+          livroBanco.STATUS ||
+          "Indisponível"
+        ),
+
+        obs: String(
+          livroBanco.OBSERVACAO || ""
+        )
+
+      };
+
+
+      /*
+       * Adiciona o livro somente depois
+       * da confirmação do servidor.
+       */
+
+      books.push(livro);
+
+
+      /*
+       * O Apps Script também criou
+       * o interessado.
+       */
+
+      if(dados.interessado){
+
+        const interessadoBanco =
+          dados.interessado;
+
+
+        clients.push({
+
+          id: String(
+            interessadoBanco.ID || ""
+          ),
+
+          bookId: String(
+            interessadoBanco.LIVRO_ID || ""
+          ),
+
+          name: String(
+            interessadoBanco.CLIENTE || ""
+          ),
+
+          phone: String(
+            interessadoBanco.TELEFONE || ""
+          ),
+
+          date:
+            formatarDataBanco(
+              interessadoBanco.DATA
+            ),
+
+          status: String(
+            interessadoBanco.STATUS ||
+            "Indisponível"
+          ),
+
+          obs: String(
+            interessadoBanco.OBSERVACAO || ""
+          )
+
+        });
+
+      }
+
+
+      /*
+       * Fecha o modal de cadastro
+       */
+
+      closeModal("bookModal");
+
+
+      /*
+       * Atualiza a interface
+       */
+
+      renderDashboard();
+      renderBooks();
+
+
+      /*
+       * Esconde o carregamento
+       */
+
+      loading.classList.remove("show");
+
+
+      /*
+       * Mostra modal de sucesso
+       */
+
+      showBookResult(
+        true,
+        "Livro procurado cadastrado com sucesso."
+      );
+
+
+      return;
+    }
+
+
+    /* ==================================================
+     * LIVRO JÁ EXISTENTE
+     * ================================================== */
+
+    if(dados.tipo === "existente"){
+
+      const livroBanco =
+        dados.livro;
+
+
+      const livroExistente = {
+
+        id: String(
+          livroBanco.ID || ""
+        ),
+
+        isbn: String(
+          livroBanco.ISBN_EAN || ""
+        ),
+
+        title: String(
+          livroBanco.TITULO || ""
+        ),
+
+        author: String(
+          livroBanco.AUTOR || ""
+        ),
+
+        publisher: String(
+          livroBanco.EDITORA || ""
+        ),
+
+        date:
+          formatarDataBanco(
+            livroBanco.DATA
+          ),
+
+        status: String(
+          livroBanco.STATUS ||
+          "Indisponível"
+        ),
+
+        obs: String(
+          livroBanco.OBSERVACAO || ""
+        )
+
+      };
+
+
+      /*
+       * Atualiza o livro existente
+       */
+
+      const indiceLivro =
+        books.findIndex(
+          b =>
+            b.id ===
+            livroExistente.id
+        );
+
+
+      if(indiceLivro >= 0){
+
+        books[indiceLivro] =
+          livroExistente;
+
+      }else{
+
+        books.push(
+          livroExistente
+        );
+
+      }
+
+
+      /*
+       * Adiciona o novo interessado
+       */
+
+      if(dados.interessado){
+
+        const interessadoBanco =
+          dados.interessado;
+
+
+        clients.push({
+
+          id: String(
+            interessadoBanco.ID || ""
+          ),
+
+          bookId: String(
+            interessadoBanco.LIVRO_ID || ""
+          ),
+
+          name: String(
+            interessadoBanco.CLIENTE || ""
+          ),
+
+          phone: String(
+            interessadoBanco.TELEFONE || ""
+          ),
+
+          date:
+            formatarDataBanco(
+              interessadoBanco.DATA
+            ),
+
+          status: String(
+            interessadoBanco.STATUS ||
+            "Aguardando"
+          ),
+
+          obs: String(
+            interessadoBanco.OBSERVACAO || ""
+          )
+
+        });
+
+      }
+
+
+      /*
+       * Fecha modal
+       */
+
+      closeModal("bookModal");
+
+
+      /*
+       * Atualiza tela
+       */
+
+      renderDashboard();
+      renderBooks();
+
+
+      /*
+       * Esconde loading
+       */
+
+      loading.classList.remove("show");
+
+
+      /*
+       * Mostra modal informando
+       * que o livro já existia.
+       */
+
+      showBookResult(
+        true,
+        "Este livro já estava cadastrado.\n\n" +
+        "O cliente foi adicionado ao registro existente."
+      );
+
+
+      return;
+    }
+
+
+    /* ==================================================
+     * RESPOSTA INESPERADA
+     * ================================================== */
+
+    loading.classList.remove("show");
+
+
+    showBookResult(
+      false,
+      "O servidor retornou uma resposta inesperada."
+    );
+
+
+  }catch(erro){
+
+    console.error(
+      "Erro ao cadastrar livro:",
+      erro
+    );
+
+
+    /*
+     * Esconde loading
+     */
+
+    loading.classList.remove("show");
+
+
+    /*
+     * Mostra erro no modal
+     */
+
+    showBookResult(
+      false,
+      "Não foi possível cadastrar o livro.\n\n" +
+      (
+        erro?.message ||
+        "Erro desconhecido."
+      )
+    );
+
+
+  }finally{
+
+    /*
+     * Libera o botão novamente
+     *
+     * Isso só acontece depois que toda
+     * a operação terminou.
+     */
+
+    button.disabled = false;
+
+    button.textContent =
+      button.dataset.originalText ||
+      "Cadastrar procura";
+
+  }
+
 }
 
 let bookToDelete = null;
@@ -2070,6 +2411,41 @@ async function sync(action, data) {
       erro: erro.message
     };
   }
+}
+
+function showBookResult(success, message){
+
+  const title =
+    document.getElementById("bookResultTitle");
+
+  const info =
+    document.getElementById("bookResultInfo");
+
+  if(success){
+
+    title.textContent =
+      "Cadastro concluído";
+
+    info.className =
+      "alert alert-success";
+
+    info.innerHTML =
+      escapeHtml(message);
+
+  }else{
+
+    title.textContent =
+      "Não foi possível cadastrar";
+
+    info.className =
+      "alert alert-danger";
+
+    info.innerHTML =
+      escapeHtml(message);
+
+  }
+
+  openModal("bookResultModal");
 }
 
 
