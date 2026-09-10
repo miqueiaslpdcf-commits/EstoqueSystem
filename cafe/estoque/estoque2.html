@@ -7,242 +7,561 @@
 <style>
 *{
   box-sizing:border-box;
-  -webkit-tap-highlight-color: transparent;
+  -webkit-tap-highlight-color:transparent;
+}
+
+:root{
+  --bordo:#7b1e2b;
+  --bordo-dark:#5d1621;
+  --dourado:#c79a45;
+  --dourado-claro:#dfc27a;
+
+  --marrom-pastel:#eadfd2;
+  --marrom-claro:#f6f0e9;
+  --marrom:#6f5848;
+
+  --texto:#3b2a1f;
+  --branco:#fffdf9;
+  --borda:#d8c5b2;
 }
 
 body{
-  font-family: system-ui, Arial;
-  background:#0f172a;
-  color:white;
+  font-family:system-ui,Arial,sans-serif;
+
+  background:
+    linear-gradient(
+      135deg,
+      #f6f0e9 0%,
+      #eadfd2 100%
+    );
+
+  color:var(--texto);
+
   margin:0;
   padding:10px;
+
+  min-height:100vh;
 }
 
 h1{
   text-align:center;
-  font-size:clamp(22px, 5vw, 40px);
-  margin:10px 0;
+
+  font-family:Georgia,"Times New Roman",serif;
+
+  font-size:clamp(22px,5vw,40px);
+
+  color:var(--bordo-dark);
+
+  margin:10px 0 18px;
+
+  font-weight:700;
 }
 
-/* GRID */
+
+/* =========================
+   GRID DE PRODUTOS
+========================= */
+
 #botoesEstoque{
   display:grid;
   grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
   gap:10px;
 }
 
-/* BOTÃO */
+
+/* =========================
+   BOTÃO PRODUTO
+========================= */
+
 .botao-produto{
-  background:#1e293b;
-  border:none;
+  background:var(--branco);
+
+  border:1px solid var(--borda);
+
   border-radius:16px;
+
   padding:8px;
-  color:white;
+
+  color:var(--texto);
+
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:space-between;
-  transition:0.15s;
+
+  transition:
+    transform .15s ease,
+    box-shadow .15s ease,
+    border-color .15s ease;
+
+  box-shadow:
+    0 4px 12px rgba(75,51,40,.10);
+
+  cursor:pointer;
+}
+
+.botao-produto:hover{
+  border-color:var(--dourado);
+
+  box-shadow:
+    0 7px 18px rgba(75,51,40,.15);
+
+  transform:translateY(-2px);
 }
 
 .botao-produto:active{
-  transform:scale(0.95);
-  background:#334155;
+  transform:scale(.95);
+
+  background:var(--marrom-claro);
 }
 
-/* IMAGEM */
+
+/* =========================
+   IMAGEM
+========================= */
+
 .botao-produto img{
   width:100%;
   height:90px;
+
   object-fit:cover;
+
   border-radius:12px;
+
   margin-bottom:5px;
+
   pointer-events:none;
 }
 
-/* NOME */
+
+/* =========================
+   NOME
+========================= */
+
 .botao-produto div:nth-child(2){
   font-size:12px;
+
   text-align:center;
+
   min-height:30px;
+
   word-break:break-word;
+
+  color:var(--texto);
+
+  font-weight:600;
 }
 
-/* QTD */
+
+/* =========================
+   QUANTIDADE
+========================= */
+
 .qtd{
   font-size:22px;
+
   font-weight:bold;
+
   margin-top:4px;
+
+  color:var(--bordo);
 }
 
-/* BOTÃO ENVIAR */
+
+/* =========================
+   BOTÃO ENVIAR
+========================= */
+
 #enviar{
   position:fixed;
+
   bottom:15px;
   left:50%;
+
   transform:translateX(-50%);
-  background:#3b82f6;
-  border:none;
+
+  background:
+    linear-gradient(
+      135deg,
+      var(--bordo),
+      var(--bordo-dark)
+    );
+
+  border:2px solid var(--dourado);
+
   padding:14px 25px;
+
   font-size:16px;
+
+  font-weight:700;
+
   border-radius:14px;
+
   color:white;
-  box-shadow:0 5px 20px rgba(0,0,0,0.3);
+
+  box-shadow:
+    0 6px 20px rgba(75,51,40,.28);
+
+  cursor:pointer;
+
+  z-index:4000;
 }
 
-/* RESUMO */
+#enviar:active{
+  transform:translateX(-50%) scale(.96);
+}
+
+
+/* =========================
+   RESUMO
+========================= */
+
 #resumo{
   margin-top:20px;
-  background:#1e293b;
+
+  background:var(--branco);
+
   padding:12px;
+
   border-radius:16px;
+
+  border:1px solid var(--borda);
+
+  box-shadow:
+    0 5px 16px rgba(75,51,40,.10);
+
+  overflow-x:auto;
 }
 
 #resumo h2{
+  font-family:Georgia,"Times New Roman",serif;
+
   font-size:16px;
+
   margin:0 0 10px;
+
+  color:var(--bordo-dark);
 }
+
+
+/* =========================
+   TABELA
+========================= */
 
 table{
   width:100%;
+
   border-collapse:collapse;
+
   font-size:13px;
+
+  color:var(--texto);
 }
 
-th,td{
+th,
+td{
   padding:8px;
-  border-bottom:1px solid #334155;
+
+  border-bottom:1px solid var(--borda);
+
   text-align:left;
 }
 
+th{
+  color:var(--bordo-dark);
+
+  font-weight:700;
+
+  background:var(--marrom-claro);
+}
+
+tr:last-child td{
+  border-bottom:none;
+}
+
+
+/* =========================
+   BOTÕES PEQUENOS
+========================= */
+
 button.small{
   padding:5px 8px;
+
   font-size:12px;
+
   border:none;
+
   border-radius:8px;
+
   margin-right:5px;
+
+  cursor:pointer;
 }
 
 .edit{
-  background:#3b82f6;
+  background:var(--dourado);
+
   color:white;
+}
+
+.edit:active{
+  background:#ad8135;
 }
 
 .del{
-  background:#ef4444;
+  background:var(--bordo);
+
   color:white;
 }
 
-/* MODAL */
+.del:active{
+  background:var(--bordo-dark);
+}
+
+
+/* =========================
+   MODAL STATUS
+========================= */
+
 #modalStatus{
   position:fixed;
+
   top:0;
   left:0;
+
   width:100%;
   height:100%;
-  background:rgba(0,0,0,0.6);
+
+  background:rgba(59,42,31,.58);
+
   display:flex;
+
   align-items:center;
   justify-content:center;
+
   z-index:9999;
 }
 
 #modalBox{
-  background:#1e293b;
+  background:var(--branco);
+
   padding:30px 40px;
+
   border-radius:18px;
+
   text-align:center;
+
   font-size:18px;
+
   font-weight:bold;
-  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+
+  color:var(--texto);
+
+  border:2px solid var(--dourado);
+
+  box-shadow:
+    0 12px 35px rgba(75,51,40,.30);
 }
+
+
+/* =========================
+   SPINNER
+========================= */
 
 .spinner{
   width:40px;
   height:40px;
-  border:4px solid #334155;
-  border-top:4px solid #3b82f6;
+
+  border:4px solid var(--marrom-pastel);
+
+  border-top:4px solid var(--bordo);
+
+  border-right:4px solid var(--dourado);
+
   border-radius:50%;
+
   animation:girar 1s linear infinite;
+
   margin:0 auto 15px;
 }
 
 @keyframes girar{
-  0%{ transform:rotate(0deg); }
-  100%{ transform:rotate(360deg); }
+  0%{
+    transform:rotate(0deg);
+  }
+
+  100%{
+    transform:rotate(360deg);
+  }
 }
 
-/* MODAL EDITAR */
+
+/* =========================
+   MODAL EDITAR
+========================= */
+
 #modalEditar{
   position:fixed;
+
   top:0;
   left:0;
+
   width:100%;
   height:100%;
-  background:rgba(0,0,0,0.6);
+
+  background:rgba(59,42,31,.58);
+
   display:flex;
+
   align-items:center;
   justify-content:center;
+
   z-index:99999;
 }
 
 #modalEditarBox{
-  background:#1e293b;
+  background:var(--branco);
+
   padding:20px;
+
   border-radius:16px;
+
   width:90%;
   max-width:300px;
+
   text-align:center;
+
+  color:var(--texto);
+
+  border:2px solid var(--dourado);
+
+  box-shadow:
+    0 12px 35px rgba(75,51,40,.30);
+}
+
+#modalEditarBox h3{
+  margin-top:0;
+
+  color:var(--bordo-dark);
+
+  font-family:Georgia,"Times New Roman",serif;
 }
 
 #modalEditarBox input{
   width:100%;
+
   padding:10px;
+
   margin:10px 0;
-  border:none;
+
+  border:1px solid var(--borda);
+
   border-radius:10px;
+
   font-size:16px;
+
+  background:var(--marrom-claro);
+
+  color:var(--texto);
+
+  outline:none;
 }
 
-/* DESKTOP */
-@media(min-width:768px){
-  body{ padding:20px 40px; }
+#modalEditarBox input:focus{
+  border-color:var(--bordo);
 
-  #botoesEstoque{
-    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-    gap:15px;
-  }
-
-  .botao-produto img{
-    height:120px;
-  }
-
-  .qtd{ font-size:26px; }
+  box-shadow:
+    0 0 0 3px rgba(123,30,43,.10);
 }
 
 
-/* ================= MENSAGEM MOTIVACIONAL ================= */
+/* =========================
+   MODAL QUANTIDADE
+========================= */
+
+#modalQuantidade{
+  background:rgba(59,42,31,.58) !important;
+}
+
+#modalQuantidade > div{
+  background:var(--branco) !important;
+
+  color:var(--texto);
+
+  border:2px solid var(--dourado);
+
+  box-shadow:
+    0 12px 35px rgba(75,51,40,.30);
+}
+
+#modalQuantidade h3{
+  color:var(--bordo-dark);
+
+  font-family:Georgia,"Times New Roman",serif;
+}
+
+#qtdModalInput{
+  background:var(--marrom-claro) !important;
+
+  color:var(--texto) !important;
+
+  border:1px solid var(--borda) !important;
+
+  outline:none;
+}
+
+#qtdModalInput:focus{
+  border-color:var(--bordo) !important;
+
+  box-shadow:
+    0 0 0 3px rgba(123,30,43,.10);
+}
+
+
+/* =========================
+   MENSAGEM DA EQUIPE
+========================= */
+
 #mensagemEquipe{
-  background:linear-gradient(135deg,#1e293b,#334155);
-  border:2px solid #22c55e;
+  background:
+    linear-gradient(
+      135deg,
+      var(--branco),
+      var(--marrom-claro)
+    );
+
+  border:2px solid var(--dourado);
+
   border-radius:18px;
+
   padding:16px;
+
   margin-bottom:18px;
+
   text-align:center;
-  box-shadow:0 8px 20px rgba(0,0,0,0.35);
+
+  box-shadow:
+    0 8px 20px rgba(75,51,40,.12);
+
   animation:fadeMensagem .5s ease;
 }
 
 #mensagemEquipe h3{
   margin:0 0 8px;
+
   font-size:18px;
-  color:#4ade80;
+
+  color:var(--bordo);
 }
 
 #mensagemTexto{
   font-size:15px;
+
   line-height:1.5;
-  opacity:0.95;
+
+  color:var(--marrom);
+
+  opacity:.95;
 }
 
 @keyframes fadeMensagem{
@@ -250,13 +569,196 @@ button.small{
     opacity:0;
     transform:translateY(-10px);
   }
+
   to{
     opacity:1;
     transform:translateY(0);
   }
 }
-/* ========================================================= */
 
+
+/* =========================
+   PESQUISA FLUTUANTE
+========================= */
+
+#pesquisaFlutuante{
+  position:fixed;
+
+  top:12px;
+  right:12px;
+
+  z-index:5000;
+
+  width:min(330px,calc(100vw - 24px));
+
+  display:flex;
+
+  align-items:center;
+
+  gap:8px;
+
+  padding:8px 10px;
+
+  background:rgba(255,250,244,.97);
+
+  border:1px solid var(--dourado);
+
+  border-radius:14px;
+
+  box-shadow:
+    0 8px 24px rgba(75,51,40,.18);
+
+  backdrop-filter:blur(8px);
+}
+
+#pesquisaFlutuante .iconePesquisa{
+  flex:0 0 auto;
+
+  font-size:18px;
+
+  color:var(--bordo);
+}
+
+#pesquisaProduto{
+  width:100%;
+
+  min-width:0;
+
+  padding:9px 10px;
+
+  border:1px solid var(--borda);
+
+  border-radius:9px;
+
+  outline:none;
+
+  background:var(--branco);
+
+  color:var(--texto);
+
+  font-size:14px;
+}
+
+#pesquisaProduto::placeholder{
+  color:#9a8878;
+}
+
+#pesquisaProduto:focus{
+  border-color:var(--bordo);
+
+  box-shadow:
+    0 0 0 3px rgba(123,30,43,.10);
+}
+
+#limparPesquisa{
+  flex:0 0 auto;
+
+  width:30px;
+  height:30px;
+
+  border:none;
+
+  border-radius:8px;
+
+  background:var(--marrom-pastel);
+
+  color:var(--bordo-dark);
+
+  font-size:18px;
+
+  font-weight:700;
+
+  cursor:pointer;
+
+  display:none;
+}
+
+#limparPesquisa:active{
+  transform:scale(.94);
+}
+
+#resultadoPesquisa{
+  position:fixed;
+
+  top:66px;
+  right:12px;
+
+  z-index:4999;
+
+  width:min(330px,calc(100vw - 24px));
+
+  padding:7px 10px;
+
+  border-radius:10px;
+
+  background:var(--branco);
+
+  border:1px solid var(--borda);
+
+  color:var(--marrom);
+
+  font-size:12px;
+
+  box-shadow:
+    0 6px 18px rgba(75,51,40,.12);
+
+  display:none;
+}
+
+
+/* =========================
+   DESKTOP
+========================= */
+
+@media(min-width:768px){
+
+  body{
+    padding:20px 40px;
+  }
+
+  #botoesEstoque{
+    grid-template-columns:
+      repeat(auto-fill,minmax(160px,1fr));
+
+    gap:15px;
+  }
+
+  .botao-produto img{
+    height:120px;
+  }
+
+  .qtd{
+    font-size:26px;
+  }
+
+}
+
+
+/* =========================
+   MOBILE
+========================= */
+
+@media(max-width:480px){
+
+  #pesquisaFlutuante{
+    top:8px;
+    right:8px;
+
+    width:calc(100vw - 16px);
+  }
+
+  #resultadoPesquisa{
+    top:61px;
+    right:8px;
+
+    width:calc(100vw - 16px);
+  }
+
+  h1{
+    padding-top:62px;
+  }
+
+}
 
 </style>
 </head>
@@ -309,15 +811,17 @@ button.small{
 
     <div style="display:flex; gap:10px;">
 
-      <button onclick="fecharEdicao()"
-      style="flex:1; padding:10px; border:none; border-radius:10px; background:#ef4444; color:white;">
-        Cancelar
-      </button>
+      <button
+  onclick="fecharEdicao()"
+  style="flex:1; padding:10px; border:none; border-radius:10px; background:#7b1e2b; color:white;">
+  Cancelar
+</button>
 
-      <button onclick="salvarEdicao()"
-      style="flex:1; padding:10px; border:none; border-radius:10px; background:#3b82f6; color:white;">
-        Salvar
-      </button>
+<button
+  onclick="salvarEdicao()"
+  style="flex:1; padding:10px; border:none; border-radius:10px; background:#c79a45; color:white;">
+  Salvar
+</button>
 
     </div>
 
@@ -406,6 +910,32 @@ Confirmar
 </div>
 </div>
 
+<!-- PESQUISA FLUTUANTE -->
+
+<div id="pesquisaFlutuante">
+
+  <span class="iconePesquisa">🔎</span>
+
+  <input
+    type="search"
+    id="pesquisaProduto"
+    placeholder="Pesquisar produto ou EAN..."
+    autocomplete="off"
+    oninput="filtrarProdutos()"
+  >
+
+  <button
+    id="limparPesquisa"
+    type="button"
+    onclick="limparPesquisa()"
+  >
+    ×
+  </button>
+
+</div>
+
+<div id="resultadoPesquisa"></div>
+
 
 <script>
 const url="https://script.google.com/macros/s/AKfycbyCw_0ga7ndOcSEhe_emZve5fgYO4Mea2Tv8Wf-5QMU_wiXb9tB8ZOOfAp-tIE13QctiA/exec";
@@ -484,6 +1014,108 @@ function podeClicar(){
   return true;
 }
 
+
+// =======================
+// PESQUISA DE PRODUTO
+// =======================
+
+let termoPesquisa = "";
+
+function filtrarProdutos(){
+
+  const campo =
+    document.getElementById("pesquisaProduto");
+
+  const termo =
+    campo.value.trim().toLowerCase();
+
+  termoPesquisa = termo;
+
+  const limpar =
+    document.getElementById("limparPesquisa");
+
+  const resultado =
+    document.getElementById("resultadoPesquisa");
+
+  limpar.style.display =
+    termo ? "block" : "none";
+
+  gerarPainel();
+
+  if(!termo){
+
+    resultado.style.display = "none";
+
+    return;
+  }
+
+  const lista =
+    produtosDoEstoque();
+
+  const encontrados =
+    lista.filter(p =>
+
+      String(p.produto || "")
+        .toLowerCase()
+        .includes(termo)
+
+      ||
+
+      String(p.ean || "")
+        .toLowerCase()
+        .includes(termo)
+
+    );
+
+  if(encontrados.length === 0){
+
+    resultado.innerText =
+      "Nenhum produto encontrado.";
+
+  }else if(encontrados.length === 1){
+
+    resultado.innerText =
+      "1 produto encontrado.";
+
+  }else{
+
+    resultado.innerText =
+      encontrados.length +
+      " produtos encontrados.";
+
+  }
+
+  resultado.style.display = "block";
+}
+
+
+// =======================
+// LIMPAR PESQUISA
+// =======================
+
+function limparPesquisa(){
+
+  const campo =
+    document.getElementById("pesquisaProduto");
+
+  campo.value = "";
+
+  termoPesquisa = "";
+
+  document.getElementById(
+    "limparPesquisa"
+  ).style.display = "none";
+
+  document.getElementById(
+    "resultadoPesquisa"
+  ).style.display = "none";
+
+  gerarPainel();
+
+  campo.focus();
+
+}
+
 /* ======================= */
 function carregarProdutos(){
 
@@ -523,6 +1155,24 @@ let container=document.getElementById("botoesEstoque");
 container.innerHTML="";
 
 let lista=produtosDoEstoque();
+
+if(termoPesquisa){
+
+  lista=lista.filter(p =>
+
+    String(p.produto || "")
+      .toLowerCase()
+      .includes(termoPesquisa)
+
+    ||
+
+    String(p.ean || "")
+      .toLowerCase()
+      .includes(termoPesquisa)
+
+  );
+
+}
 
 lista.forEach(p=>{
 
