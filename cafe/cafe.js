@@ -1,5 +1,5 @@
 console.log("JS conectado!");
-const url="https://script.google.com/macros/s/AKfycbxjBR53et0uyEuC3r4hzH1D-zwjxdp51XC7SPT-4hyhA5QqkYb2m0kZ__VKJq3W3dKQHA/exec";
+const url="https://script.google.com/macros/s/AKfycbyCw_0ga7ndOcSEhe_emZve5fgYO4Mea2Tv8Wf-5QMU_wiXb9tB8ZOOfAp-tIE13QctiA/exec";
 let produtos=[];
 let produtosMap = new Map();
 let contagensPendentes = [];

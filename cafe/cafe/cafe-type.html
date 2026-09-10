@@ -4,114 +4,452 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-<title>Escolher Tipo de Contagem</title>
+<title>Contagem do Café</title>
 
 <style>
+
 *{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
 }
 
 body{
-  margin:0;
-  min-height:100vh;
-  background:#0f172a;
-  font-family:system-ui, Arial;
-  color:white;
+    margin:0;
+    min-height:100vh;
 
-  display:flex;
-  align-items:center;
-  justify-content:center;
+    font-family:"Inter","Segoe UI",Arial,sans-serif;
 
-  padding:20px;
+    color:#3b2a1f;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    padding:25px;
+
+    background:
+        radial-gradient(
+            circle at 50% 20%,
+            rgba(199,154,69,.15),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #f6f0e9,
+            #eadfd2
+        );
 }
 
+
+/* ==============================
+   CONTAINER
+============================== */
+
 .container{
-  width:100%;
-  max-width:500px;
-  text-align:center;
+    width:100%;
+    max-width:900px;
+
+    text-align:center;
+}
+
+
+/* ==============================
+   CABEÇALHO
+============================== */
+
+.cabecalho{
+    margin-bottom:42px;
+}
+
+.iconePrincipal{
+    width:82px;
+    height:82px;
+
+    margin:0 auto 18px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7b1e2b,
+            #5d1621
+        );
+
+    font-size:42px;
+
+    box-shadow:
+        0 10px 25px rgba(93,22,33,.20);
+
+    border:4px solid rgba(199,154,69,.55);
 }
 
 h1{
-  font-size:clamp(28px,5vw,42px);
-  margin-bottom:12px;
+    margin:0;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:clamp(32px,6vw,46px);
+
+    font-weight:700;
+
+    letter-spacing:4px;
+
+    color:#5d1621;
 }
 
 .sub{
-  opacity:.8;
-  margin-bottom:35px;
-  font-size:15px;
+    margin-top:12px;
+
+    color:#6f5848;
+
+    font-size:15px;
+
+    letter-spacing:.4px;
 }
+
+
+/* ==============================
+   LINHA DECORATIVA
+============================== */
+
+.decoracao{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:12px;
+
+    margin-top:20px;
+}
+
+.decoracao span{
+    width:80px;
+    height:1px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #c79a45
+        );
+}
+
+.decoracao span:last-child{
+    background:
+        linear-gradient(
+            90deg,
+            #c79a45,
+            transparent
+        );
+}
+
+.decoracao i{
+    width:7px;
+    height:7px;
+
+    background:#c79a45;
+
+    transform:rotate(45deg);
+
+    display:block;
+}
+
+
+/* ==============================
+   BOTÕES
+============================== */
 
 .botoes{
-  display:flex;
-  flex-direction:column;
-  gap:18px;
+    display:grid;
+
+    grid-template-columns:
+        repeat(2,1fr);
+
+    gap:20px;
 }
 
+
+/* ==============================
+   CARTÃO
+============================== */
+
 .botao{
-  text-decoration:none;
-  color:white;
+    position:relative;
 
-  background:linear-gradient(135deg,#1e293b,#334155);
+    text-decoration:none;
 
-  border:2px solid #334155;
+    color:#3b2a1f;
 
-  border-radius:22px;
+    background:#fffaf4;
 
-  padding:24px 18px;
+    border:1px solid #dccbb7;
 
-  transition:.15s;
+    border-radius:20px;
 
-  box-shadow:0 10px 25px rgba(0,0,0,.35);
+    padding:30px 24px;
+
+    min-height:260px;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+
+    overflow:hidden;
+
+    box-shadow:
+        0 8px 25px rgba(75,51,40,.10);
+
+    transition:
+        transform .25s ease,
+        box-shadow .25s ease,
+        border-color .25s ease;
+}
+
+
+/* detalhe dourado no topo */
+
+.botao::before{
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:4px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #7b1e2b,
+            #c79a45,
+            #7b1e2b
+        );
+}
+
+
+/* brilho suave */
+
+.botao::after{
+    content:"";
+
+    position:absolute;
+
+    width:180px;
+    height:180px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(199,154,69,.10),
+            transparent 70%
+        );
+
+    top:-80px;
+    right:-80px;
+
+    pointer-events:none;
+}
+
+
+/* hover */
+
+.botao:hover{
+    transform:translateY(-7px);
+
+    border-color:#c79a45;
+
+    box-shadow:
+        0 16px 35px rgba(75,51,40,.16);
 }
 
 .botao:active{
-  transform:scale(.97);
+    transform:scale(.97);
 }
 
-.botao:hover{
-  border-color:#f59e0b;
-}
+
+/* ==============================
+   ÍCONE
+============================== */
 
 .icone{
-  font-size:42px;
-  margin-bottom:12px;
+    width:78px;
+    height:78px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:#f6f0e9;
+
+    border:1px solid #dccbb7;
+
+    font-size:38px;
+
+    margin-bottom:20px;
+
+    transition:.25s;
 }
+
+.botao:hover .icone{
+    background:#7b1e2b;
+
+    border-color:#7b1e2b;
+
+    transform:scale(1.08);
+}
+
+
+/* ==============================
+   TÍTULO
+============================== */
 
 .titulo{
-  font-size:22px;
-  font-weight:bold;
-  margin-bottom:8px;
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:23px;
+
+    font-weight:700;
+
+    color:#5d1621;
+
+    letter-spacing:1px;
+
+    margin-bottom:10px;
 }
+
+
+/* ==============================
+   DESCRIÇÃO
+============================== */
 
 .desc{
-  font-size:14px;
-  opacity:.85;
-  line-height:1.4;
+    max-width:280px;
+
+    font-size:14px;
+
+    color:#6f5848;
+
+    line-height:1.5;
 }
 
-/* botão 1 */
-.clicks{
-  border-color:#22c55e;
+
+/* ==============================
+   DESTAQUE DOS CARTÕES
+============================== */
+
+.clicks:hover .titulo{
+    color:#7b1e2b;
 }
 
-/* botão 2 */
-.digitavel{
-  border-color:#f59e0b;
+.digitavel:hover .titulo{
+    color:#7b1e2b;
 }
 
-@media(min-width:768px){
 
-.botoes{
-  flex-direction:row;
+/* ==============================
+   RODAPÉ
+============================== */
+
+.rodape{
+    margin-top:32px;
+
+    font-size:11px;
+
+    letter-spacing:2px;
+
+    color:#8b7665;
+
+    text-transform:uppercase;
 }
 
-.botao{
-  flex:1;
-}
+
+/* ==============================
+   CELULAR
+============================== */
+
+@media(max-width:700px){
+
+    body{
+        padding:20px;
+    }
+
+    .cabecalho{
+        margin-bottom:30px;
+    }
+
+    .iconePrincipal{
+        width:70px;
+        height:70px;
+
+        font-size:35px;
+    }
+
+    h1{
+        font-size:32px;
+
+        letter-spacing:3px;
+    }
+
+    .sub{
+        font-size:14px;
+    }
+
+    .botoes{
+        grid-template-columns:1fr;
+
+        gap:15px;
+    }
+
+    .botao{
+        min-height:210px;
+
+        padding:25px 20px;
+    }
 
 }
+
+
+/* ==============================
+   TELAS MUITO PEQUENAS
+============================== */
+
+@media(max-width:400px){
+
+    h1{
+        font-size:28px;
+    }
+
+    .iconePrincipal{
+        width:62px;
+        height:62px;
+
+        font-size:30px;
+    }
+
+    .botao{
+        min-height:195px;
+    }
+
+}
+
 </style>
 </head>
 
@@ -119,45 +457,74 @@ h1{
 
 <div class="container">
 
-  <h1>☕ Tipo de Contagem</h1>
+    <div class="cabecalho">
 
-  <div class="sub">
-    Escolha como deseja realizar a contagem do Café:
-  </div>
+        <div class="iconePrincipal">
+            ☕
+        </div>
 
-  <div class="botoes">
+        <h1>CONTAGEM DO CAFÉ</h1>
 
-    <!-- OPÇÃO 1 -->
-    <a href="cafe2.html" class="botao clicks">
+        <div class="sub">
+            Escolha como deseja realizar a contagem
+        </div>
 
-      <div class="icone">👆</div>
+        <div class="decoracao">
+            <span></span>
+            <i></i>
+            <span></span>
+        </div>
 
-      <div class="titulo">
-        OPÇÃO 1
-      </div>
+    </div>
 
-      <div class="desc">
-        Contagem por clicks rápidos nos produtos
-      </div>
 
-    </a>
+    <div class="botoes">
 
-    <!-- OPÇÃO 2 -->
-    <a href="cafe3.html" class="botao digitavel">
+        <!-- CONTAGEM RÁPIDA -->
 
-      <div class="icone">⌨️</div>
+        <a href="cafe2.html" class="botao clicks">
 
-      <div class="titulo">
-        OPÇÃO 2
-      </div>
+            <div class="icone">
+                👆
+            </div>
 
-      <div class="desc">
-        Contagem digitável com quantidade manual
-      </div>
+            <div class="titulo">
+                CONTAGEM RÁPIDA
+            </div>
 
-    </a>
+            <div class="desc">
+                Registre os produtos rapidamente
+                através de cliques.
+            </div>
 
-  </div>
+        </a>
+
+
+        <!-- CONTAGEM MANUAL -->
+
+        <a href="cafe3.html" class="botao digitavel">
+
+            <div class="icone">
+                ⌨️
+            </div>
+
+            <div class="titulo">
+                CONTAGEM MANUAL
+            </div>
+
+            <div class="desc">
+                Informe manualmente a quantidade
+                de cada produto.
+            </div>
+
+        </a>
+
+    </div>
+
+
+    <div class="rodape">
+        ☕ Sistema de Gestão do Café
+    </div>
 
 </div>
 

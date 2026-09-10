@@ -12,11 +12,31 @@
     margin:0;
     padding:0;
     box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
 }
+
+:root{
+    --bordo:#7b1e2b;
+    --bordo-dark:#5d1621;
+    --dourado:#c79a45;
+    --verde:#16ab08;
+    --dourado-claro:#dfc27a;
+    --marrom-pastel:#eadfd2;
+    --marrom-claro:#f6f0e9;
+    --marrom:#6f5848;
+    --texto:#4b3328;
+    --branco:#fffdf9;
+    --borda:#ddcfc1;
+}
+
+/* =========================
+   BODY
+========================= */
 
 body{
     font-family:Arial, Helvetica, sans-serif;
-    background:#f1f5f9;
+    background:var(--marrom-claro);
+    color:var(--texto);
     padding:20px;
 }
 
@@ -25,17 +45,27 @@ body{
     margin:auto;
 }
 
+/* =========================
+   TOPO
+========================= */
+
 .topo{
-    background:#0f172a;
+    background:var(--bordo);
     color:white;
     padding:20px;
     border-radius:15px;
     margin-bottom:20px;
+    box-shadow:0 8px 20px rgba(93,22,33,.18);
+    border:2px solid var(--dourado);
 }
 
 .topo h1{
     font-size:28px;
 }
+
+/* =========================
+   FILTROS
+========================= */
 
 .filtros{
     display:flex;
@@ -47,11 +77,28 @@ body{
 .filtros input,
 .filtros select{
     padding:12px;
-    border:none;
+    border:2px solid var(--dourado-claro);
     border-radius:10px;
     min-width:220px;
     font-size:15px;
+    background:var(--branco);
+    color:var(--texto);
+    outline:none;
 }
+
+.filtros input:focus,
+.filtros select:focus{
+    border-color:var(--dourado);
+    box-shadow:0 0 0 3px rgba(199,154,69,.18);
+}
+
+.filtros input::placeholder{
+    color:#9b8778;
+}
+
+/* =========================
+   CARDS INFORMATIVOS
+========================= */
 
 .card-info{
     display:grid;
@@ -61,39 +108,53 @@ body{
 }
 
 .card{
-    background:white;
+    background:var(--branco);
     padding:20px;
     border-radius:15px;
-    box-shadow:0 2px 8px rgba(0,0,0,.08);
+    box-shadow:0 5px 15px rgba(93,22,33,.10);
+    border:2px solid var(--marrom-pastel);
+    transition:.2s;
+}
+
+.card:hover{
+    transform:translateY(-2px);
+    border-color:var(--dourado);
 }
 
 .card h2{
     font-size:16px;
-    color:#64748b;
+    color:var(--marrom);
     margin-bottom:10px;
 }
 
 .card span{
     font-size:28px;
     font-weight:bold;
-    color:#0f172a;
+    color:var(--bordo);
 }
 
+/* =========================
+   TABELA
+========================= */
+
 .tabela-container{
-    background:white;
+    width:100%;
+    background:var(--branco);
     border-radius:15px;
-    overflow:auto;
-    box-shadow:0 2px 8px rgba(0,0,0,.08);
+    overflow:hidden;
+    box-shadow:0 5px 15px rgba(93,22,33,.10);
+    border:2px solid var(--marrom-pastel);
 }
 
 table{
     width:100%;
+    max-width:100%;
     border-collapse:collapse;
-    min-width:1200px;
+    table-layout:fixed;
 }
 
 thead{
-    background:#0f172a;
+    background:var(--bordo);
     color:white;
     position:sticky;
     top:0;
@@ -101,28 +162,97 @@ thead{
 }
 
 thead tr{
-    background:#0f172a !important;
+    background:var(--bordo) !important;
 }
 
 thead th{
-    background:#0f172a !important;
+    background:var(--bordo) !important;
     color:white !important;
+    border-bottom:3px solid var(--dourado);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
 }
 
 th, td{
-    padding:14px;
-    border-bottom:1px solid #e2e8f0;
-    text-align:left;
-    font-size:14px;
+    padding:9px 6px;
+    border-bottom:1px solid var(--marrom-pastel);
+    text-align:center;
+    font-size:12px;
+    vertical-align:middle;
+    overflow:hidden;
+    word-break:normal;
 }
 
-tr:hover{
-    background:#f8fafc;
+td:nth-child(3),
+td:nth-child(4),
+td:nth-child(14){
+    text-align:left;
 }
+
+td:nth-child(2){
+    white-space:nowrap;
+}
+
+td:nth-child(3) strong{
+    display:block;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    line-height:1.25;
+}
+
+td:nth-child(4){
+    white-space:normal;
+    overflow-wrap:anywhere;
+}
+
+td:nth-child(5),
+td:nth-child(6),
+td:nth-child(7),
+td:nth-child(8),
+td:nth-child(9),
+td:nth-child(10),
+td:nth-child(12),
+td:nth-child(15){
+    white-space:nowrap;
+}
+
+tbody tr:hover{
+    background:#faf5ef;
+}
+
+/* Larguras proporcionais das colunas */
+thead th:nth-child(1){width:5%;}
+thead th:nth-child(2){width:8%;}
+thead th:nth-child(3){width:17%;}
+thead th:nth-child(4){width:10%;}
+thead th:nth-child(5),
+thead th:nth-child(6),
+thead th:nth-child(7),
+thead th:nth-child(8),
+thead th:nth-child(9){width:5.5%;}
+thead th:nth-child(10){width:6.5%;}
+thead th:nth-child(11){width:8%;}
+thead th:nth-child(12){width:5%;}
+thead th:nth-child(13){width:5%;}
+thead th:nth-child(14){width:8%;}
+thead th:nth-child(15){width:5%;}
+
+/* =========================
+   ESTOQUE BAIXO
+========================= */
 
 .estoque-baixo{
-    background:#ffe5e5 !important;
+    background:#f3d9d2 !important;
 }
+
+.estoque-baixo:hover{
+    background:#f3d9d2 !important;
+}
+
+/* =========================
+   BADGES
+========================= */
 
 .badge{
     padding:5px 10px;
@@ -133,14 +263,20 @@ tr:hover{
 }
 
 .ok{
-    background:#dcfce7;
-    color:#166534;
+    background:#0aee1d;
+    color:var(--bordo);
+    border:1px solid var(--dourado-claro);
 }
 
 .baixo{
-    background:#fee2e2;
-    color:#991b1b;
+    background:#f02a2a;
+    color:var(--bordo-dark);
+    border:1px solid #c98d8d;
 }
+
+/* =========================
+   SETORES
+========================= */
 
 .setores{
     display:flex;
@@ -149,38 +285,500 @@ tr:hover{
 }
 
 .tag{
-    background:#e2e8f0;
+    background:var(--marrom-pastel);
+    color:var(--bordo);
     padding:5px 10px;
     border-radius:30px;
     font-size:12px;
+    border:1px solid var(--dourado-claro);
 }
+
+/* =========================
+   IMAGENS
+========================= */
 
 img{
     width:55px;
     height:55px;
     object-fit:cover;
     border-radius:10px;
+    border:2px solid var(--marrom-pastel);
 }
+
+/* =========================
+   LOADING
+========================= */
 
 .loading{
     padding:40px;
     text-align:center;
     font-size:18px;
-    color:#64748b;
+    color:var(--marrom);
 }
 
-@media(max-width:768px){
+/* =========================
+   DESKTOP / MOBILE
+========================= */
+
+@media(max-width:1100px){
 
     body{
         padding:10px;
+    }
+
+    .container{
+        max-width:none;
+    }
+
+    .topo{
+        padding:16px;
     }
 
     .topo h1{
         font-size:22px;
     }
 
+    .filtros input,
+    .filtros select{
+        min-width:180px;
+        flex:1;
+    }
+
     th, td{
-        padding:10px;
+        padding:7px 4px;
+        font-size:11px;
+    }
+
+    img{
+        width:42px;
+        height:42px;
+    }
+
+    .btn-editar{
+        padding:6px 7px;
+        font-size:10px;
+    }
+    /* =========================
+   BOTÃO MOVIMENTAÇÕES
+========================= */
+
+.btn-movimentacoes{
+    padding:12px 16px;
+    border:2px solid var(--dourado);
+    border-radius:10px;
+    background:var(--bordo);
+    color:#fff;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:.2s;
+}
+
+.btn-movimentacoes:hover{
+    background:var(--bordo-dark);
+    transform:translateY(-1px);
+}
+
+@media(max-width:1100px){
+
+    .btn-movimentacoes{
+        flex:1;
+        min-width:180px;
+    }
+
+}
+
+@media(max-width:700px){
+
+    .btn-movimentacoes{
+        padding:10px 12px;
+        font-size:12px;
+    }
+
+}
+
+    .badge{
+        padding:4px 6px;
+        font-size:10px;
+    }
+
+    .tag{
+        padding:3px 5px;
+        font-size:9px;
+    }
+
+}
+
+@media(max-width:700px){
+
+    body{
+        padding:6px;
+    }
+
+    .topo h1{
+        font-size:18px;
+    }
+
+    .card-info{
+        grid-template-columns:repeat(2,1fr);
+        gap:8px;
+    }
+
+    .card{
+        padding:12px;
+    }
+
+    .card h2{
+        font-size:12px;
+    }
+
+    .card span{
+        font-size:22px;
+    }
+
+    th, td{
+        padding:5px 3px;
+        font-size:9px;
+    }
+
+    img{
+        width:34px;
+        height:34px;
+    }
+
+    .btn-editar{
+        padding:5px 4px;
+        font-size:8px;
+    }
+
+}
+
+/* =========================
+   MODAL MOVIMENTAÇÕES
+========================= */
+
+.modal-movimentacoes{
+    max-width:600px;
+}
+
+.movimentacoes-titulo{
+    margin-bottom:18px;
+}
+
+.movimentacoes-titulo strong{
+    display:block;
+    font-size:18px;
+    color:#222;
+    margin-bottom:5px;
+}
+
+.movimentacoes-titulo small{
+    color:#777;
+    font-size:13px;
+}
+
+#listaMovimentacoes{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+}
+
+.movimentacao-item{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:15px;
+
+    padding:14px;
+
+    background:var(--marrom-claro);
+    border:1px solid var(--borda);
+    border-radius:10px;
+}
+
+.movimentacao-setor{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
+.movimentacao-icone{
+    font-size:22px;
+}
+
+.movimentacao-setor strong{
+    display:block;
+    color:#222;
+    font-size:15px;
+}
+
+.movimentacao-data{
+    text-align:right;
+    color:var(--bordo);
+    font-weight:bold;
+    font-size:13px;
+}
+
+.movimentacao-data small{
+    display:block;
+    color:#777;
+    font-weight:normal;
+    margin-top:3px;
+}
+
+.movimentacao-sem-registro{
+    padding:20px;
+    text-align:center;
+    background:var(--marrom-claro);
+    border-radius:10px;
+    color:var(--marrom);
+}
+
+.movimentacao-carregando{
+    padding:25px;
+    text-align:center;
+    color:var(--marrom);
+}
+
+
+/* =========================
+   BOTÃO EDITAR
+========================= */
+
+.btn-editar{
+    border:1px solid var(--dourado);
+    background:var(--bordo);
+    color:#fff;
+    padding:8px 12px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+    white-space:nowrap;
+}
+
+.btn-editar:hover{ background:var(--bordo-dark); }
+
+/* =========================
+   MODAL DE ESTOQUE
+========================= */
+
+.modal{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(0,0,0,.55);
+    z-index:1000;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+}
+
+.modal.ativo{ display:flex; }
+
+.modal-conteudo{
+    width:100%;
+    max-width:520px;
+    background:var(--branco);
+    border:2px solid var(--dourado);
+    border-radius:16px;
+    box-shadow:0 15px 45px rgba(0,0,0,.25);
+    overflow:hidden;
+}
+
+.modal-cabecalho{
+    background:var(--bordo);
+    color:#fff;
+    padding:18px 20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.modal-cabecalho h2{ font-size:20px; color:#fff; }
+.modal-fechar{ background:none; border:0; color:#fff; font-size:28px; cursor:pointer; }
+
+.modal-corpo{ padding:20px; }
+.modal-produto{ margin-bottom:18px; }
+.modal-produto strong{ display:block; font-size:18px; color:#222; margin-bottom:4px; }
+.modal-produto small{ color:#555; }
+
+.setor-edicao{
+    display:grid;
+    grid-template-columns:1fr 130px;
+    gap:12px;
+    align-items:center;
+    margin-bottom:12px;
+}
+
+.setor-edicao label{ font-weight:bold; color:#222; }
+.setor-edicao input{
+    width:100%;
+    padding:11px;
+    border:2px solid var(--dourado-claro);
+    border-radius:9px;
+    font-size:16px;
+    color:#222;
+    text-align:center;
+    outline:none;
+}
+.setor-edicao input:focus{ border-color:var(--dourado); }
+
+.modal-rodape{
+    padding:15px 20px;
+    border-top:1px solid var(--borda);
+    display:flex;
+    justify-content:flex-end;
+    gap:10px;
+}
+
+.btn-cancelar,.btn-salvar{
+    padding:11px 18px;
+    border-radius:9px;
+    cursor:pointer;
+    font-weight:bold;
+    border:1px solid var(--dourado);
+}
+.btn-cancelar{ background:#eee; color:#222; }
+.btn-salvar{ background:var(--bordo); color:#fff; }
+.btn-salvar:disabled{ opacity:.6; cursor:wait; }
+
+
+/* =========================
+   BUSCA FLUTUANTE
+========================= */
+
+.busca-flutuante{
+    position:fixed !important;
+    top:18px;
+    right:20px;
+    z-index:99999 !important;
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    background:var(--branco);
+    border:2px solid var(--dourado);
+    border-radius:12px;
+    padding:6px;
+
+    box-shadow:0 6px 20px rgba(0,0,0,.20);
+
+    opacity:0;
+    visibility:hidden;
+    transform:translateY(-15px);
+
+    transition:
+        opacity .25s ease,
+        transform .25s ease,
+        visibility .25s ease;
+}
+
+.busca-flutuante.visivel{
+    opacity:1;
+    visibility:visible;
+    transform:translateY(0);
+}
+
+.busca-flutuante input{
+    width:260px;
+    padding:10px 12px;
+
+    border:0;
+    outline:none;
+
+    background:transparent;
+    color:var(--texto);
+
+    font-size:14px;
+}
+
+.busca-flutuante input::placeholder{
+    color:#9b8778;
+}
+
+.busca-flutuante button{
+    width:38px;
+    height:38px;
+
+    border:0;
+    border-radius:8px;
+
+    background:var(--bordo);
+    color:#fff;
+
+    font-size:17px;
+    cursor:pointer;
+}
+
+.busca-flutuante button:hover{
+    background:var(--bordo-dark);
+}
+
+/* =========================
+   RESPONSIVO
+========================= */
+
+@media(max-width:700px){
+
+    .busca-flutuante{
+        top:10px;
+        right:10px;
+        left:10px;
+
+        width:auto;
+    }
+
+    .busca-flutuante input{
+        width:100%;
+        min-width:0;
+        font-size:13px;
+    }
+
+    .busca-flutuante button{
+        flex-shrink:0;
+        width:36px;
+        height:36px;
+    }
+
+}
+
+/* =========================
+   BOTÃO MOVIMENTAÇÕES
+========================= */
+
+.btn-movimentacoes{
+    padding:12px 16px;
+    border:2px solid var(--dourado);
+    border-radius:10px;
+    background:var(--bordo);
+    color:#fff;
+    font-size:15px;
+    font-weight:bold;
+    cursor:pointer;
+    white-space:nowrap;
+    transition:.2s;
+}
+
+.btn-movimentacoes:hover{
+    background:var(--bordo-dark);
+    transform:translateY(-1px);
+}
+
+@media(max-width:1100px){
+
+    .btn-movimentacoes{
+        flex:1;
+        min-width:180px;
+    }
+
+}
+
+@media(max-width:700px){
+
+    .btn-movimentacoes{
+        padding:10px 12px;
         font-size:12px;
     }
 
@@ -188,11 +786,13 @@ img{
 
 </style>
 </head>
+
 <body>
 
 <div class="container">
 
     <div class="topo">
+
         <h1>📦 VISUALIZADOR DE PRODUTOS</h1>
 
         <div class="filtros">
@@ -214,9 +814,13 @@ img{
                 <option value="Cozinha">Cozinha</option>
                 <option value="Cafe">Café</option>
                 <option value="Salao">Salão</option>
+                <option value="Bomboniere">Bomboniere</option>
             </select>
 
+            <button type="button" class="btn-movimentacoes" onclick="abrirMovimentacoes()">🔄 MOVIMENTAÇÕES</button>
+
         </div>
+
     </div>
 
     <div class="card-info">
@@ -257,23 +861,90 @@ img{
                     <th>Cozinha</th>
                     <th>Café</th>
                     <th>Salão</th>
+                    <th>Bomboniere</th>
                     <th>Total</th>
+                    <th>Ações</th>
                     <th>Mínimo</th>
                     <th>Status</th>
                     <th>Setores</th>
-                    <th>Unidade</th>
                 </tr>
             </thead>
 
             <tbody id="tabela">
                 <tr>
-                    <td colspan="13" class="loading">
+                    <td colspan="15" class="loading">
                         Carregando produtos...
                     </td>
                 </tr>
             </tbody>
 
         </table>
+
+    </div>
+
+</div>
+
+<!-- =========================
+     BUSCA FLUTUANTE
+========================= -->
+
+<div id="buscaFlutuante" class="busca-flutuante">
+
+    <input
+        type="text"
+        id="buscaFlutuanteInput"
+        placeholder="🔎 Buscar produto ou EAN..."
+    >
+
+    <button
+        type="button"
+        onclick="focarBuscaFlutuante()"
+        title="Pesquisar"
+    >
+        🔎
+    </button>
+
+</div>
+
+<!-- =========================
+     MODAL DE MOVIMENTAÇÕES
+========================= -->
+
+<div id="modalMovimentacoes" class="modal" onclick="fecharModalMovimentacoesFora(event)">
+
+    <div class="modal-conteudo modal-movimentacoes">
+
+        <div class="modal-cabecalho">
+
+            <h2>🔄 Movimentações</h2>
+
+            <button
+                class="modal-fechar"
+                onclick="fecharModalMovimentacoes()"
+            >
+                &times;
+            </button>
+
+        </div>
+
+        <div class="modal-corpo">
+
+            <div class="movimentacoes-titulo">
+                <strong>Última contagem por setor</strong>
+                <small>
+                    Consulte quando cada setor foi contado pela última vez.
+                </small>
+            </div>
+
+            <div id="listaMovimentacoes">
+
+                <div class="movimentacao-carregando">
+                    ⏳ Carregando movimentações...
+                </div>
+
+            </div>
+
+        </div>
 
     </div>
 
@@ -287,7 +958,7 @@ console.log("VISUALIZADOR INICIADO");
 // URL DO APPS SCRIPT
 // ============================
 
-const url = "https://script.google.com/macros/s/AKfycbxjBR53et0uyEuC3r4hzH1D-zwjxdp51XC7SPT-4hyhA5QqkYb2m0kZ__VKJq3W3dKQHA/exec";
+const url = "https://script.google.com/macros/s/AKfycbyCw_0ga7ndOcSEhe_emZve5fgYO4Mea2Tv8Wf-5QMU_wiXb9tB8ZOOfAp-tIE13QctiA/exec";
 
 // ============================
 // VARIÁVEIS
@@ -295,6 +966,7 @@ const url = "https://script.google.com/macros/s/AKfycbxjBR53et0uyEuC3r4hzH1D-zwj
 
 let produtos = [];
 let produtosOriginais = [];
+let movimentacoes = [];
 
 // ============================
 // FORMATAR SETOR
@@ -303,12 +975,12 @@ let produtosOriginais = [];
 function formatarSetor(setor){
 
     return (setor || "")
-    .trim()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/\s+/g,"")
-    .toLowerCase()
-    .replace(/^./, c => c.toUpperCase());
+        .trim()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/\s+/g,"")
+        .toLowerCase()
+        .replace(/^./, c => c.toUpperCase());
 
 }
 
@@ -345,11 +1017,13 @@ async function carregarProdutos(){
                 cafe: Number(linha[5]) || 0,
                 salao: Number(linha[6]) || 0,
 
+                bomboniere: Number(linha[7]) || 0,
+
                 minimo: Number(linha[8]) || 0,
 
                 setor: (linha[9] || "")
-                .split(",")
-                .map(s => formatarSetor(s)),
+                    .split(",")
+                    .map(s => formatarSetor(s)),
 
                 imagem: linha[10] || "",
 
@@ -363,7 +1037,8 @@ async function carregarProdutos(){
                 produto.estoque +
                 produto.cozinha +
                 produto.cafe +
-                produto.salao;
+                produto.salao +
+                produto.bomboniere;
 
             produtos.push(produto);
 
@@ -385,7 +1060,12 @@ async function carregarProdutos(){
 
         document.getElementById("tabela").innerHTML = `
             <tr>
-                <td colspan="13" style="color:red;padding:40px;text-align:center">
+                <td colspan="15" style="
+                    color:var(--bordo);
+                    padding:40px;
+                    text-align:center;
+                    font-weight:bold;
+                ">
                     Erro ao carregar produtos
                 </td>
             </tr>
@@ -464,7 +1144,11 @@ function renderizarTabela(lista){
 
         tabela.innerHTML = `
             <tr>
-                <td colspan="13" style="padding:40px;text-align:center">
+                <td colspan="15" style="
+                    padding:40px;
+                    text-align:center;
+                    color:var(--marrom);
+                ">
                     Nenhum produto encontrado
                 </td>
             </tr>
@@ -516,8 +1200,14 @@ function renderizarTabela(lista){
 
             <td>${p.salao} ${p.unidade}</td>
 
+            <td>${p.bomboniere} ${p.unidade}</td>
+
             <td>
                 <strong>${p.total} ${p.unidade}</strong>
+            </td>
+
+            <td>
+                <button class="btn-editar" onclick="abrirModalEdicao('${p.ean}')">✏️ Editar</button>
             </td>
 
             <td>${p.minimo}</td>
@@ -529,8 +1219,6 @@ function renderizarTabela(lista){
                     ${setores}
                 </div>
             </td>
-
-            <td>${p.unidade}</td>
 
         </tr>
 
@@ -548,19 +1236,20 @@ function renderizarTabela(lista){
 
 function filtrarProdutos(){
 
-    const busca = document
-    .getElementById("busca")
-    .value
-    .toLowerCase()
-    .trim();
+    const busca = (
+        buscaFlutuanteAtiva
+            ? document.getElementById("buscaFlutuanteInput").value
+            : document.getElementById("busca").value)
+        .toLowerCase()
+        .trim();
 
     const familia = document
-    .getElementById("filtroFamilia")
-    .value;
+        .getElementById("filtroFamilia")
+        .value;
 
     const setor = document
-    .getElementById("filtroSetor")
-    .value;
+        .getElementById("filtroSetor")
+        .value;
 
     let filtrados = produtosOriginais.filter(p => {
 
@@ -574,7 +1263,7 @@ function filtrarProdutos(){
             !familia || p.familia === familia;
 
         const matchSetor =
-            !setor || p.setor.includes(setor);
+            !setor || p.setor.includes(formatarSetor(setor));
 
         return matchBusca && matchFamilia && matchSetor;
 
@@ -584,13 +1273,571 @@ function filtrarProdutos(){
 
 }
 
+
+// ============================
+// MODAL DE EDIÇÃO DE ESTOQUE
+// ============================
+
+let produtoEmEdicao = null;
+
+function abrirModalEdicao(ean){
+    const eanBusca = String(ean || "").replace(/^'/, "").trim();
+    const p = produtosOriginais.find(item => String(item.ean || "").replace(/^'/, "").trim() === eanBusca);
+    if(!p) return;
+
+    produtoEmEdicao = p;
+
+    document.getElementById("modalProduto").innerText = p.produto;
+    document.getElementById("modalEan").innerText = "EAN: " + p.ean;
+    document.getElementById("editEstoque").value = p.estoque;
+    document.getElementById("editCozinha").value = p.cozinha;
+    document.getElementById("editCafe").value = p.cafe;
+    document.getElementById("editSalao").value = p.salao;
+    document.getElementById("editBomboniere").value = p.bomboniere;
+
+    document.getElementById("btnSalvarEstoque").disabled = false;
+    document.getElementById("btnSalvarEstoque").innerText = "💾 Salvar alterações";
+    document.getElementById("modalEdicao").classList.add("ativo");
+}
+
+function fecharModal(){
+    document.getElementById("modalEdicao").classList.remove("ativo");
+    produtoEmEdicao = null;
+}
+
+function fecharModalFora(event){
+    if(event.target.id === "modalEdicao") fecharModal();
+}
+
+async function salvarEdicaoEstoque(){
+    if(!produtoEmEdicao) return;
+
+    const btn = document.getElementById("btnSalvarEstoque");
+    const valores = {
+        estoque: Number(document.getElementById("editEstoque").value),
+        cozinha: Number(document.getElementById("editCozinha").value),
+        cafe: Number(document.getElementById("editCafe").value),
+        salao: Number(document.getElementById("editSalao").value),
+        bomboniere: Number(document.getElementById("editBomboniere").value)
+    };
+
+    if(Object.values(valores).some(v => !Number.isInteger(v) || v < 0)){
+        alert("Informe somente quantidades inteiras iguais ou maiores que zero.");
+        return;
+    }
+
+    const ean = String(produtoEmEdicao.ean || "").replace(/^'/, "").trim();
+    btn.disabled = true;
+    btn.innerText = "⏳ Salvando...";
+
+    try{
+        const response = await fetch(url, {
+            method:"POST",
+            body:JSON.stringify({
+                tipo:"editar_estoque_setores",
+                ean:ean,
+                estoque:valores.estoque,
+                cozinha:valores.cozinha,
+                cafe:valores.cafe,
+                salao:valores.salao,
+                bomboniere:valores.bomboniere
+            })
+        });
+
+        if(!response.ok) throw new Error("HTTP " + response.status);
+
+        const resultado = (await response.text()).trim();
+
+        if(resultado !== "OK"){
+            const mensagens = {
+                EAN_INVALIDO:"EAN inválido.",
+                QUANTIDADE_INVALIDA:"Uma ou mais quantidades são inválidas.",
+                PRODUTO_NAO_ENCONTRADO:"Produto não encontrado na aba ESTOQUE.",
+                TIPO_INVALIDO:"O Apps Script ainda não reconhece a operação de edição. Publique uma nova versão do Apps Script.",
+                ABA_NAO_ENCONTRADA:"A aba ESTOQUE não foi encontrada na planilha."
+            };
+            throw new Error(mensagens[resultado] || resultado || "Resposta vazia do Apps Script.");
+        }
+
+        Object.assign(produtoEmEdicao, valores);
+        produtoEmEdicao.total = valores.estoque + valores.cozinha + valores.cafe + valores.salao + valores.bomboniere;
+        produtos = produtosOriginais;
+        atualizarCards();
+        filtrarProdutos();
+        fecharModal();
+
+    }catch(err){
+        console.error("ERRO AO SALVAR ESTOQUE:", err);
+        alert("Não foi possível salvar as quantidades.\n\n" + err.message);
+        btn.disabled = false;
+        btn.innerText = "💾 Salvar alterações";
+    }
+}
+
+document.addEventListener("keydown", e => {
+    if(e.key === "Escape") fecharModal();
+});
+
+
+// ============================
+// BUSCA FLUTUANTE
+// ============================
+
+const buscaOriginal = document.getElementById("busca");
+const buscaFlutuante = document.getElementById("buscaFlutuante");
+const buscaFlutuanteInput = document.getElementById("buscaFlutuanteInput");
+
+let buscaFlutuanteAtiva = false;
+
+
+// ============================
+// PESQUISA PELA BARRA FLUTUANTE
+// ============================
+
+buscaFlutuanteInput.addEventListener("input", function(){
+
+    const busca = this.value
+        .toLowerCase()
+        .trim();
+
+    // Se existe uma pesquisa, mantém a barra flutuante ativa
+    if(busca !== ""){
+        buscaFlutuanteAtiva = true;
+        buscaFlutuante.classList.add("visivel");
+    }else{
+        // Se a pesquisa foi apagada,
+        // volta para a lógica normal de visibilidade
+        buscaFlutuanteAtiva = false;
+        controlarBuscaFlutuante();
+    }
+
+    const familia = document
+        .getElementById("filtroFamilia")
+        .value;
+
+    const setor = document
+        .getElementById("filtroSetor")
+        .value;
+
+    let filtrados = produtosOriginais.filter(p => {
+
+        const matchBusca =
+            p.produto.toLowerCase().includes(busca) ||
+            p.ean.includes(busca);
+
+        const matchFamilia =
+            !familia || p.familia === familia;
+
+        const matchSetor =
+            !setor || p.setor.includes(formatarSetor(setor));
+
+        return matchBusca && matchFamilia && matchSetor;
+
+    });
+
+    renderizarTabela(filtrados);
+
+});
+
+// ============================
+// MOSTRAR / ESCONDER
+// ============================
+
+function controlarBuscaFlutuante(){
+
+    if(!buscaOriginal || !buscaFlutuante) return;
+
+    // Se o usuário está utilizando a busca flutuante,
+    // ela permanece visível independentemente da posição
+    // da barra de pesquisa original.
+    if(buscaFlutuanteAtiva){
+        buscaFlutuante.classList.add("visivel");
+        return;
+    }
+
+    const rect = buscaOriginal.getBoundingClientRect();
+
+    if(rect.bottom < 0){
+        buscaFlutuante.classList.add("visivel");
+    }else{
+        buscaFlutuante.classList.remove("visivel");
+    }
+}
+
+
+// ============================
+// AO ROLAR
+// ============================
+
+window.addEventListener(
+    "scroll",
+    controlarBuscaFlutuante,
+    { passive:true }
+);
+
+window.addEventListener(
+    "resize",
+    controlarBuscaFlutuante
+);
+
+
+// ============================
+// ENTER NA BUSCA FLUTUANTE
+// ============================
+
+buscaFlutuanteInput.addEventListener("keydown", function(e){
+
+    if(e.key === "Enter"){
+
+        e.preventDefault();
+
+        buscaFlutuanteAtiva = this.value.trim() !== "";
+
+        if(buscaFlutuanteAtiva){
+            buscaFlutuante.classList.add("visivel");
+        }
+
+    }
+
+});
+
+
+// ============================
+// FOCA NA BUSCA
+// ============================
+
+function focarBuscaFlutuante(){
+
+    buscaFlutuanteInput.focus();
+
+    buscaFlutuanteInput.select();
+
+}
+
+
+async function carregarMovimentacoes() {
+
+    try {
+
+        const resposta = await fetch(url + "?acao=movimentacoes");
+
+        if (!resposta.ok) {
+            throw new Error("Erro ao buscar movimentações");
+        }
+
+        const dados = await resposta.json();
+
+        if (!Array.isArray(dados)) {
+            throw new Error("Resposta de movimentações inválida");
+        }
+
+        movimentacoes = dados;
+
+        console.log("Movimentações carregadas:", movimentacoes);
+
+    } catch (erro) {
+
+        console.error("Erro ao carregar movimentações:", erro);
+
+        movimentacoes = [];
+    }
+}
+
+
+// ============================
+// MODAL DE MOVIMENTAÇÕES
+// ============================
+
+function abrirMovimentacoes(){
+
+    const modal = document.getElementById("modalMovimentacoes");
+
+    modal.classList.add("ativo");
+
+    mostrarUltimasContagens();
+
+}
+
+
+function fecharModalMovimentacoes(){
+
+    document
+        .getElementById("modalMovimentacoes")
+        .classList.remove("ativo");
+
+}
+
+
+function fecharModalMovimentacoesFora(event){
+
+    if(event.target.id === "modalMovimentacoes"){
+
+        fecharModalMovimentacoes();
+
+    }
+
+}
+
+// ============================
+// MOSTRAR ÚLTIMAS CONTAGENS
+// ============================
+
+function mostrarUltimasContagens(){
+
+    const lista = document.getElementById("listaMovimentacoes");
+
+    const setores = [
+
+        {
+            nome:"Estoque",
+            chave:"Estoque",
+            icone:"📦"
+        },
+
+        {
+            nome:"Cozinha",
+            chave:"Cozinha",
+            icone:"🍳"
+        },
+
+        {
+            nome:"Café",
+            chave:"Cafe",
+            icone:"☕"
+        },
+
+        {
+            nome:"Salão",
+            chave:"Salao",
+            icone:"🍽️"
+        },
+
+        {
+            nome:"Bomboniere",
+            chave:"Bomboniere",
+            icone:"🍫"
+        }
+
+    ];
+
+    const ultimasContagens = {};
+
+    /*
+     * MOVIMENTACOES:
+     *
+     * [0] Data/Hora
+     * [1] Tipo
+     * [2] EAN
+     * [3] Produto
+     * [4] Setor/origem
+     * [5] Destino
+     * [6] Quantidade
+     *
+     * Aqui queremos SOMENTE:
+     * Tipo = CONTAGEM
+     */
+
+    for(let i = 1; i < movimentacoes.length; i++){
+
+        const movimento = movimentacoes[i];
+
+        const tipo = String(movimento[1] || "")
+            .trim()
+            .toUpperCase();
+
+        if(tipo !== "CONTAGEM"){
+            continue;
+        }
+
+        const setor = formatarSetor(movimento[4]);
+
+        if(!setor){
+            continue;
+        }
+
+        const data = movimento[0];
+
+        if(!data){
+            continue;
+        }
+
+        const dataObjeto = new Date(data);
+
+        if(isNaN(dataObjeto.getTime())){
+            continue;
+        }
+
+        /*
+         * Guarda somente a movimentação
+         * mais recente daquele setor.
+         */
+
+        if(
+            !ultimasContagens[setor] ||
+            dataObjeto > ultimasContagens[setor].data
+        ){
+
+            ultimasContagens[setor] = {
+
+                data:dataObjeto,
+
+                ean:movimento[2] || "",
+
+                produto:movimento[3] || "",
+
+                quantidade:movimento[6] || 0
+
+            };
+
+        }
+
+    }
+
+    let html = "";
+
+    setores.forEach(setor => {
+
+        const chave = formatarSetor(setor.chave);
+
+        const ultima = ultimasContagens[chave];
+
+        if(ultima){
+
+            html += `
+
+                <div class="movimentacao-item">
+
+                    <div class="movimentacao-setor">
+
+                        <span class="movimentacao-icone">
+                            ${setor.icone}
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                ${setor.nome}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="movimentacao-data">
+
+                        ${formatarDataMovimentacao(ultima.data)}
+
+                        <small>
+                            Última contagem
+                        </small>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }else{
+
+            html += `
+
+                <div class="movimentacao-item">
+
+                    <div class="movimentacao-setor">
+
+                        <span class="movimentacao-icone">
+                            ${setor.icone}
+                        </span>
+
+                        <div>
+
+                            <strong>
+                                ${setor.nome}
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+                    <div class="movimentacao-data">
+
+                        Sem registro
+
+                        <small>
+                            Nenhuma contagem encontrada
+                        </small>
+
+                    </div>
+
+                </div>
+
+            `;
+
+        }
+
+    });
+
+    lista.innerHTML = html;
+
+}
+
+// ============================
+// FORMATAR DATA
+// ============================
+
+function formatarDataMovimentacao(data){
+
+    return new Intl.DateTimeFormat(
+        "pt-BR",
+        {
+            day:"2-digit",
+            month:"2-digit",
+            year:"numeric",
+            hour:"2-digit",
+            minute:"2-digit"
+        }
+    ).format(data);
+
+}
+
 // ============================
 // INICIAR
 // ============================
 
-window.onload = carregarProdutos;
+window.onload = async function(){
+
+    await carregarProdutos();
+
+    await carregarMovimentacoes();
+
+};
 
 </script>
 
+
+<div id="modalEdicao" class="modal" onclick="fecharModalFora(event)">
+    <div class="modal-conteudo">
+        <div class="modal-cabecalho">
+            <h2>✏️ Editar quantidades</h2>
+            <button class="modal-fechar" onclick="fecharModal()">&times;</button>
+        </div>
+        <div class="modal-corpo">
+            <div class="modal-produto">
+                <strong id="modalProduto">Produto</strong>
+                <small id="modalEan">EAN</small>
+            </div>
+            <div class="setor-edicao"><label for="editEstoque">Estoque</label><input id="editEstoque" type="number" min="0" step="1"></div>
+            <div class="setor-edicao"><label for="editCozinha">Cozinha</label><input id="editCozinha" type="number" min="0" step="1"></div>
+            <div class="setor-edicao"><label for="editCafe">Café</label><input id="editCafe" type="number" min="0" step="1"></div>
+            <div class="setor-edicao"><label for="editSalao">Salão</label><input id="editSalao" type="number" min="0" step="1"></div>
+            <div class="setor-edicao"><label for="editBomboniere">Bomboniere</label><input id="editBomboniere" type="number" min="0" step="1"></div>
+        </div>
+        <div class="modal-rodape">
+            <button class="btn-cancelar" onclick="fecharModal()">Cancelar</button>
+            <button id="btnSalvarEstoque" class="btn-salvar" onclick="salvarEdicaoEstoque()">💾 Salvar alterações</button>
+        </div>
+    </div>
+</div>
+
 </body>
-</html>
+</html> 

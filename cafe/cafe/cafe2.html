@@ -1,666 +1,1641 @@
 <!DOCTYPE html>
+
 <html lang="pt-br">
+
 <head>
+
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
 <title>Painel Café</title>
 
 <style>
+
 *{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color: transparent;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html{
+    min-height:100%;
 }
 
 body{
-  font-family: system-ui, Arial;
-  background:#0f172a;
-  color:white;
-  margin:0;
-  padding:10px;
+    margin:0;
+    min-height:100vh;
+    padding:18px 18px 100px;
+
+    font-family:Arial,"Segoe UI",sans-serif;
+    color:#3b2a1f;
+
+    background:
+        radial-gradient(
+            circle at top center,
+            rgba(199,154,69,.13),
+            transparent 35%
+        ),
+        linear-gradient(
+            135deg,
+            #f6f0e9,
+            #eadfd2
+        );
 }
+
+/* =========================
+   CABEÇALHO
+========================= */
 
 h1{
-  text-align:center;
-  font-size:clamp(22px, 5vw, 40px);
-  margin:10px 0;
+    position:relative;
+
+    max-width:1200px;
+    margin:0 auto 18px;
+    padding:20px 24px 18px;
+
+    text-align:center;
+
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:clamp(28px,5vw,42px);
+    font-weight:700;
+    letter-spacing:2px;
+
+    color:#f4dfad;
+
+    background:
+        radial-gradient(
+            circle at center,
+            rgba(199,154,69,.16),
+            rgba(199,154,69,.04) 38%,
+            transparent 70%
+        ),
+        linear-gradient(
+            135deg,
+            #5d1621,
+            #7b1e2b,
+            #4d111a
+        );
+
+    border-radius:18px;
+    border-bottom:3px solid #c79a45;
+
+    box-shadow:
+        0 7px 22px rgba(75,51,40,.18);
+
+    text-shadow:
+        0 2px 3px rgba(0,0,0,.35);
 }
 
-/* ================= MENSAGEM MOTIVACIONAL ================= */
+h1::after{
+    content:"";
+
+    display:block;
+
+    width:90px;
+    height:1px;
+
+    margin:9px auto 0;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            #c79a45,
+            transparent
+        );
+}
+
+/* =========================
+   MENSAGEM DA EQUIPE
+========================= */
+
 #mensagemEquipe{
-  background:linear-gradient(135deg,#1e293b,#334155);
-  border:2px solid #f59e0b;
-  border-radius:18px;
-  padding:16px;
-  margin-bottom:18px;
-  text-align:center;
-  box-shadow:0 8px 20px rgba(0,0,0,0.35);
-  animation:fadeMensagem .5s ease;
+    max-width:1200px;
+
+    margin:0 auto 20px;
+    padding:17px 20px;
+
+    text-align:center;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fffaf4,
+            #f4e9dc
+        );
+
+    border:1px solid #d8c5b2;
+    border-left:4px solid #c79a45;
+
+    border-radius:15px;
+
+    box-shadow:
+        0 6px 18px rgba(75,51,40,.09);
+
+    animation:
+        fadeMensagem .5s ease;
 }
 
 #mensagemEquipe h3{
-  margin:0 0 8px;
-  font-size:18px;
-  color:#fbbf24;
+    margin:0 0 7px;
+
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:18px;
+
+    color:#7b1e2b;
 }
 
 #mensagemTexto{
-  font-size:15px;
-  line-height:1.5;
-  opacity:0.95;
+    font-size:14px;
+    line-height:1.5;
+
+    color:#6f5848;
 }
 
 @keyframes fadeMensagem{
-  from{
-    opacity:0;
-    transform:translateY(-10px);
-  }
-  to{
-    opacity:1;
-    transform:translateY(0);
-  }
+
+    from{
+        opacity:0;
+        transform:translateY(-10px);
+    }
+
+    to{
+        opacity:1;
+        transform:translateY(0);
+    }
+
 }
 
-/* GRID */
+/* =========================
+   GRID DE PRODUTOS
+========================= */
+
 #botoesCafe{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(130px,1fr));
-  gap:10px;
+    width:100%;
+    max-width:1200px;
+
+    margin:0 auto;
+
+    display:grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fill,
+            minmax(135px,1fr)
+        );
+
+    gap:12px;
 }
 
-/* BOTÃO */
+/* =========================
+   PRODUTO
+========================= */
+
 .botao-produto{
-  background:#1e293b;
-  border:none;
-  border-radius:16px;
-  padding:8px;
-  color:white;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:space-between;
-  transition:0.15s;
+    position:relative;
+    overflow:hidden;
+
+    min-height:165px;
+    padding:9px;
+
+    border:1px solid #d8c5b2;
+    border-radius:15px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fffaf4,
+            #f1e4d5
+        );
+
+    color:#3b2a1f;
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:space-between;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 5px 15px rgba(75,51,40,.09);
+
+    transition:
+        transform .15s ease,
+        box-shadow .2s ease,
+        border-color .2s ease,
+        background .2s ease;
+}
+
+.botao-produto::before{
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    left:0;
+    right:0;
+
+    height:3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #c79a45,
+            #e0bd73,
+            #c79a45
+        );
+}
+
+.botao-produto:hover{
+    transform:translateY(-3px);
+
+    border-color:#c79a45;
+
+    box-shadow:
+        0 10px 22px rgba(75,51,40,.15);
 }
 
 .botao-produto:active{
-  transform:scale(0.95);
-  background:#334155;
+    transform:scale(.96);
+
+    background:#eadfd2;
 }
 
-/* IMAGEM */
+/* =========================
+   IMAGEM
+========================= */
+
 .botao-produto img{
-  width:100%;
-  height:90px;
-  object-fit:cover;
-  border-radius:12px;
-  margin-bottom:5px;
-  pointer-events:none;
+    width:100%;
+    height:105px;
+
+    object-fit:cover;
+
+    border-radius:10px;
+
+    margin-bottom:7px;
+
+    pointer-events:none;
 }
 
-/* NOME */
+.sem-imagem{
+    width:100%;
+    height:105px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    color:#9a8878;
+
+    font-size:11px;
+
+    background:#f1e4d5;
+
+    border-radius:10px;
+}
+
+/* =========================
+   NOME
+========================= */
+
 .botao-produto div:nth-child(2){
-  font-size:12px;
-  text-align:center;
-  min-height:30px;
-  word-break:break-word;
+    width:100%;
+    min-height:32px;
+
+    padding:0 3px;
+
+    text-align:center;
+
+    font-size:12px;
+    font-weight:600;
+    line-height:1.3;
+
+    color:#5d1621;
+
+    word-break:break-word;
 }
 
-/* QTD */
+/* =========================
+   QUANTIDADE
+========================= */
+
 .qtd{
-  font-size:22px;
-  font-weight:bold;
-  margin-top:4px;
+    min-width:38px;
+
+    margin-top:5px;
+    padding:3px 10px;
+
+    border-radius:9px;
+
+    background:#7b1e2b;
+    color:#f4dfad;
+
+    font-size:21px;
+    font-weight:700;
+    line-height:1.25;
+
+    box-shadow:
+        0 3px 8px rgba(93,22,33,.16);
 }
 
-/* RESUMO */
+/* =========================
+   RESUMO
+========================= */
+
 #resumo{
-  margin-top:20px;
-  background:#1e293b;
-  padding:12px;
-  border-radius:16px;
+    width:100%;
+    max-width:1200px;
+
+    margin:25px auto 0;
+    padding:17px;
+
+    background:#fffaf4;
+
+    border:1px solid #d8c5b2;
+    border-radius:17px;
+
+    box-shadow:
+        0 7px 22px rgba(75,51,40,.09);
+
+    overflow-x:auto;
 }
 
 #resumo h2{
-  margin:0 0 10px;
-  font-size:16px;
+    margin:0 0 14px;
+
+    font-family:Georgia,"Times New Roman",serif;
+    font-size:19px;
+
+    color:#5d1621;
 }
 
 table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13px;
+    width:100%;
+    min-width:580px;
+
+    border-collapse:collapse;
+
+    font-size:13px;
 }
 
-th,td{
-  padding:8px;
-  border-bottom:1px solid #334155;
-  text-align:left;
+th{
+    padding:10px 8px;
+
+    background:#7b1e2b;
+    color:#f4dfad;
+
+    font-weight:700;
+    text-align:left;
 }
+
+th:first-child{
+    border-radius:8px 0 0 8px;
+}
+
+th:last-child{
+    border-radius:0 8px 8px 0;
+}
+
+td{
+    padding:9px 8px;
+
+    border-bottom:1px solid #eadfd2;
+
+    color:#4d3b2e;
+
+    text-align:left;
+}
+
+tbody tr:hover{
+    background:#f8efe6;
+}
+
+/* =========================
+   BOTÕES PEQUENOS
+========================= */
 
 button.small{
-  padding:5px 8px;
-  font-size:12px;
-  border:none;
-  border-radius:8px;
-  margin-right:5px;
+    padding:6px 10px;
+
+    font-size:12px;
+    font-weight:700;
+
+    border:none;
+    border-radius:8px;
+
+    margin-right:4px;
+
+    cursor:pointer;
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease;
+}
+
+button.small:active{
+    transform:scale(.95);
 }
 
 .edit{
-  background:#f59e0b;
-  color:white;
+    background:#c79a45 !important;
+    color:white !important;
 }
 
 .del{
-  background:#ef4444;
-  color:white;
+    background:#7b1e2b !important;
+    color:white !important;
 }
 
-/* BOTÃO ENVIAR */
+/* =========================
+   ENVIAR
+========================= */
+
 #enviar{
-  position:fixed;
-  bottom:15px;
-  left:50%;
-  transform:translateX(-50%);
-  background:#f59e0b;
-  border:none;
-  padding:14px 25px;
-  font-size:16px;
-  border-radius:14px;
-  color:white;
-  box-shadow:0 5px 20px rgba(0,0,0,0.3);
+    position:fixed;
+
+    left:50%;
+    bottom:18px;
+
+    transform:translateX(-50%);
+
+    z-index:1000;
+
+    min-width:210px;
+
+    padding:14px 25px;
+
+    border:2px solid #c79a45;
+    border-radius:14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7b1e2b,
+            #5d1621
+        );
+
+    color:#f4dfad;
+
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:.3px;
+
+    cursor:pointer;
+
+    box-shadow:
+        0 7px 22px rgba(75,51,40,.25);
+
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease;
 }
 
-/* MODAL */
+#enviar:hover{
+    transform:
+        translateX(-50%)
+        translateY(-2px);
+
+    box-shadow:
+        0 10px 27px rgba(75,51,40,.30);
+}
+
+#enviar:active{
+    transform:
+        translateX(-50%)
+        scale(.97);
+}
+
+/* =========================
+   MODAL STATUS
+========================= */
+
 #modalStatus{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.6);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
+    position:fixed;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background:rgba(59,42,31,.48);
+
+    backdrop-filter:blur(4px);
+
+    display:flex;
+
+    align-items:center;
+    justify-content:center;
+
+    z-index:9999;
 }
 
 #modalBox{
-  background:#1e293b;
-  padding:30px 40px;
-  border-radius:18px;
-  text-align:center;
-  font-size:18px;
-  font-weight:bold;
-  box-shadow:0 10px 30px rgba(0,0,0,0.5);
+    padding:30px 40px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fffaf4,
+            #f4e9dc
+        );
+
+    color:#3b2a1f;
+
+    border:1px solid #d8c5b2;
+    border-top:4px solid #c79a45;
+
+    border-radius:18px;
+
+    text-align:center;
+
+    font-size:18px;
+    font-weight:bold;
+
+    box-shadow:
+        0 18px 45px rgba(59,42,31,.25);
 }
 
+/* =========================
+   SPINNER
+========================= */
+
 .spinner{
-  width:40px;
-  height:40px;
-  border:4px solid #334155;
-  border-top:4px solid #f59e0b;
-  border-radius:50%;
-  animation:girar 1s linear infinite;
-  margin:0 auto 15px;
+    width:42px;
+    height:42px;
+
+    border:4px solid #eadfd2;
+    border-top:4px solid #7b1e2b;
+
+    border-radius:50%;
+
+    animation:
+        girar 1s linear infinite;
+
+    margin:0 auto 15px;
 }
 
 @keyframes girar{
-  0%{ transform:rotate(0deg); }
-  100%{ transform:rotate(360deg); }
+
+    0%{
+        transform:rotate(0deg);
+    }
+
+    100%{
+        transform:rotate(360deg);
+    }
+
 }
 
-/* MODAL EDITAR */
+/* =========================
+   MODAL EDITAR
+========================= */
+
 #modalEditar{
-  position:fixed;
-  top:0;
-  left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.6);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:99999;
+    position:fixed;
+
+    top:0;
+    left:0;
+
+    width:100%;
+    height:100%;
+
+    background:rgba(59,42,31,.48);
+
+    backdrop-filter:blur(4px);
+
+    display:none;
+
+    align-items:center;
+    justify-content:center;
+
+    z-index:99999;
 }
 
 #modalEditarBox{
-  background:#1e293b;
-  padding:20px;
-  border-radius:16px;
-  width:90%;
-  max-width:320px;
-  text-align:center;
+    width:90%;
+    max-width:320px;
+
+    padding:22px;
+
+    text-align:center;
+
+    background:
+        linear-gradient(
+            145deg,
+            #fffaf4,
+            #f4e9dc
+        ) !important;
+
+    color:#3b2a1f;
+
+    border:1px solid #d8c5b2;
+
+    border-top:4px solid #c79a45;
+
+    border-radius:18px;
+
+    box-shadow:
+        0 18px 45px rgba(59,42,31,.25);
+}
+
+#modalEditarBox h3{
+    margin:0 0 14px;
+
+    font-family:
+        Georgia,
+        "Times New Roman",
+        serif;
+
+    font-size:20px;
+    font-weight:700;
+
+    color:#5d1621;
 }
 
 #modalEditarBox input{
-  width:100%;
-  padding:10px;
-  border:none;
-  border-radius:10px;
-  margin:10px 0;
-  font-size:16px;
+    width:100%;
+
+    padding:12px;
+
+    margin:10px 0 16px;
+
+    border:1px solid #d8c5b2;
+
+    border-radius:10px;
+
+    background:#fffdf9 !important;
+
+    color:#3b2a1f !important;
+
+    font-size:18px;
+    font-weight:600;
+
+    text-align:center;
+
+    outline:none;
 }
 
-/* DESKTOP */
+#modalEditarBox input:focus{
+    border-color:#7b1e2b;
+
+    box-shadow:
+        0 0 0 3px rgba(123,30,43,.10);
+}
+
+/* =========================
+   BOTÕES DO MODAL EDITAR
+========================= */
+
+#modalEditarBox > div{
+    display:flex;
+    gap:10px;
+}
+
+#modalEditarBox button{
+    flex:1;
+
+    padding:10px !important;
+
+    border:none !important;
+    border-radius:10px !important;
+
+    font-size:14px;
+    font-weight:700;
+
+    cursor:pointer;
+
+    transition:
+        transform .15s ease,
+        opacity .15s ease,
+        box-shadow .15s ease;
+}
+
+#modalEditarBox button:hover{
+    opacity:.92;
+}
+
+#modalEditarBox button:active{
+    transform:scale(.97);
+}
+
+/* CANCELAR */
+
+#modalEditarBox button:first-child{
+    background:#eadfd2 !important;
+
+    color:#5d1621 !important;
+
+    border:1px solid #d8c5b2 !important;
+}
+
+/* SALVAR */
+
+#modalEditarBox button:last-child{
+    background:
+        linear-gradient(
+            135deg,
+            #7b1e2b,
+            #5d1621
+        ) !important;
+
+    color:#f4dfad !important;
+
+    border:1px solid #c79a45 !important;
+
+    box-shadow:
+        0 4px 10px rgba(93,22,33,.16);
+}
+
+/* =========================
+   DESKTOP
+========================= */
+
 @media(min-width:768px){
-  body{ padding:20px 40px; }
 
-  #botoesCafe{
-    grid-template-columns:repeat(auto-fill,minmax(160px,1fr));
-    gap:15px;
-  }
+    body{
+        padding:25px 40px 105px;
+    }
 
-  .botao-produto img{
-    height:120px;
-  }
+    h1{
+        margin-bottom:20px;
+    }
 
-  .qtd{ font-size:26px; }
+    #mensagemEquipe{
+        padding:18px 24px;
+    }
+
+    #botoesCafe{
+        grid-template-columns:
+            repeat(
+                auto-fill,
+                minmax(165px,1fr)
+            );
+
+        gap:15px;
+    }
+
+    .botao-produto{
+        min-height:195px;
+        padding:10px;
+    }
+
+    .botao-produto img,
+    .sem-imagem{
+        height:125px;
+    }
+
+    .qtd{
+        font-size:24px;
+    }
+
 }
+
+/* =========================
+   CELULAR
+========================= */
+
+@media(max-width:480px){
+
+    body{
+        padding:12px 10px 95px;
+    }
+
+    h1{
+        padding:16px 12px 14px;
+
+        margin-bottom:13px;
+
+        border-radius:14px;
+
+        font-size:27px;
+        letter-spacing:1px;
+    }
+
+    #mensagemEquipe{
+        padding:13px 12px;
+
+        margin-bottom:14px;
+
+        border-radius:13px;
+    }
+
+    #mensagemEquipe h3{
+        font-size:16px;
+    }
+
+    #mensagemTexto{
+        font-size:13px;
+    }
+
+    #botoesCafe{
+        grid-template-columns:
+            repeat(
+                2,
+                minmax(0,1fr)
+            );
+
+        gap:9px;
+    }
+
+    .botao-produto{
+        min-height:155px;
+        padding:7px;
+
+        border-radius:13px;
+    }
+
+    .botao-produto img,
+    .sem-imagem{
+        height:88px;
+
+        border-radius:9px;
+    }
+
+    .botao-produto div:nth-child(2){
+        font-size:11px;
+        min-height:29px;
+    }
+
+    .qtd{
+        font-size:19px;
+
+        min-width:34px;
+
+        padding:2px 8px;
+    }
+
+    #resumo{
+        padding:12px;
+
+        margin-top:18px;
+
+        border-radius:14px;
+    }
+
+    #resumo h2{
+        font-size:17px;
+    }
+
+    #enviar{
+        bottom:12px;
+
+        min-width:190px;
+
+        padding:13px 20px;
+
+        font-size:15px;
+    }
+
+    #modalBox{
+        width:90%;
+
+        padding:25px 20px !important;
+    }
+
+    #modalEditarBox{
+        width:90% !important;
+    }
+
+}
+
 </style>
+
 </head>
 
 <body>
 
-<h1>☕ Café</h1>
+<h1>☕ CONTAGEM DO CAFÉ</h1>
 
 <!-- 🔥 MENSAGEM RANDOM -->
+
 <div id="mensagemEquipe">
-  <h3>☕ Equipe do Café</h3>
-  <div id="mensagemTexto"></div>
+
+    <h3>☕ Equipe do Café</h3>
+
+    <div id="mensagemTexto"></div>
+
 </div>
 
 <div id="botoesCafe"></div>
 
 <!-- RESUMO -->
+
 <div id="resumo">
-  <h2>📋 Resumo de Contagens</h2>
 
-  <table>
-    <thead>
-      <tr>
-        <th>EAN</th>
-        <th>Produto</th>
-        <th>Qtd</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
+    <h2>📋 Resumo de Contagens</h2>
 
-    <tbody id="resumoBody"></tbody>
-  </table>
+    <table>
+
+        <thead>
+
+            <tr>
+
+                <th>EAN</th>
+
+                <th>Produto</th>
+
+                <th>Qtd</th>
+
+                <th>Ações</th>
+
+            </tr>
+
+        </thead>
+
+        <tbody id="resumoBody"></tbody>
+
+    </table>
+
 </div>
 
-<button id="enviar" onclick="enviarContagens()">Enviar Contagem</button>
+<button
+    id="enviar"
+    onclick="enviarContagens()"
+>
+    Enviar Contagem
+</button>
 
-<div id="modalStatus" style="display:none;">
-  <div id="modalBox">
-    <div class="spinner"></div>
-    <div id="modalTexto">Enviando...</div>
-  </div>
-</div>
+<!-- =========================
+     MODAL STATUS
+========================= -->
 
-<!-- MODAL EDITAR -->
-<div id="modalEditar">
+<div
+    id="modalStatus"
+    style="display:none;"
+>
 
-  <div id="modalEditarBox">
+    <div id="modalBox">
 
-    <h3>Editar Quantidade</h3>
+        <div class="spinner"></div>
 
-    <input type="number" id="editQtd" min="0">
-
-    <div style="display:flex; gap:10px;">
-
-      <button onclick="fecharEdicao()"
-      style="flex:1;padding:10px;border:none;border-radius:10px;background:#ef4444;color:white;">
-        Cancelar
-      </button>
-
-      <button onclick="salvarEdicao()"
-      style="flex:1;padding:10px;border:none;border-radius:10px;background:#f59e0b;color:white;">
-        Salvar
-      </button>
+        <div id="modalTexto">
+            Enviando...
+        </div>
 
     </div>
 
-  </div>
+</div>
+
+<!-- =========================
+     MODAL EDITAR
+========================= -->
+
+<div id="modalEditar">
+
+    <div id="modalEditarBox">
+
+        <h3>
+            Editar Quantidade
+        </h3>
+
+        <input
+            type="number"
+            id="editQtd"
+            min="0"
+        >
+
+        <div
+            style="
+                display:flex;
+                gap:10px;
+            "
+        >
+
+            <button
+                onclick="fecharEdicao()"
+                style="
+                    flex:1;
+                    padding:10px;
+                    border:none;
+                    border-radius:10px;
+                    background:#eadfd2;
+                    color:#5d1621;
+                "
+            >
+                Cancelar
+            </button>
+
+            <button
+                onclick="salvarEdicao()"
+                style="
+                    flex:1;
+                    padding:10px;
+                    border:none;
+                    border-radius:10px;
+                    background:#7b1e2b;
+                    color:#f4dfad;
+                "
+            >
+                Salvar
+            </button>
+
+        </div>
+
+    </div>
 
 </div>
 
 <script>
-const url="https://script.google.com/macros/s/AKfycby4gwho-0QULxI_vn7Hf-vaFlxREmMQZSi58y35Bz_Uz3j0mOs2nSjhU5QMmtZD5NSLKQ/exec";
+
+const url="https://script.google.com/macros/s/AKfycbyCw_0ga7ndOcSEhe_emZve5fgYO4Mea2Tv8Wf-5QMU_wiXb9tB8ZOOfAp-tIE13QctiA/exec";
 
 let produtos=[];
+
 let contagensPendentes=[];
+
 let editEAN=null;
 
-/* ======================= */
-/* 🔥 MENSAGENS RANDOM */
+/* =======================
+   🔥 MENSAGENS RANDOM
+======================= */
+
 const mensagensEquipe = [
 
-"☕ Relaxa e conta com calma, no final tem um cafézinho.😂",
+    "☕ Relaxa e conta com calma, no final tem um cafézinho.😂",
 
-"🔥 A equipe do café é pequena no tamanho e gigante na entrega.",
+    "🔥 A equipe do café é pequena no tamanho e gigante na entrega.",
 
-"😅 Se aparecer grão escondido atrás da cafeteira, ninguém viu.",
+    "😅 Se aparecer grão escondido atrás da cafeteira, ninguém viu.",
 
-"💪 Obrigado pelo empenho de vocês hoje. O café funciona por causa da equipe.",
+    "💪 Obrigado pelo empenho de vocês hoje. O café funciona por causa da equipe.",
 
-"📦 Cada item contado é menos dor de cabeça amanhã.",
+    "📦 Cada item contado é menos dor de cabeça amanhã.",
 
-"☕ O estoque pode acabar… mas a paciência da equipe não deveria 😂",
+    "☕ O estoque pode acabar… mas a paciência da equipe não deveria 😂",
 
-"🚀 Uma boa contagem hoje deixa tudo mais tranquilo amanhã.",
+    "🚀 Uma boa contagem hoje deixa tudo mais tranquilo amanhã.",
 
-"🏆 Equipe boa é aquela que conta até o último sachê de açúcar.",
+    "🏆 Equipe boa é aquela que conta até o último sachê de açúcar.",
 
-"😂 Quem encontrar açúcar perdido ganha respeito automático.",
+    "😂 Quem encontrar açúcar perdido ganha respeito automático.",
 
-"☕ Café forte e equipe forte: combinação perfeita.",
+    "☕ Café forte e equipe forte: combinação perfeita.",
 
-"📋 Vocês fazem diferença de verdade na operação.",
+    "📋 Vocês fazem diferença de verdade na operação.",
 
-"💙 Obrigado pelo comprometimento da equipe do café.",
+    "💙 Obrigado pelo comprometimento da equipe do café.",
 
-"🔥 Vamos lá tropa do café, vocês nunca me decepciona.",
+    "🔥 Vamos lá tropa do café, vocês nunca me decepciona.",
 
-"😎 Contar certinho hoje evita retrabalho amanhã.",
+    "😎 Contar certinho hoje evita retrabalho amanhã.",
 
-"📈 Organização começa em uma boa contagem.",
+    "📈 Organização começa em uma boa contagem.",
 
-"☕ Respira fundo… falta menos do que parece.",
+    "☕ Respira fundo… falta menos do que parece.",
 
-"😂 O sistema acredita em vocês. O estoquista também.",
+    "😂 O sistema acredita em vocês. O estoquista também.",
 
-"💪 Vocês seguram a operação muito mais do que imaginam.",
+    "💪 Vocês seguram a operação muito mais do que imaginam.",
 
-"📦 Se o estoque bate certinho, a vitória é da equipe.",
+    "📦 Se o estoque bate certinho, a vitória é da equipe.",
 
-"☕ Bora finalizar essa contagem igual profissionais."
+    "☕ Bora finalizar essa contagem igual profissionais."
 
 ];
 
 function mostrarMensagemRandom(){
 
-let msg = mensagensEquipe[
-Math.floor(Math.random() * mensagensEquipe.length)
-];
+    let msg =
+        mensagensEquipe[
+            Math.floor(
+                Math.random() *
+                mensagensEquipe.length
+            )
+        ];
 
-document.getElementById("mensagemTexto").innerText = msg;
+    document.getElementById(
+        "mensagemTexto"
+    ).innerText = msg;
 
 }
 
 // =======================
 // CARREGAR PRODUTOS
 // =======================
+
 function carregarProdutos(){
-fetch(url)
-.then(r=>r.json())
-.then(dados=>{
 
-produtos=[];
+    fetch(url)
 
-for(let i=1;i<dados.length;i++){
-produtos.push({
-ean:String(dados[i][0]).trim(),
-produto:dados[i][1],
-setor:(dados[i][9] || "").toLowerCase(),
-imagem:dados[i][10] || ""
-});
-}
+    .then(r=>r.json())
 
-gerarPainel();
+    .then(dados=>{
 
-});
+        produtos=[];
+
+        for(
+            let i=1;
+            i<dados.length;
+            i++
+        ){
+
+            produtos.push({
+
+                ean:String(
+                    dados[i][0]
+                ).trim(),
+
+                produto:
+                    dados[i][1],
+
+                setor:
+                    (dados[i][9] || "")
+                    .toLowerCase(),
+
+                imagem:
+                    dados[i][10] || ""
+
+            });
+
+        }
+
+        gerarPainel();
+
+    });
+
 }
 
 // =======================
 // FILTRO CAFÉ
 // =======================
+
 function produtosDoCafe(){
-return produtos.filter(p => p.setor.includes("cafe"));
+
+    return produtos.filter(
+        p =>
+            p.setor.includes("cafe")
+    );
+
 }
 
 // =======================
 // GERAR PAINEL
 // =======================
+
 function gerarPainel(){
 
-let container=document.getElementById("botoesCafe");
-container.innerHTML="";
+    let container =
+        document.getElementById(
+            "botoesCafe"
+        );
 
-let lista=produtosDoCafe();
+    container.innerHTML="";
 
-lista.forEach((p,index)=>{
+    let lista =
+        produtosDoCafe();
 
-let existente=contagensPendentes.find(c=>c.ean===p.ean);
-let qtd=existente ? existente.quantidade : 0;
+    lista.forEach(
+        (p,index)=>{
 
-let btn=document.createElement("button");
-btn.type="button";
-btn.className="botao-produto";
+            let existente =
+                contagensPendentes.find(
+                    c =>
+                        c.ean === p.ean
+                );
 
-let img = p.imagem 
-? `<img src="${p.imagem}" loading="lazy">`
-: `<div style="height:90px;display:flex;align-items:center;justify-content:center;font-size:12px;opacity:0.5">SEM IMG</div>`;
+            let qtd =
+                existente
+                    ? existente.quantidade
+                    : 0;
 
-btn.innerHTML=`
-${img}
-<div>${p.produto}</div>
-<div id="qtd_${index}" class="qtd">${qtd}</div>
-`;
+            let btn =
+                document.createElement(
+                    "button"
+                );
 
-btn.onclick=()=>contar(index);
+            btn.type="button";
 
-container.appendChild(btn);
+            btn.className=
+                "botao-produto";
 
-});
+            let img =
+                p.imagem
 
-renderResumo();
+                    ? `<img src="${p.imagem}" loading="lazy">`
+
+                    : `<div class="sem-imagem">SEM IMG</div>`;
+
+            btn.innerHTML=`
+
+                ${img}
+
+                <div>
+                    ${p.produto}
+                </div>
+
+                <div
+                    id="qtd_${index}"
+                    class="qtd"
+                >
+                    ${qtd}
+                </div>
+
+            `;
+
+            btn.onclick=
+                () =>
+                    contar(index);
+
+            container.appendChild(
+                btn
+            );
+
+        }
+    );
+
+    renderResumo();
 
 }
 
 // =======================
 // CONTAR
 // =======================
+
 function contar(index){
 
-let lista = produtosDoCafe();
-let p = lista[index];
+    let lista =
+        produtosDoCafe();
 
-let item = contagensPendentes.find(c=>c.ean===p.ean);
+    let p =
+        lista[index];
 
-if(item){
-item.quantidade++;
-}else{
-contagensPendentes.push({
-ean:p.ean,
-setor:"Cafe",
-quantidade:1
-});
-}
+    let item =
+        contagensPendentes.find(
+            c =>
+                c.ean === p.ean
+        );
 
-atualizar(index, p.ean);
-renderResumo();
+    if(item){
+
+        item.quantidade++;
+
+    }else{
+
+        contagensPendentes.push({
+
+            ean:p.ean,
+
+            setor:"Cafe",
+
+            quantidade:1
+
+        });
+
+    }
+
+    atualizar(
+        index,
+        p.ean
+    );
+
+    renderResumo();
 
 }
 
 // =======================
 // ATUALIZAR
 // =======================
-function atualizar(index, ean){
 
-let el=document.getElementById("qtd_"+index);
+function atualizar(
+    index,
+    ean
+){
 
-let item=contagensPendentes.find(c=>c.ean===ean);
+    let el =
+        document.getElementById(
+            "qtd_"+index
+        );
 
-if(el){
-el.innerText=item ? item.quantidade : 0;
-}
+    let item =
+        contagensPendentes.find(
+            c =>
+                c.ean === ean
+        );
+
+    if(el){
+
+        el.innerText =
+            item
+                ? item.quantidade
+                : 0;
+
+    }
 
 }
 
 // =======================
 // RESUMO
 // =======================
+
 function renderResumo(){
 
-let body=document.getElementById("resumoBody");
-body.innerHTML="";
+    let body =
+        document.getElementById(
+            "resumoBody"
+        );
 
-contagensPendentes.forEach(c=>{
+    body.innerHTML="";
 
-let prod=produtos.find(p=>p.ean===c.ean);
+    contagensPendentes.forEach(
+        c=>{
 
-let nome=prod ? prod.produto : "Desconhecido";
+            let prod =
+                produtos.find(
+                    p =>
+                        p.ean === c.ean
+                );
 
-let tr=document.createElement("tr");
+            let nome =
+                prod
+                    ? prod.produto
+                    : "Desconhecido";
 
-tr.innerHTML=`
-<td>${c.ean}</td>
-<td>${nome}</td>
-<td>${c.quantidade}</td>
-<td>
-<button class="small edit" onclick="editar('${c.ean}')">Editar</button>
-<button class="small del" onclick="excluir('${c.ean}')">Excluir</button>
-</td>
-`;
+            let tr =
+                document.createElement(
+                    "tr"
+                );
 
-body.appendChild(tr);
+            tr.innerHTML=`
 
-});
+                <td>
+                    ${c.ean}
+                </td>
+
+                <td>
+                    ${nome}
+                </td>
+
+                <td>
+                    ${c.quantidade}
+                </td>
+
+                <td>
+
+                    <button
+                        class="small edit"
+                        onclick="editar('${c.ean}')"
+                    >
+                        Editar
+                    </button>
+
+                    <button
+                        class="small del"
+                        onclick="excluir('${c.ean}')"
+                    >
+                        Excluir
+                    </button>
+
+                </td>
+
+            `;
+
+            body.appendChild(
+                tr
+            );
+
+        }
+    );
 
 }
 
 // =======================
 // EDITAR
 // =======================
+
 function editar(ean){
 
-let item=contagensPendentes.find(c=>c.ean===ean);
+    let item =
+        contagensPendentes.find(
+            c =>
+                c.ean === ean
+        );
 
-if(!item) return;
+    if(!item) return;
 
-editEAN=ean;
+    editEAN=ean;
 
-document.getElementById("editQtd").value=item.quantidade;
+    document.getElementById(
+        "editQtd"
+    ).value =
+        item.quantidade;
 
-document.getElementById("modalEditar").style.display="flex";
+    document.getElementById(
+        "modalEditar"
+    ).style.display="flex";
 
 }
 
 // =======================
 // FECHAR EDIÇÃO
 // =======================
+
 function fecharEdicao(){
 
-document.getElementById("modalEditar").style.display="none";
+    document.getElementById(
+        "modalEditar"
+    ).style.display="none";
 
-editEAN=null;
+    editEAN=null;
 
 }
 
 // =======================
 // SALVAR EDIÇÃO
 // =======================
+
 function salvarEdicao(){
 
-let valor=parseInt(
-document.getElementById("editQtd").value
-);
+    let valor =
+        parseInt(
+            document.getElementById(
+                "editQtd"
+            ).value
+        );
 
-if(isNaN(valor)||valor<0) return;
+    if(
+        isNaN(valor) ||
+        valor<0
+    ) return;
 
-let item=contagensPendentes.find(c=>c.ean===editEAN);
+    let item =
+        contagensPendentes.find(
+            c =>
+                c.ean === editEAN
+        );
 
-if(item){
-item.quantidade=valor;
-}
+    if(item){
 
-fecharEdicao();
+        item.quantidade =
+            valor;
 
-gerarPainel();
+    }
+
+    fecharEdicao();
+
+    gerarPainel();
 
 }
 
 // =======================
 // EXCLUIR
 // =======================
+
 function excluir(ean){
 
-contagensPendentes=
-contagensPendentes.filter(c=>c.ean!==ean);
+    contagensPendentes =
+        contagensPendentes.filter(
+            c =>
+                c.ean !== ean
+        );
 
-gerarPainel();
+    gerarPainel();
 
 }
 
 // =======================
 // ENVIAR
 // =======================
+
 function enviarContagens(){
 
-mostrarModal("Enviando contagem Café... ⏳", true);
+    mostrarModal(
+        "Enviando contagem Café... ⏳",
+        true
+    );
 
-let lista = produtosDoCafe();
+    let lista =
+        produtosDoCafe();
 
-let dados = lista.map(p => {
+    let dados =
+        lista.map(
+            p=>{
 
-let existente = contagensPendentes.find(c => c.ean === p.ean);
-let qtd = existente ? existente.quantidade : 0;
+                let existente =
+                    contagensPendentes.find(
+                        c =>
+                            c.ean === p.ean
+                    );
 
-return `${p.ean},Cafe,${qtd}`;
+                let qtd =
+                    existente
+                        ? existente.quantidade
+                        : 0;
 
-});
+                return `${p.ean},Cafe,${qtd}`;
 
-fetch(url,{
-method:"POST",
-body:JSON.stringify({
-tipo:"contagem_lote",
-dados:dados
-})
-})
-.then(()=>{
+            }
+        );
 
-mostrarModal("Contagem enviada! ☕✅", false);
+    fetch(
+        url,
+        {
 
-contagensPendentes=[];
-gerarPainel();
+            method:"POST",
 
-setTimeout(esconderModal,1500);
+            body:
+                JSON.stringify({
 
-})
-.catch(()=>{
-mostrarModal("Erro ao enviar ❌", false);
-setTimeout(esconderModal,2000);
-});
+                    tipo:
+                        "contagem_lote",
+
+                    dados:
+                        dados
+
+                })
+
+        }
+    )
+
+    .then(()=>{
+
+        mostrarModal(
+            "Contagem enviada! ☕✅",
+            false
+        );
+
+        contagensPendentes=[];
+
+        gerarPainel();
+
+        setTimeout(
+            esconderModal,
+            1500
+        );
+
+    })
+
+    .catch(()=>{
+
+        mostrarModal(
+            "Erro ao enviar ❌",
+            false
+        );
+
+        setTimeout(
+            esconderModal,
+            2000
+        );
+
+    });
 
 }
 
 // =======================
 // MODAL
 // =======================
-function mostrarModal(msg, carregando=true){
 
-document.getElementById("modalTexto").innerText=msg;
+function mostrarModal(
+    msg,
+    carregando=true
+){
 
-let spinner=document.querySelector(".spinner");
-if(spinner){
-spinner.style.display=carregando ? "block" : "none";
-}
+    document.getElementById(
+        "modalTexto"
+    ).innerText=msg;
 
-document.getElementById("modalStatus").style.display="flex";
+    let spinner =
+        document.querySelector(
+            ".spinner"
+        );
+
+    if(spinner){
+
+        spinner.style.display =
+            carregando
+                ? "block"
+                : "none";
+
+    }
+
+    document.getElementById(
+        "modalStatus"
+    ).style.display="flex";
+
 }
 
 function esconderModal(){
-document.getElementById("modalStatus").style.display="none";
+
+    document.getElementById(
+        "modalStatus"
+    ).style.display="none";
+
 }
 
 // =======================
 // INIT
 // =======================
+
 window.onload=()=>{
-mostrarMensagemRandom();
-carregarProdutos();
+
+    mostrarMensagemRandom();
+
+    carregarProdutos();
+
 };
 
 </script>
 
 </body>
+
 </html>

@@ -4,112 +4,402 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-<title>Escolher Tipo de Contagem</title>
+<title>Contagem da Bomboniere</title>
 
 <style>
 *{
-  box-sizing:border-box;
-  -webkit-tap-highlight-color:transparent;
+    box-sizing:border-box;
+    -webkit-tap-highlight-color:transparent;
+}
+
+html,
+body{
+    margin:0;
+    min-height:100%;
 }
 
 body{
-  margin:0;
-  min-height:100vh;
-  background:#0f172a;
-  font-family:system-ui, Arial;
-  color:white;
+    min-height:100vh;
+    padding:24px;
 
-  display:flex;
-  align-items:center;
-  justify-content:center;
+    display:flex;
+    align-items:center;
+    justify-content:center;
 
-  padding:20px;
+    font-family:Arial, "Segoe UI", sans-serif;
+    color:#3b2a1f;
+
+    background:
+        radial-gradient(
+            circle at top center,
+            rgba(199,154,69,.13),
+            transparent 40%
+        ),
+        linear-gradient(
+            135deg,
+            #f6f0e9,
+            #eadfd2
+        );
 }
 
+/* =========================
+   CONTAINER
+========================= */
+
 .container{
-  width:100%;
-  max-width:500px;
-  text-align:center;
+    width:100%;
+    max-width:760px;
+    text-align:center;
+}
+
+/* =========================
+   CABEÇALHO
+========================= */
+
+.cabecalho{
+    margin-bottom:38px;
+}
+
+.iconePrincipal{
+    width:76px;
+    height:76px;
+
+    margin:0 auto 18px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:50%;
+
+    background:linear-gradient(
+        145deg,
+        #7b1e2b,
+        #5d1621
+    );
+
+    border:3px solid #c79a45;
+
+    font-size:36px;
+
+    box-shadow:
+        0 8px 22px rgba(93,22,33,.22),
+        inset 0 1px 0 rgba(255,255,255,.12);
 }
 
 h1{
-  font-size:clamp(28px,5vw,42px);
-  margin-bottom:12px;
+    margin:0;
+
+    font-family:Georgia, "Times New Roman", serif;
+
+    font-size:clamp(29px,6vw,42px);
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    color:#5d1621;
+
+    text-shadow:
+        0 1px 1px rgba(0,0,0,.08);
 }
 
 .sub{
-  opacity:.8;
-  margin-bottom:35px;
-  font-size:15px;
+    margin-top:10px;
+
+    font-size:15px;
+    line-height:1.5;
+
+    color:#6f5848;
 }
 
+/* =========================
+   DIVISOR
+========================= */
+
+.divisor{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    gap:10px;
+
+    margin-top:22px;
+}
+
+.divisor::before,
+.divisor::after{
+    content:"";
+
+    width:90px;
+    max-width:20vw;
+
+    height:1px;
+
+    background:linear-gradient(
+        90deg,
+        transparent,
+        #c79a45
+    );
+}
+
+.divisor::after{
+    background:linear-gradient(
+        90deg,
+        #c79a45,
+        transparent
+    );
+}
+
+.divisor span{
+    width:7px;
+    height:7px;
+
+    background:#c79a45;
+
+    transform:rotate(45deg);
+
+    box-shadow:
+        0 0 0 3px rgba(199,154,69,.10);
+}
+
+/* =========================
+   BOTÕES
+========================= */
+
 .botoes{
-  display:flex;
-  flex-direction:column;
-  gap:18px;
+    display:flex;
+    flex-direction:column;
+    gap:18px;
 }
 
 .botao{
-  text-decoration:none;
-  color:white;
+    position:relative;
+    overflow:hidden;
 
-  background:linear-gradient(135deg,#1e293b,#334155);
+    display:block;
 
-  border:2px solid #334155;
+    text-decoration:none;
+    color:#3b2a1f;
 
-  border-radius:22px;
+    background:
+        linear-gradient(
+            145deg,
+            #fffaf4,
+            #f4e9dc
+        );
 
-  padding:24px 18px;
+    border:1px solid #d8c5b2;
 
-  transition:.15s;
+    border-radius:20px;
 
-  box-shadow:0 10px 25px rgba(0,0,0,.35);
+    padding:28px 22px;
+
+    box-shadow:
+        0 8px 24px rgba(75,51,40,.10);
+
+    transition:
+        transform .22s ease,
+        box-shadow .22s ease,
+        border-color .22s ease,
+        background .22s ease;
 }
 
-.botao:active{
-  transform:scale(.97);
+/* faixa dourada superior */
+
+.botao::before{
+    content:"";
+
+    position:absolute;
+
+    top:0;
+    left:0;
+    right:0;
+
+    height:4px;
+
+    background:
+        linear-gradient(
+            90deg,
+            #c79a45,
+            #e0bd73,
+            #c79a45
+        );
+}
+
+/* brilho decorativo */
+
+.botao::after{
+    content:"";
+
+    position:absolute;
+
+    width:140px;
+    height:140px;
+
+    right:-65px;
+    bottom:-80px;
+
+    border-radius:50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(199,154,69,.12),
+            transparent 70%
+        );
+
+    pointer-events:none;
 }
 
 .botao:hover{
-  border-color:#f59e0b;
+    transform:translateY(-4px);
+
+    border-color:#c79a45;
+
+    box-shadow:
+        0 14px 32px rgba(75,51,40,.16);
 }
+
+.botao:active{
+    transform:scale(.98);
+}
+
+/* =========================
+   ÍCONES
+========================= */
 
 .icone{
-  font-size:42px;
-  margin-bottom:12px;
+    width:68px;
+    height:68px;
+
+    margin:0 auto 16px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:18px;
+
+    background:#f1e4d5;
+
+    border:1px solid #ddc7ad;
+
+    font-size:34px;
+
+    transition:
+        background .2s ease,
+        transform .2s ease;
 }
 
+.botao:hover .icone{
+    background:#7b1e2b;
+
+    transform:scale(1.05);
+}
+
+/* =========================
+   TÍTULOS
+========================= */
+
 .titulo{
-  font-size:22px;
-  font-weight:bold;
-  margin-bottom:8px;
+    margin-bottom:8px;
+
+    font-family:Georgia, "Times New Roman", serif;
+
+    font-size:22px;
+    font-weight:700;
+
+    color:#5d1621;
+
+    letter-spacing:.3px;
 }
 
 .desc{
-  font-size:14px;
-  opacity:.85;
-  line-height:1.4;
+    max-width:300px;
+
+    margin:0 auto;
+
+    font-size:14px;
+
+    line-height:1.5;
+
+    color:#6f5848;
 }
 
-/* botão 1 */
-.clicks{
-  border-color:#22c55e;
+/* =========================
+   RODAPÉ
+========================= */
+
+.rodape{
+    margin-top:30px;
+
+    font-size:11px;
+
+    letter-spacing:2px;
+
+    color:#8a7463;
+
+    text-transform:uppercase;
 }
 
-/* botão 2 */
-.digitavel{
-  border-color:#f59e0b;
-}
+/* =========================
+   DESKTOP
+========================= */
 
 @media(min-width:768px){
 
-.botoes{
-  flex-direction:row;
+    .botoes{
+        flex-direction:row;
+        align-items:stretch;
+    }
+
+    .botao{
+        flex:1;
+        min-height:220px;
+
+        display:flex;
+        flex-direction:column;
+        justify-content:center;
+    }
+
 }
 
-.botao{
-  flex:1;
-}
+/* =========================
+   CELULAR
+========================= */
+
+@media(max-width:480px){
+
+    body{
+        padding:18px;
+    }
+
+    .cabecalho{
+        margin-bottom:30px;
+    }
+
+    .iconePrincipal{
+        width:68px;
+        height:68px;
+        font-size:32px;
+    }
+
+    h1{
+        font-size:29px;
+    }
+
+    .sub{
+        font-size:14px;
+    }
+
+    .botao{
+        padding:25px 18px;
+        border-radius:18px;
+    }
+
+    .titulo{
+        font-size:21px;
+    }
 
 }
 </style>
@@ -119,45 +409,74 @@ h1{
 
 <div class="container">
 
-  <h1>🍫Tipo de Contagem</h1>
+    <!-- CABEÇALHO -->
+    <div class="cabecalho">
 
-  <div class="sub">
-    Escolha como deseja realizar a contagem da Bomboniere:
-  </div>
+        <div class="iconePrincipal">
+            🍫
+        </div>
 
-  <div class="botoes">
+        <h1>
+            CONTAGEM DA BOMBONIERE
+        </h1>
 
-    <!-- OPÇÃO 1 -->
-    <a href="bomboniere.html" class="botao clicks">
+        <div class="sub">
+            Escolha como deseja realizar a contagem da bomboniere:
+        </div>
 
-      <div class="icone">👆</div>
+        <div class="divisor">
+            <span></span>
+        </div>
 
-      <div class="titulo">
-        OPÇÃO 1
-      </div>
+    </div>
 
-      <div class="desc">
-        Contagem por clicks rápidos nos produtos
-      </div>
 
-    </a>
+    <!-- OPÇÕES -->
+    <div class="botoes">
 
-    <!-- OPÇÃO 2 -->
-    <a href="bomboniere2.html" class="botao digitavel">
+        <!-- CONTAGEM RÁPIDA -->
+        <a href="bomboniere.html" class="botao clicks">
 
-      <div class="icone">⌨️</div>
+            <div class="icone">
+                👆
+            </div>
 
-      <div class="titulo">
-        OPÇÃO 2
-      </div>
+            <div class="titulo">
+                CONTAGEM RÁPIDA
+            </div>
 
-      <div class="desc">
-        Contagem digitável com quantidade manual
-      </div>
+            <div class="desc">
+                Registre os produtos rapidamente
+                através de cliques.
+            </div>
 
-    </a>
+        </a>
 
-  </div>
+
+        <!-- CONTAGEM MANUAL -->
+        <a href="bomboniere2.html" class="botao digitavel">
+
+            <div class="icone">
+                ⌨️
+            </div>
+
+            <div class="titulo">
+                CONTAGEM MANUAL
+            </div>
+
+            <div class="desc">
+                Informe manualmente a quantidade
+                de cada produto.
+            </div>
+
+        </a>
+
+    </div>
+
+
+    <div class="rodape">
+        🍫 Sistema de Gestão da Bomboniere
+    </div>
 
 </div>
 

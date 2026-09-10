@@ -12,24 +12,42 @@
   -webkit-tap-highlight-color:transparent;
 }
 
+:root{
+  --bordo:#7b1e2b;
+  --bordo-dark:#5d1621;
+  --dourado:#c79a45;
+  --dourado-claro:#dfc27a;
+  --marrom-pastel:#eadfd2;
+  --marrom-claro:#f6f0e9;
+  --marrom:#8b6f5a;
+  --texto:#4b3328;
+  --branco:#fffdf9;
+}
+
 body{
   margin:0;
   padding:20px;
   font-family:system-ui,Arial;
-  background:#0f172a;
-  color:white;
+  background:var(--marrom-claro);
+  color:var(--texto);
 }
+
+/* TÍTULO */
 
 h1{
   text-align:center;
   margin-bottom:25px;
   font-size:clamp(28px,5vw,45px);
+  color:var(--bordo);
+  font-weight:800;
 }
 
 /* MENSAGEM */
+
 #mensagemMotivacional{
-  background:#1e293b;
-  border:2px solid #38bdf8;
+  background:var(--branco);
+  border:2px solid var(--dourado);
+  color:var(--texto);
   padding:18px;
   border-radius:18px;
   margin:0 auto 25px;
@@ -37,7 +55,7 @@ h1{
   font-size:18px;
   font-weight:600;
   max-width:900px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.35);
+  box-shadow:0 8px 20px rgba(93,22,33,0.12);
   animation:aparecer 0.4s ease;
 }
 
@@ -53,6 +71,7 @@ h1{
 }
 
 /* GRID */
+
 .grid{
   display:grid;
   grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
@@ -60,19 +79,20 @@ h1{
 }
 
 /* CARD */
+
 .card{
-  background:#1e293b;
+  background:var(--branco);
   border-radius:22px;
   padding:25px 15px;
   text-decoration:none;
-  color:white;
+  color:var(--texto);
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
   min-height:180px;
   transition:0.2s;
-  box-shadow:0 10px 25px rgba(0,0,0,0.35);
+  box-shadow:0 8px 20px rgba(93,22,33,0.12);
 }
 
 .card:active{
@@ -80,56 +100,69 @@ h1{
 }
 
 .card:hover{
-  background:#334155;
+  background:var(--marrom-pastel);
+  transform:translateY(-3px);
 }
 
 /* ÍCONE */
+
 .icone{
   font-size:55px;
   margin-bottom:15px;
 }
 
 /* TÍTULO */
+
 .titulo{
   font-size:22px;
   font-weight:bold;
   text-align:center;
+  color:var(--bordo);
 }
 
 /* SUB */
+
 .sub{
   margin-top:8px;
   font-size:13px;
-  opacity:0.7;
+  color:var(--marrom);
   text-align:center;
 }
 
-/* CORES */
+/* CORES DOS CARDS */
+
+/* BOMBONIERE */
 .bomboniere{
-  border:3px solid #ec4899;
+  border:3px solid var(--dourado-claro);
 }
 
+/* BEBIDAS */
 .bebidas{
-  border:3px solid #3b82f6;
+  border:3px solid var(--dourado-claro);
 }
 
+/* CAFÉ */
 .cafe{
-  border:3px solid #f59e0b;
+  border:3px solid var(--dourado-claro);
 }
 
+/* COZINHA */
 .cozinha{
-  border:3px solid #22c55e;
+  border:3px solid var(--dourado-claro);
 }
 
+/* ESTOQUE */
 .estoque{
-  border:3px solid #6366f1;
+  border:3px solid var(--dourado-claro);
 }
 
+/* ESTOQUE SECO */
 .estoque-seco{
-  border:3px solid #f97316;
+  border:3px solid var(--dourado-claro);
 }
 
 /* DESKTOP */
+
 @media(min-width:768px){
 
   body{
