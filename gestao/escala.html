@@ -1,0 +1,868 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Escala Semanal</title>
+<style>
+:root{--bordo:#7b1e2b;--bordo-dark:#5d1621;--dourado:#c79a45;--fundo:#f7f4f0;--texto:#382d2a;--borda:#e5dcd5;--verde:#247447;--vermelho:#a12d38}
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:var(--fundo);color:var(--texto)}
+header{background:var(--bordo);color:white;padding:22px 28px;border-bottom:4px solid var(--dourado)}
+header h1{margin:0 0 7px;font-size:25px}
+header p{margin:0;color:#f0dfe1;font-size:14px}#statusConexao{margin-top:10px;font-size:12px;color:#fff;padding:7px 10px;border:1px solid #ffffff55;border-radius:7px;display:inline-block}#statusConexao.erro{background:#8f2028}#statusConexao.ok{background:#245f3d}
+.container{max-width:1550px;margin:auto;padding:22px}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(140px,1fr));gap:14px;margin-bottom:22px}
+.card{background:white;padding:20px;border-radius:12px;border:1px solid var(--borda);box-shadow:0 2px 6px #00000008}
+.card span{color:#796c66;font-size:13px}
+.card strong{display:block;font-size:28px;color:var(--bordo);margin-top:8px}
+.panel{background:white;border:1px solid var(--borda);border-radius:12px;padding:20px;margin-bottom:22px}
+.panel h2{margin:0 0 18px;font-size:19px}
+.form-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:14px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field label{font-size:13px;font-weight:bold}
+input,select{width:100%;padding:11px;border:1px solid #d9cec6;border-radius:7px;font-size:14px;background:white;color:var(--texto);min-width:0}
+input:focus,select:focus{outline:2px solid #c79a4566;border-color:var(--dourado)}
+button{border:0;border-radius:7px;padding:11px 15px;font-size:13px;font-weight:bold;cursor:pointer;transition:.15s}
+button:hover{filter:brightness(.94)}
+.btn-primary{background:var(--bordo);color:white}
+.btn-gold{background:var(--dourado);color:#2c2118}
+.btn-light{background:#f0e9e3;color:var(--texto)}
+.btn-danger{background:#fbe8e9;color:var(--vermelho)}
+.btn-success{background:#e1f3e7;color:var(--verde)}
+.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:17px}
+.hidden{display:none!important}
+.week-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.week-controls h2{margin:0}
+.week-navigation{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.week-navigation input{width:auto}
+.table-wrap{overflow-x:auto;border:1px solid var(--borda);border-radius:9px}
+table{width:100%;border-collapse:collapse;min-width:950px;background:white}
+th,td{border-bottom:1px solid var(--borda);padding:11px 9px;text-align:center;font-size:12px}
+th{background:#f4ede7;color:#503b34;font-size:12px;white-space:nowrap}
+td:first-child,th:first-child{text-align:left}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:#fffdfb}
+.employee-name{font-weight:bold;font-size:13px}
+.employee-detail{display:block;margin-top:5px;color:#81736d;font-size:11px}
+.status{display:inline-block;padding:7px 8px;border-radius:6px;min-width:72px;font-size:11px;font-weight:bold;line-height:1.4}
+.status-work{background:#dff1e4;color:#21673a}
+.status-rest{background:#f9e5e6;color:#96333c}
+.status-off{background:#eee9f5;color:#624782}
+.small-btn{padding:7px 9px;margin:2px;font-size:11px}
+.filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:16px}
+.legend{display:flex;gap:15px;flex-wrap:wrap;margin-top:15px;font-size:12px;color:#655751}
+.legend span{display:flex;align-items:center;gap:6px}
+.dot{width:10px;height:10px;border-radius:3px;display:inline-block}
+.dot-work{background:#77bd8c}
+.dot-rest{background:#dc8e95}
+.dot-off{background:#b8a0d4}
+.rest-days{display:flex;flex-wrap:wrap;gap:10px;padding:5px 0}
+.rest-days label{display:flex;align-items:center;gap:5px;font-size:13px;font-weight:normal}
+.rest-days input{width:auto}
+.hint{font-size:12px;color:#7c6e66;line-height:1.5}
+.empty{padding:32px;text-align:center;color:#86766f}
+footer{text-align:center;color:#8b7c74;font-size:12px;padding:10px 20px 25px}
+@media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr)}.form-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.container{padding:12px}header{padding:20px 15px}header h1{font-size:21px}.cards{gap:8px}.card{padding:14px}.card strong{font-size:23px}.form-grid,.filters{grid-template-columns:1fr}.panel{padding:14px}}
+@media print{
+@page{size:landscape;margin:8mm}
+body{background:white}
+header{background:white!important;color:black!important;border-bottom:2px solid black;padding:8px 0}
+header p{color:black}
+.container{max-width:none;padding:8px 0}
+.no-print,.actions,footer,.employee-actions{display:none!important}
+.panel{border:none;padding:5px 0;margin-bottom:8px}
+.cards{gap:6px;margin-bottom:8px}
+.card{padding:8px;box-shadow:none}
+.card strong{font-size:18px}
+table{min-width:0}
+th,td{padding:5px 3px;font-size:9px}
+.status{min-width:0;padding:4px;font-size:9px}
+tr{break-inside:avoid}
+}
+</style>
+</head>
+<body>
+<header>
+<h1>Escala Semanal de Funcionários</h1>
+<p>Controle de equipes · Escala (5x2 fixa) · (5x2 rotativa) · (12x36)</p>
+<p id="statusConexao">Conectando ao Google Sheets...</p>
+</header>
+
+<main class="container">
+<section class="cards">
+<div class="card"><span>Total de funcionários</span><strong id="totalFuncionarios">0</strong></div>
+<div class="card"><span>Escalas 5x2</span><strong id="total5x2">0</strong></div>
+<div class="card"><span>Escalas 12x36</span><strong id="total1236">0</strong></div>
+<div class="card"><span>Trabalham hoje</span><strong id="totalHoje">0</strong></div>
+</section>
+
+<section class="panel no-print" id="painelCadastro">
+<h2 id="tituloFormulario">Cadastrar funcionário</h2>
+<form id="formFuncionario">
+<input type="hidden" id="funcionarioId">
+<div class="form-grid">
+<div class="field">
+<label for="nome">Nome completo *</label>
+<input id="nome" required maxlength="100" placeholder="Nome do funcionário">
+</div>
+<div class="field">
+<label for="setor">Setor</label>
+<input id="setor" maxlength="60" placeholder="Ex.: Café, Estoque, Salão">
+</div>
+<div class="field">
+<label for="escala">Tipo de escala *</label>
+<select id="escala" required>
+<option value="5x2">Escala (5x2 fixa)</option>
+<option value="5x2-rotativa">Escala (5x2 rotativa)</option>
+<option value="5x2-feminina">Escala1 (5x2)</option>
+<option value="5x2-masculina">Escala2 (5x2)</option>
+<option value="12x36">Escala (12x36)</option>
+</select>
+</div>
+<div class="field">
+<label for="horario">Horário de entrada *</label>
+<input type="time" id="horario" value="08:00" required>
+</div>
+<div class="field">
+<label for="dataInicio">Data de início do ciclo *</label>
+<input type="date" id="dataInicio" required>
+</div>
+<div class="field" id="campoFim">
+<label for="horarioFim">Horário de saída</label>
+<input type="time" id="horarioFim" value="17:00">
+</div>
+<div class="field" id="campoFolgas">
+<label>Dias fixos de folga (5x2 fixa) *</label>
+<div class="rest-days">
+<label><input type="checkbox" name="folga" value="0"> Dom</label>
+<label><input type="checkbox" name="folga" value="1"> Seg</label>
+<label><input type="checkbox" name="folga" value="2"> Ter</label>
+<label><input type="checkbox" name="folga" value="3"> Qua</label>
+<label><input type="checkbox" name="folga" value="4"> Qui</label>
+<label><input type="checkbox" name="folga" value="5"> Sex</label>
+<label><input type="checkbox" name="folga" value="6"> Sáb</label>
+</div>
+<span class="hint">Selecione exatamente dois dias de folga.</span>
+</div>
+<div class="field">
+<label>Regra da escala selecionada</label>
+<div class="hint" id="explicacaoEscala"></div>
+</div>
+</div>
+<div class="actions">
+<button class="btn-primary" type="submit" id="btnSalvar">Salvar funcionário</button>
+<button class="btn-light hidden" type="button" id="btnCancelar" onclick="cancelarEdicao()">Cancelar edição</button>
+</div>
+</form>
+</section>
+
+<section class="panel">
+<div class="week-controls">
+<h2>Escala da semana</h2>
+<div class="week-navigation no-print">
+<button class="btn-light" onclick="mudarSemana(-7)">← Anterior</button>
+<input type="date" id="dataReferencia" aria-label="Escolher semana">
+<button class="btn-light" onclick="mudarSemana(7)">Próxima →</button>
+<button class="btn-gold" onclick="irParaHoje()">Hoje</button>
+<button class="btn-primary" onclick="window.print()">Imprimir escala</button>
+</div>
+</div>
+<p id="periodoSemana" class="hint"></p>
+<div class="filters no-print">
+<input id="busca" placeholder="Buscar funcionário ou setor..." oninput="renderizarTudo()">
+<select id="filtroEscala" onchange="renderizarTudo()">
+<option value="">Todas as escalas</option>
+<option value="5x2">Escala (5x2 Fixa)</option>
+<option value="5x2-rotativa">Escala (5x2 Rotativa)</option>
+<option value="5x2-feminina">Escala1 (5x2 - Domingo/quinta ou segunda/sexta)</option>
+<option value="5x2-masculina">Escala2 (5x2 - Domingo/terça ou segunda/sexta)</option>
+<option value="12x36">Escala (12x36)</option>
+</select>
+<select id="filtroSetor" onchange="renderizarTudo()">
+<option value="">Todos os setores</option>
+</select>
+</div>
+<div class="table-wrap">
+<table>
+<thead id="cabecalhoEscala"></thead>
+<tbody id="corpoEscala"></tbody>
+</table>
+<div id="mensagemVazia" class="empty hidden">Nenhum funcionário cadastrado.</div>
+</div>
+<div class="legend">
+<span><i class="dot dot-work"></i> Trabalha / plantão</span>
+<span><i class="dot dot-rest"></i> Folga / descanso</span>
+<span><i class="dot dot-off"></i> Antes do início do ciclo</span>
+</div>
+<p class="hint">Na escala rotativa: uma semana com folga sábado e domingo, seguida de uma semana com folgas na quarta e quinta-feira. Cada semana do calendário contém cinco dias de trabalho e dois dias de folga. Confira a sequência entre semanas para evitar períodos excessivos de trabalho consecutivo.</p>
+</section>
+
+<section class="panel no-print">
+<h2>Funcionários cadastrados</h2>
+<div class="table-wrap">
+<table style="min-width:650px">
+<thead>
+<tr>
+<th>Funcionário</th><th>Setor</th><th>Escala</th><th>Horário</th><th>Início do ciclo</th><th>Ações</th>
+</tr>
+</thead>
+<tbody id="listaFuncionarios"></tbody>
+</table>
+<div id="mensagemListaVazia" class="empty">Nenhum funcionário cadastrado.</div>
+</div>
+<div class="actions">
+<button class="btn-light" onclick="exportarCSV()">Exportar funcionários (CSV)</button>
+<button class="btn-light" onclick="exportarBackup()">Baixar backup</button>
+<button class="btn-light" onclick="document.getElementById('arquivoBackup').click()">Restaurar backup</button>
+<input type="file" id="arquivoBackup" accept=".json,application/json" class="hidden" onchange="restaurarBackup(event)">
+</div>
+<p class="hint">Os dados são salvos no Google Sheets e sincronizados entre os computadores que usam esta mesma planilha. Faça backups regularmente.</p>
+</section>
+</main>
+<footer>Sistema de Escala Semanal · 5x2 fixa, rotativa, feminina, masculina e 12x36</footer>
+
+<script>
+"use strict";
+
+// COLE ABAIXO A URL /exec DA IMPLANTAÇÃO DO SEU APPS SCRIPT.
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyvaro7f14RYtGTyFrVjrxYHTY1OucOHmrWz-TrPNmE8yZgQWVfmJOhXfHtVTwbZA-9/exec";
+const DIAS=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
+const DIAS_CURTOS=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
+let funcionarios=[];
+let sincronizando=false;
+
+function mostrarConexao(mensagem,tipo=""){
+ const el=document.getElementById("statusConexao");
+ el.textContent=mensagem;
+ el.className=tipo;
+}
+
+function chamarAPI(acao,parametros={}){
+ return new Promise((resolve,reject)=>{
+  if(!URL_APPS_SCRIPT || URL_APPS_SCRIPT.includes("COLE_AQUI")){
+   reject(new Error("Configure a URL /exec do Apps Script no início do HTML."));
+   return;
+  }
+  const callback="escalaCallback_"+Date.now()+"_"+Math.floor(Math.random()*1000000);
+  const query=new URLSearchParams({acao,...parametros,callback});
+  const script=document.createElement("script");
+  let finalizado=false;
+  const limpar=()=>{
+   if(finalizado)return;
+   finalizado=true;
+   clearTimeout(temporizador);
+   script.remove();
+   try{delete window[callback]}catch(e){window[callback]=undefined}
+  };
+  const temporizador=setTimeout(()=>{
+   limpar();
+   reject(new Error("Tempo esgotado ao conectar. Confira a URL /exec e a implantação do Apps Script."));
+  },25000);
+  window[callback]=(resposta)=>{
+   limpar();
+   if(!resposta || resposta.sucesso!==true){
+    reject(new Error(resposta?.erro||"O Apps Script retornou um erro."));
+    return;
+   }
+   resolve(resposta.dados);
+  };
+  script.onerror=()=>{
+   limpar();
+   reject(new Error("Não foi possível acessar o Apps Script. Confira a URL /exec e a implantação como aplicativo da Web."));
+  };
+  script.src=URL_APPS_SCRIPT+"?"+query.toString();
+  document.head.appendChild(script);
+ });
+}
+
+async function carregarFuncionarios(){
+ if(sincronizando)return;
+ sincronizando=true;
+ mostrarConexao("Conectando ao Google Sheets...");
+ try{
+  await chamarAPI("teste");
+  let dados=await chamarAPI("listar");
+  if(!Array.isArray(dados))throw new Error("A resposta da ação listar não é uma lista de funcionários.");
+
+  // Migração única: se a planilha estiver vazia, oferece importar os dados
+  // antigos que ainda existam no localStorage desta mesma página/navegador.
+  if(dados.length===0){
+   try{
+    const antigos=JSON.parse(localStorage.getItem("sistemaEscalaSemanal_v2")||"[]");
+    if(Array.isArray(antigos)&&antigos.length&&confirm("A planilha está vazia, mas encontrei "+antigos.length+" funcionário(s) salvos anteriormente neste navegador. Deseja importá-los para o Google Sheets?")){
+     for(const antigo of antigos){
+      const migrado={...antigo,id:String(antigo.id||criarId())};
+      await chamarAPI("salvar",{funcionario:JSON.stringify(migrado)});
+     }
+     dados=await chamarAPI("listar");
+     alert("Dados antigos importados para o Google Sheets.");
+    }
+   }catch(migracaoErro){
+    console.error("Falha ao migrar dados antigos:",migracaoErro);
+   }
+  }
+
+  funcionarios=dados.map(f=>({
+   id:String(f.id||f.ID||""),
+   nome:String(f.nome||f.Nome||""),
+   setor:String(f.setor||f.Setor||"Não informado"),
+   escala:String(f.escala||f.TipoEscala||""),
+   horario: normalizarHorarioFront(f.horario || f.HorarioEntrada || ""),
+   horarioFim: normalizarHorarioFront(f.horarioFim || f.HorarioSaida || ""),
+   dataInicio:String(f.dataInicio||f.DataInicio||"").slice(0,10),
+   folgas:Array.isArray(f.folgas)?f.folgas.map(Number):interpretarFolgasFront(f.Folgas)
+  })).filter(f=>f.id && f.nome);
+  renderizarTudo();
+  mostrarConexao("Conectado ao Google Sheets · "+funcionarios.length+" funcionário(s) sincronizado(s).","ok");
+ }catch(erro){
+  mostrarConexao("Falha na conexão: "+erro.message,"erro");
+  console.error(erro);
+ }finally{
+  sincronizando=false;
+ }
+}
+
+function interpretarFolgasFront(valor){
+ try{
+  const parsed=Array.isArray(valor)?valor:JSON.parse(String(valor||"[]"));
+  return Array.isArray(parsed)?parsed.map(Number):[];
+ }catch(e){return []}
+}
+
+function dataLocal(data=new Date()){
+ return [data.getFullYear(),String(data.getMonth()+1).padStart(2,"0"),String(data.getDate()).padStart(2,"0")].join("-");
+}
+function lerData(valor){
+ const [ano,mes,dia]=valor.split("-").map(Number);
+ return new Date(ano,mes-1,dia,0,0,0,0);
+}
+function adicionarDias(data,quantidade){
+ const nova=new Date(data);
+ nova.setDate(nova.getDate()+quantidade);
+ return nova;
+}
+function formatarData(data){return data.toLocaleDateString("pt-BR")}
+function criarId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,9)}
+function escaparHTML(valor){
+ return String(valor??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+}
+function obterFolgasSelecionadas(){
+ return Array.from(document.querySelectorAll('input[name="folga"]:checked')).map(input=>Number(input.value));
+}
+
+function atualizarCamposEscala(){
+ const escala=document.getElementById("escala").value;
+ document.getElementById("campoFolgas").classList.toggle("hidden",escala!=="5x2");
+ document.getElementById("campoFim").classList.toggle("hidden",escala==="12x36");
+ document.getElementById("explicacaoEscala").textContent=
+ escala==="5x2"?"Selecione dois dias fixos de folga. Os outros cinco dias serão de trabalho.":
+ escala==="5x2-rotativa"?"Alterna: sábado e domingo de folga em uma semana; terça e sexta de folga na seguinte.":
+ escala==="5x2-feminina"?"Alterna: em uma semana, domingo e quinta de folga; na seguinte, segunda e sexta.":
+ escala==="5x2-masculina"?"Alterna: em uma semana, domingo e terça de folga; na seguinte, segunda e sexta.":
+ "O sistema calcula 12 horas de trabalho seguidas de 36 horas de descanso.";
+}
+document.getElementById("escala").addEventListener("change",atualizarCamposEscala);
+
+document.getElementById("formFuncionario").addEventListener("submit",async function(event){
+ event.preventDefault();
+ const id=document.getElementById("funcionarioId").value;
+ const nome=document.getElementById("nome").value.trim();
+ const setor=document.getElementById("setor").value.trim()||"Não informado";
+ const escala=document.getElementById("escala").value;
+ const horario=document.getElementById("horario").value;
+ const horarioFim=document.getElementById("horarioFim").value;
+ const dataInicio=document.getElementById("dataInicio").value;
+ const folgas=obterFolgasSelecionadas();
+
+ if(!nome||!horario||!dataInicio){alert("Preencha o nome, horário de entrada e data inicial.");return}
+ if(escala==="5x2"&&folgas.length!==2){alert("Na escala 5x2 fixa, selecione exatamente dois dias de folga.");return}
+ if(escala!=="12x36"&&!horarioFim){alert("Informe o horário de saída.");return}
+ if(escala!=="12x36"&&horarioFim===horario){alert("A entrada e a saída não podem ser iguais.");return}
+
+ const registro={id:id||criarId(),nome,setor,escala,horario,horarioFim:escala==="12x36"?"":horarioFim,dataInicio,folgas:escala==="5x2"?folgas:[]};
+ const btn=document.getElementById("btnSalvar");
+ btn.disabled=true;
+ const textoOriginal=btn.textContent;
+ btn.textContent="Salvando...";
+ try{
+  await chamarAPI("salvar",{funcionario:JSON.stringify(registro)});
+  await carregarFuncionarios();
+  cancelarEdicao();
+  renderizarTudo();
+  alert(id?"Funcionário atualizado com sucesso no Google Sheets!":"Funcionário cadastrado com sucesso no Google Sheets!");
+ }catch(erro){
+  mostrarConexao("Erro ao salvar: "+erro.message,"erro");
+  alert("Não foi possível salvar no Google Sheets.\\n\\n"+erro.message);
+
+ }finally{
+  btn.disabled=false;
+  btn.textContent=textoOriginal;
+ }
+});
+
+function editarFuncionario(id){
+ const f=funcionarios.find(item=>item.id===id);
+ if(!f)return;
+
+ document.getElementById("funcionarioId").value=f.id;
+ document.getElementById("nome").value=f.nome;
+ document.getElementById("setor").value=f.setor==="Não informado"?"":f.setor;
+ document.getElementById("escala").value=f.escala;
+ document.getElementById("horario").value=f.horario;
+ document.getElementById("horarioFim").value=f.horarioFim||"17:00";
+ document.getElementById("dataInicio").value=f.dataInicio;
+
+ document.querySelectorAll('input[name="folga"]').forEach(input=>{
+  input.checked=(f.folgas||[]).includes(Number(input.value));
+ });
+
+ document.getElementById("tituloFormulario").textContent="Editar funcionário";
+ document.getElementById("btnSalvar").textContent="Salvar alterações";
+ document.getElementById("btnCancelar").classList.remove("hidden");
+ atualizarCamposEscala();
+ document.getElementById("painelCadastro").scrollIntoView({behavior:"smooth"});
+}
+
+function cancelarEdicao(){
+ document.getElementById("formFuncionario").reset();
+ document.getElementById("funcionarioId").value="";
+ document.getElementById("escala").value="5x2";
+ document.getElementById("horario").value="08:00";
+ document.getElementById("horarioFim").value="17:00";
+ document.getElementById("dataInicio").value=dataLocal();
+
+ document.querySelectorAll('input[name="folga"]').forEach(input=>input.checked=false);
+ document.getElementById("tituloFormulario").textContent="Cadastrar funcionário";
+ document.getElementById("btnSalvar").textContent="Salvar funcionário";
+ document.getElementById("btnCancelar").classList.add("hidden");
+ atualizarCamposEscala();
+}
+
+async function excluirFuncionario(id){
+ const f=funcionarios.find(item=>item.id===id);
+ if(!f)return;
+ if(!confirm(`Deseja excluir o funcionário ${f.nome} do Google Sheets?`))return;
+ try{
+  await chamarAPI("excluir",{id});
+  await carregarFuncionarios();
+  renderizarTudo();
+  alert("Funcionário excluído com sucesso.");
+ }catch(erro){
+  mostrarConexao("Erro ao excluir: "+erro.message,"erro");
+  alert("Não foi possível excluir no Google Sheets.\n\n"+erro.message);
+ }
+}
+
+function obterSemana(){
+ const valor=document.getElementById("dataReferencia").value||dataLocal();
+ const selecionada=lerData(valor);
+ const deslocamento=(selecionada.getDay()+6)%7;
+ return adicionarDias(selecionada,-deslocamento);
+}
+function mudarSemana(dias){
+ const valor=document.getElementById("dataReferencia").value||dataLocal();
+ document.getElementById("dataReferencia").value=dataLocal(adicionarDias(lerData(valor),dias));
+ renderizarTudo();
+}
+function irParaHoje(){
+ document.getElementById("dataReferencia").value=dataLocal();
+ renderizarTudo();
+}
+function inicioDoDia(data){
+ return new Date(data.getFullYear(),data.getMonth(),data.getDate(),0,0,0,0);
+}
+function segundaDaSemana(data){
+ const d=inicioDoDia(data),dia=d.getDay();
+ d.setDate(d.getDate()+(dia===0?-6:1-dia));
+ return d;
+}
+function diferencaDias(dataA,dataB){
+ return Math.round((Date.UTC(dataA.getFullYear(),dataA.getMonth(),dataA.getDate())-
+ Date.UTC(dataB.getFullYear(),dataB.getMonth(),dataB.getDate()))/86400000);
+}
+
+/*
+ * Escala feminina:
+ * Semana par: domingo e quarta de folga.
+ * Semana ímpar: quarta e quinta de folga.
+ */
+function obterFolgaFeminina(f, data) {
+    const inicio = lerData(f.dataInicio);
+    const semanaBase = segundaDaSemana(inicio);
+    const semanaAtual = segundaDaSemana(data);
+
+    const semana = Math.floor(
+        diferencaDias(semanaAtual, semanaBase) / 7
+    );
+
+    const dia = data.getDay();
+
+    if (semana < 0) return false;
+
+    // Semana par: folga domingo e quinta-feira
+    if (semana % 2 === 0) {
+        return dia === 0 || dia === 4;
+    }
+
+    // Semana ímpar: folga segunda e sexta-feira
+    return dia === 1 || dia === 5;
+}
+
+/*
+ * Escala masculina:
+ * Semana par: domingo e terça de folga.
+ * Semana ímpar: terça e quarta de folga.
+ */
+function obterFolgaMasculina(f, data) {
+    const inicio = lerData(f.dataInicio);
+    const semanaBase = segundaDaSemana(inicio);
+    const semanaAtual = segundaDaSemana(data);
+
+    const semana = Math.floor(
+        diferencaDias(semanaAtual, semanaBase) / 7
+    );
+
+    const dia = data.getDay();
+
+    if (semana < 0) return false;
+
+    // Semana par: folga domingo e terça-feira
+    if (semana % 2 === 0) {
+        return dia === 0 || dia === 2;
+    }
+
+    // Semana ímpar: folga segunda e sexta-feira
+    return dia === 1 || dia === 5;
+}
+
+/*
+ * ESCALA 5x2 ROTATIVA
+ *
+ * Semana par: folga sábado e domingo.
+ * Semana ímpar: folga terça e sexta.
+ *
+ * Cada semana do calendário tem cinco dias de trabalho e dois de folga.
+ * A fase do ciclo é calculada pela semana da data de início do funcionário.
+ *
+ * Observação: alternar um fim de semana inteiro com uma semana de folgas
+ * em dias úteis pode produzir mais de cinco dias consecutivos de trabalho
+ * na passagem entre algumas semanas. Para garantir também um limite de
+ * cinco dias consecutivos, seria necessário alterar a regra de alternância.
+ */
+
+function obterFolgaRotativa(f, data) {
+    const inicio = lerData(f.dataInicio);
+
+    const semanaBase = segundaDaSemana(inicio);
+    const semanaAtual = segundaDaSemana(data);
+
+    const semana = Math.floor(
+        diferencaDias(semanaAtual, semanaBase) / 7
+    );
+
+    const dia = data.getDay();
+
+    if (semana < 0) return false;
+
+    // Semana par: folga sábado e domingo
+    if (semana % 2 === 0) {
+        return dia === 6 || dia === 0;
+    }
+
+    // Semana ímpar: folga quarta e quinta-feira
+    return dia === 3 || dia === 4;
+}
+
+
+function statusFuncionarioNoDia(f,data){
+ const inicioCadastro=lerData(f.dataInicio);
+ const inicioDia=inicioDoDia(data);
+ const fimDia=adicionarDias(inicioDia,1);
+
+ if(inicioDia<inicioCadastro){
+  return{tipo:"off",titulo:"Fora do ciclo",detalhe:"—"};
+ }
+
+ if(["5x2","5x2-rotativa","5x2-feminina","5x2-masculina"].includes(f.escala)){
+  let folga=false;
+
+  if(f.escala==="5x2-feminina")folga=obterFolgaFeminina(f,data);
+  else if(f.escala==="5x2-masculina")folga=obterFolgaMasculina(f,data);
+  else if(f.escala==="5x2-rotativa")folga=obterFolgaRotativa(f,inicioDia);
+  else folga=(f.folgas||[]).includes(data.getDay());
+
+  if(folga){
+   const detalhes={
+    "5x2-feminina":"Escala1 5x2",
+    "5x2-masculina":"Escala2 5x2",
+    "5x2-rotativa":"Rotativa",
+    "5x2":"Fixa"
+   };
+   return{tipo:"rest",titulo:"Folga",detalhe:detalhes[f.escala]};
+  }
+
+  return{
+   tipo:"work",
+   titulo:"Trabalha",
+   detalhe: `das ${normalizarHorarioFront(f.horario)} às ${normalizarHorarioFront(f.horarioFim) || "—"}`
+  };
+ }
+
+ const [hora,minuto]=f.horario.split(":").map(Number);
+ const inicioCiclo=lerData(f.dataInicio);
+ inicioCiclo.setHours(hora,minuto,0,0);
+
+ const duracaoPlantao=12*3600000;
+ const duracaoCiclo=48*3600000;
+ const diferenca=inicioDia.getTime()-inicioCiclo.getTime();
+ const indice=Math.floor(diferenca/duracaoCiclo);
+
+ for(let i=indice-1;i<=indice+1;i++){
+  const inicioPlantao=inicioCiclo.getTime()+i*duracaoCiclo;
+  const fimPlantao=inicioPlantao+duracaoPlantao;
+
+  if(inicioPlantao<fimDia.getTime()&&fimPlantao>inicioDia.getTime()){
+   const comeco=new Date(inicioPlantao);
+   const fim=new Date(fimPlantao);
+   const fmt=d=>d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+   return{tipo:"work",titulo:"Plantão 12h",detalhe:`${fmt(comeco)}–${fmt(fim)}`};
+  }
+ }
+
+ return{tipo:"rest",titulo:"Descanso",detalhe:"36h de ciclo"};
+}
+
+function classeStatus(tipo){
+ if(tipo==="work")return"status-work";
+ if(tipo==="rest")return"status-rest";
+ return"status-off";
+}
+
+function obterFuncionariosFiltrados(){
+ const busca=document.getElementById("busca").value.trim().toLowerCase();
+ const escala=document.getElementById("filtroEscala").value;
+ const setor=document.getElementById("filtroSetor").value;
+
+ return funcionarios
+  .filter(f=>!busca||f.nome.toLowerCase().includes(busca)||(f.setor||"").toLowerCase().includes(busca))
+  .filter(f=>!escala||f.escala===escala)
+  .filter(f=>!setor||f.setor===setor)
+  .sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
+}
+
+function renderizarCabecalho(segunda){
+ let html="<tr><th>Funcionário / setor</th>";
+ for(let i=0;i<7;i++){
+  const data=adicionarDias(segunda,i);
+  html+=`<th>${DIAS_CURTOS[data.getDay()]}<br>${formatarData(data)}</th>`;
+ }
+ html+='<th class="no-print">Ações</th></tr>';
+ document.getElementById("cabecalhoEscala").innerHTML=html;
+}
+
+function renderizarEscala(){
+ const segunda=obterSemana();
+ const domingo=adicionarDias(segunda,6);
+
+ document.getElementById("periodoSemana").textContent=
+ `Período: ${formatarData(segunda)} a ${formatarData(domingo)}`;
+
+ renderizarCabecalho(segunda);
+
+ const lista=obterFuncionariosFiltrados();
+ const corpo=document.getElementById("corpoEscala");
+ const mensagem=document.getElementById("mensagemVazia");
+
+ if(!lista.length){
+  corpo.innerHTML="";
+  mensagem.classList.remove("hidden");
+  return;
+ }
+
+ mensagem.classList.add("hidden");
+
+ corpo.innerHTML=lista.map(f=>{
+  let linha=`<tr><td><span class="employee-name">${escaparHTML(f.nome)}</span><span class="employee-detail">${escaparHTML(f.setor)} · ${escaparHTML(nomeEscala(f.escala))}</span></td>`;
+
+  for(let i=0;i<7;i++){
+   const data=adicionarDias(segunda,i);
+   const status=statusFuncionarioNoDia(f,data);
+   linha+=`<td><span class="status ${classeStatus(status.tipo)}">${escaparHTML(status.titulo)}${status.detalhe?`<br>${escaparHTML(status.detalhe)}`:""}</span></td>`;
+  }
+
+  linha+=`<td class="no-print employee-actions"><button class="btn-light small-btn" onclick="editarFuncionario('${escaparHTML(f.id)}')">Editar</button><button class="btn-danger small-btn" onclick="excluirFuncionario('${escaparHTML(f.id)}')">Excluir</button></td></tr>`;
+  return linha;
+ }).join("");
+}
+
+function nomeEscala(escala){
+ return({
+  "5x2":"Escala (5x2 fixa)",
+  "5x2-rotativa":"Escala (5x2 rotativa)",
+  "5x2-feminina":"Escala1 (5x2)",
+  "5x2-masculina":"Escala2 (5x2)",
+  "12x36":"Escala (12x36)"
+ })[escala]||escala;
+}
+
+function renderizarListaFuncionarios(){
+ const corpo=document.getElementById("listaFuncionarios");
+ const vazio=document.getElementById("mensagemListaVazia");
+ const lista=[...funcionarios].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
+
+ vazio.classList.toggle("hidden",lista.length>0);
+
+ corpo.innerHTML=lista.map(f=>`
+ <tr>
+ <td>${escaparHTML(f.nome)}</td>
+ <td>${escaparHTML(f.setor)}</td>
+ <td>${escaparHTML(nomeEscala(f.escala))}</td>
+ <td>${escaparHTML(f.horario)}${f.escala==="12x36"?" · 12h":"–"+escaparHTML(f.horarioFim||"—")}</td>
+ <td>${formatarData(lerData(f.dataInicio))}</td>
+ <td>
+ <button class="btn-light small-btn" onclick="editarFuncionario('${escaparHTML(f.id)}')">Editar</button>
+ <button class="btn-danger small-btn" onclick="excluirFuncionario('${escaparHTML(f.id)}')">Excluir</button>
+ </td>
+ </tr>`).join("");
+}
+
+function renderizarFiltrosSetor(){
+ const select=document.getElementById("filtroSetor");
+ const valorAtual=select.value;
+ const setores=[...new Set(funcionarios.map(f=>f.setor))]
+  .filter(Boolean)
+  .sort((a,b)=>a.localeCompare(b,"pt-BR"));
+
+ select.innerHTML='<option value="">Todos os setores</option>'+
+  setores.map(s=>`<option value="${escaparHTML(s)}">${escaparHTML(s)}</option>`).join("");
+
+ if(setores.includes(valorAtual))select.value=valorAtual;
+}
+
+function renderizarIndicadores(){
+ const hoje=new Date();
+ const trabalhando=funcionarios.filter(f=>statusFuncionarioNoDia(f,hoje).tipo==="work").length;
+
+ document.getElementById("totalFuncionarios").textContent=funcionarios.length;
+ document.getElementById("total5x2").textContent=funcionarios.filter(f=>
+  ["5x2","5x2-rotativa","5x2-feminina","5x2-masculina"].includes(f.escala)
+ ).length;
+ document.getElementById("total1236").textContent=funcionarios.filter(f=>f.escala==="12x36").length;
+ document.getElementById("totalHoje").textContent=trabalhando;
+}
+
+function normalizarHorarioFront(valor) {
+    if (valor === null || valor === undefined || valor === "") return "";
+
+    const texto = String(valor).trim();
+    const correspondencia = texto.match(/(?:^|\s)(\d{1,2}):(\d{2})(?::\d{2})?(?=\s|$)/);
+
+    if (correspondencia) {
+        return correspondencia[1].padStart(2, "0") + ":" + correspondencia[2];
+    }
+
+    return texto;
+}
+
+function renderizarTudo(){
+ renderizarFiltrosSetor();
+ renderizarEscala();
+ renderizarListaFuncionarios();
+ renderizarIndicadores();
+}
+
+function exportarCSV(){
+ if(!funcionarios.length){
+  alert("Não há funcionários para exportar.");
+  return;
+ }
+
+ const linhas=[["Nome","Setor","Escala","Entrada","Saída","Data inicial","Folgas"]];
+
+ funcionarios.forEach(f=>linhas.push([
+  f.nome,
+  f.setor,
+  nomeEscala(f.escala),
+  f.horario,
+  f.horarioFim||"",
+  f.dataInicio,
+  f.escala==="5x2"?(f.folgas||[]).map(d=>DIAS[d]).join(", "):
+  f.escala==="5x2-rotativa"?"Alterna: sábado/domingo; quarta/quinta":
+  f.escala==="5x2-feminina"?"Semana par: domingo e quinta; semana ímpar: segunda e sexta":
+  f.escala==="5x2-masculina"?"Semana par: domingo e terça; semana ímpar: segunda e sexta":
+  "Ciclo 12x36"
+ ]));
+
+ const csv="\uFEFF"+linhas.map(linha=>
+  linha.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(";")
+ ).join("\r\n");
+
+ baixarArquivo(csv,"funcionarios_escala.csv","text/csv;charset=utf-8;");
+}
+
+function baixarArquivo(conteudo,nome,tipo){
+ const blob=new Blob([conteudo],{type:tipo});
+ const url=URL.createObjectURL(blob);
+ const link=document.createElement("a");
+ link.href=url;
+ link.download=nome;
+ document.body.appendChild(link);
+ link.click();
+ link.remove();
+ setTimeout(()=>URL.revokeObjectURL(url),1000);
+}
+
+function exportarBackup(){
+ baixarArquivo(JSON.stringify(funcionarios,null,2),"backup_escala.json","application/json");
+}
+
+async function restaurarBackup(event){
+ const arquivo=event.target.files[0];
+ if(!arquivo)return;
+ const leitor=new FileReader();
+ leitor.onload=async function(){
+  try{
+   const dados=JSON.parse(leitor.result);
+   if(!Array.isArray(dados))throw new Error("O arquivo não contém uma lista.");
+   const validos=dados.every(f=>f&&typeof f.nome==="string"&&typeof f.setor==="string"&&
+    ["5x2","5x2-rotativa","5x2-feminina","5x2-masculina","12x36"].includes(f.escala)&&
+    typeof f.horario==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(f.dataInicio)&&
+    (f.escala!=="5x2"||(Array.isArray(f.folgas)&&f.folgas.length===2&&f.folgas.every(d=>Number.isInteger(d)&&d>=0&&d<=6))));
+   if(!validos)throw new Error("Existem funcionários com dados inválidos no backup.");
+   if(!confirm("Restaurar o backup no Google Sheets? Os funcionários do backup serão cadastrados/atualizados e os atuais que não estiverem no backup serão excluídos."))return;
+   mostrarConexao("Restaurando backup no Google Sheets...");
+   const atuais=await chamarAPI("listar");
+   const preparados=dados.map(f=>({...f,id:String(f.id||criarId())}));
+   for(const f of preparados){
+    await chamarAPI("salvar",{funcionario:JSON.stringify(f)});
+   }
+   const idsNovos=new Set(preparados.map(f=>String(f.id)));
+   for(const f of (Array.isArray(atuais)?atuais:[])){
+    const id=String(f.id||f.ID||"");
+    if(id&&!idsNovos.has(id))await chamarAPI("excluir",{id});
+   }
+   await carregarFuncionarios();
+   cancelarEdicao();
+   renderizarTudo();
+   alert("Backup restaurado no Google Sheets com sucesso!");
+  }catch(erro){
+   mostrarConexao("Erro ao restaurar backup: "+erro.message,"erro");
+   alert("Não foi possível concluir a restauração. Confira a mensagem de conexão.\n\n"+erro.message);
+   try{await carregarFuncionarios()}catch(e){}
+  }finally{event.target.value=""}
+ };
+ leitor.readAsText(arquivo);
+}
+
+document.getElementById("dataReferencia").addEventListener("change",renderizarTudo);
+document.getElementById("dataReferencia").value=dataLocal();
+document.getElementById("dataInicio").value=dataLocal();
+atualizarCamposEscala();
+renderizarTudo();
+carregarFuncionarios();
+</script>
+</body>
+</html>
