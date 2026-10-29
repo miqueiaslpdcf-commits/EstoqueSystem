@@ -19,7 +19,10 @@
     <button class="btn livraria" onclick="entrarSistema('livraria')">📚 Livraria</button>
 </div>
 
-
+<!-- Botão Gestão (abaixo de Café e Livraria) -->
+<div class="botoes botao-gestao">
+    <button class="btn gestao" onclick="entrarSistema('gestao')">📊 Gestão</button>
+</div>
 
 <script src="script.js"></script>
 <script>
@@ -29,6 +32,9 @@ function entrarSistema(tipo){
     }
     if(tipo === "livraria"){
         window.location.href = "livraria/livraria.html";
+    }
+    if(tipo === "gestao"){
+        window.location.href = "gestao/gestao.html";
     }
 }
 </script>
