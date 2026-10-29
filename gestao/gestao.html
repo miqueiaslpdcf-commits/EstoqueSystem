@@ -115,7 +115,62 @@ body::before {
 
 /* CORES DOS CARDS */
 .escala {
-    background: linear-gradient(135deg, #8e2de2, #5b1fa8);
+    position: relative;
+    width: 210px;
+    height: 170px;
+    overflow: hidden;
+    background: linear-gradient(145deg, #c9a27a 0%, #a97c52 55%, #8a6038 100%);
+    border: 1px solid rgba(255, 233, 196, 0.45);
+    box-shadow:
+        0 12px 28px rgba(0,0,0,0.45),
+        inset 0 1px 0 rgba(255, 240, 215, 0.45);
+}
+
+/* brilho suave no topo do card */
+.escala::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 55%;
+    background: linear-gradient(180deg, rgba(255,255,255,0.16), rgba(255,255,255,0));
+    pointer-events: none;
+}
+
+.escala:hover {
+    box-shadow:
+        0 20px 42px rgba(0,0,0,0.55),
+        0 0 22px rgba(201, 162, 122, 0.45),
+        inset 0 1px 0 rgba(255, 240, 215, 0.55);
+}
+
+/* ícone dentro de um círculo */
+.card .icone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 62px;
+    height: 62px;
+    font-size: 32px;
+    border-radius: 50%;
+    background: rgba(60, 35, 15, 0.25);
+    border: 1px solid rgba(255, 233, 196, 0.5);
+}
+
+.escala span {
+    margin-top: 12px;
+    font-size: 17px;
+    letter-spacing: 1px;
+    color: #fff8ec;
+    text-shadow: 0 1px 3px rgba(60, 35, 15, 0.5);
+}
+
+.card small {
+    margin-top: 4px;
+    font-size: 12px;
+    font-weight: normal;
+    color: rgba(255, 248, 236, 0.85);
 }
 </style>
 </head>
@@ -137,8 +192,9 @@ body::before {
     <div class="cards">
 
         <div class="card escala" onclick="window.location.href='escala.html'">
-            🗓️
+            <div class="icone">🗓️</div>
             <span>Escala</span>
+            <small>Gerenciar Escala da Equipe</small>
         </div>
 
         <!-- adicione novos cards aqui -->
