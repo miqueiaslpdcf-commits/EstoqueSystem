@@ -1,99 +1,151 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GESTÃO - MSYSTEM</title>
-    <style>
-        * {
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GESTÃO</title>
 
-        body {
-            margin: 0;
-            padding: 40px 20px;
-            font-family: Arial, Helvetica, sans-serif;
-            background-color: #f4f1ec;
-            color: #333;
-            text-align: center;
-        }
+<style>
+body {
+    font-family: Arial;
 
-        h1 {
-            margin-bottom: 8px;
-        }
+    /* MESMO FUNDO DO HOME */
+    background: url("../assets/home.jpg") center/cover no-repeat fixed;
 
-        p.subtitulo {
-            margin-top: 0;
-            margin-bottom: 40px;
-            color: #777;
-        }
+    margin: 0;
+    padding: 20px;
 
-        .cards {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 20px;
-        }
+    color: #fff;
+    position: relative;
+    z-index: 1; /* GARANTE QUE FICA ACIMA */
+}
 
-        .card {
-            width: 240px;
-            padding: 30px 20px;
-            background-color: #fff;
-            border-radius: 14px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            text-decoration: none;
-            color: inherit;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
+/* SOBREPOSIÇÃO ESCURA (igual do home) */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: -1;
+}
 
-        .card:hover {
-            transform: translateY(-6px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
+/* MENU SUPERIOR */
+.topo {
+    display: flex;
+    gap: 10px;
+    padding: 15px;
+    backdrop-filter: blur(6px);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
 
-        .card .icone {
-            font-size: 48px;
-            margin-bottom: 12px;
-        }
+.btn-menu {
+    background: rgba(255,255,255,0.1);
+    border: none;
+    padding: 10px 20px;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: 0.3s;
+    display: inline-block;
+}
 
-        .card h2 {
-            margin: 0 0 8px;
-            font-size: 20px;
-        }
+.btn-menu:hover {
+    background: rgba(255,255,255,0.3);
+}
 
-        .card span {
-            font-size: 14px;
-            color: #777;
-        }
+/* TELA INICIAL */
+#inicio {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    margin-top: 60px;
+    padding: 20px;
+}
 
-        .voltar {
-            display: inline-block;
-            margin-top: 40px;
-            color: #555;
-            text-decoration: none;
-        }
+/* GRID DOS CARDS */
+.cards {
+    display: flex;
+    gap: 25px;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 40px;
+}
 
-        .voltar:hover {
-            text-decoration: underline;
-        }
-    </style>
+/* SOMENTE COMPUTADOR */
+@media (min-width: 769px) {
+    .cards {
+        width: 1000px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* CARD BASE */
+.card {
+    width: 180px;
+    height: 140px;
+    border-radius: 16px;
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: 0.3s;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+/* TEXTO */
+.card span {
+    margin-top: 10px;
+    font-size: 16px;
+}
+
+/* HOVER */
+.card:hover {
+    transform: translateY(-8px) scale(1.05);
+    box-shadow: 0 18px 40px rgba(0,0,0,0.5);
+}
+
+/* CORES DOS CARDS */
+.escala {
+    background: linear-gradient(135deg, #8e2de2, #5b1fa8);
+}
+</style>
 </head>
+
 <body>
 
-<h1>📊 GESTÃO</h1>
-<p class="subtitulo">Escolha o que deseja acessar</p>
+<!-- MENU SUPERIOR -->
+<nav class="topo">
+    <a href="../index.html" class="btn-menu">🏠 Início</a>
+</nav>
 
-<div class="cards">
-    <!-- Card Escala -->
-    <a class="card" href="escala.html">
-        <div class="icone">🗓️</div>
-        <h2>Escala</h2>
-        <span>Gerenciar escala da equipe</span>
-    </a>
+
+<!-- TELA INICIAL -->
+<div id="inicio">
+
+    <h1>📊 BEM-VINDO À GESTÃO</h1>
+    <p>ESCOLHA UMA DAS OPÇÕES:</p>
+
+    <div class="cards">
+
+        <div class="card escala" onclick="window.location.href='escala.html'">
+            🗓️
+            <span>Escala</span>
+        </div>
+
+        <!-- adicione novos cards aqui -->
+
+    </div>
+
 </div>
-
-<a class="voltar" href="../home.html">← Voltar</a>
 
 </body>
 </html>
