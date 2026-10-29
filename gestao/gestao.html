@@ -5,6 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>GESTÃO</title>
 
+<!-- PROTEÇÃO: sem login, volta para a tela de login -->
+<script>
+if (sessionStorage.getItem("gestaoAuth") !== "1") {
+    window.location.replace("login.html");
+}
+</script>
+
 <style>
 body {
     font-family: Arial;
@@ -53,6 +60,11 @@ body::before {
 
 .btn-menu:hover {
     background: rgba(255,255,255,0.3);
+}
+
+/* BOTÃO SAIR (fica à direita) */
+.btn-sair {
+    margin-left: auto;
 }
 
 /* TELA INICIAL */
@@ -180,6 +192,7 @@ body::before {
 <!-- MENU SUPERIOR -->
 <nav class="topo">
     <a href="../index.html" class="btn-menu">🏠 Início</a>
+    <a href="#" class="btn-menu btn-sair" onclick="sair(); return false;">🚪 Sair</a>
 </nav>
 
 
@@ -194,7 +207,7 @@ body::before {
         <div class="card escala" onclick="window.location.href='escala.html'">
             <div class="icone">🗓️</div>
             <span>Escala</span>
-            <small>Gerenciar Escala da Equipe</small>
+            <small>Equipe e turnos</small>
         </div>
 
         <!-- adicione novos cards aqui -->
@@ -202,6 +215,13 @@ body::before {
     </div>
 
 </div>
+
+<script>
+function sair(){
+    sessionStorage.removeItem("gestaoAuth");
+    window.location.href = "login.html";
+}
+</script>
 
 </body>
 </html>
