@@ -22,8 +22,21 @@ header p{margin:0;color:#f0dfe1;font-size:14px}#statusConexao{margin-top:10px;fo
 .form-grid{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));gap:14px}
 .field{display:flex;flex-direction:column;gap:7px}
 .field label{font-size:13px;font-weight:bold}
-input,select{width:100%;padding:11px;border:1px solid #d9cec6;border-radius:7px;font-size:14px;background:white;color:var(--texto);min-width:0}
-input:focus,select:focus{outline:2px solid #c79a4566;border-color:var(--dourado)}
+input,select,textarea{width:100%;padding:11px;border:1px solid #d9cec6;border-radius:7px;font-size:14px;background:white;color:var(--texto);min-width:0}
+input:focus,select:focus,textarea:focus{outline:2px solid #c79a4566;border-color:var(--dourado)}
+textarea{border:1px solid #d9cec6;border-radius:7px;font:14px Arial;resize:vertical;min-height:90px}
+.modal-ponto{display:none;position:fixed;inset:0;background:#0009;z-index:9999;align-items:center;justify-content:center;padding:18px}
+.modal-ponto.aberto{display:flex}
+.caixa-ponto{width:100%;max-width:620px;max-height:92vh;overflow:auto;background:white;border-radius:12px;padding:22px;box-shadow:0 18px 50px #0004}
+.caixa-ponto h2{margin:0 0 8px;color:var(--bordo)}
+.ponto-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
+.ponto-previsto{padding:10px;background:#f4ede7;border-radius:7px;font-size:13px;line-height:1.5}
+.ponto-acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.ponto-acoes button{flex:1}
+.ponto-resumo{display:block;margin-top:4px;font-size:10px;font-weight:normal;line-height:1.35}
+.status-absence{background:#f8dfe0;color:#922b32}
+.status-late{background:#fff0d2;color:#80540b}
+@media(max-width:520px){.ponto-grid{grid-template-columns:1fr}.caixa-ponto{padding:16px}}
 button{border:0;border-radius:7px;padding:11px 15px;font-size:13px;font-weight:bold;cursor:pointer;transition:.15s}
 button:hover{filter:brightness(.94)}
 .btn-primary{background:var(--bordo);color:white}
@@ -50,6 +63,7 @@ tbody tr:hover{background:#fffdfb}
 .status-work{background:#dff1e4;color:#21673a}
 .status-rest{background:#f9e5e6;color:#96333c}
 .status-off{background:#eee9f5;color:#624782}
+.status-course{background:#fff0c9;color:#76510a}
 .small-btn{padding:7px 9px;margin:2px;font-size:11px}
 .filters{display:grid;grid-template-columns:2fr 1fr 1fr;gap:12px;margin-bottom:16px}
 .legend{display:flex;gap:15px;flex-wrap:wrap;margin-top:15px;font-size:12px;color:#655751}
@@ -68,6 +82,23 @@ footer{text-align:center;color:#8b7c74;font-size:12px;padding:10px 20px 25px}
 @media(max-width:520px){.container{padding:12px}header{padding:20px 15px}header h1{font-size:21px}.cards{gap:8px}.card{padding:14px}.card strong{font-size:23px}.form-grid,.filters{grid-template-columns:1fr}.panel{padding:14px}}
 @media print{
 @page{size:landscape;margin:8mm}
+body.print-relatorio > header,body.print-relatorio > footer,body.print-relatorio > .modal-ponto{display:none!important}
+body.print-relatorio main{display:block!important;max-width:none;padding:0!important}
+body.print-relatorio main > *{display:none!important}
+body.print-relatorio main > #relatorioMensalFuncionario{display:block!important;border:0!important;padding:0!important;margin:0!important}
+body.print-relatorio #relatorioMensalFuncionario .no-print{display:none!important}
+body.print-relatorio #relatorioMensalFuncionario table{min-width:0;width:100%;font-size:10px}
+body.print-relatorio #relatorioMensalFuncionario th,body.print-relatorio #relatorioMensalFuncionario td{padding:5px 4px;font-size:10px}
+body.print-relatorio #relatorioMensalFuncionario .relatorio-controles{display:none!important}
+body.print-relatorio #relatorioMensalFuncionario .relatorio-resumo{grid-template-columns:repeat(4,1fr)!important}
+body.print-relatorio #relatorioMensalFuncionario .relatorio-resumo .card{border:1px solid #bbb!important;padding:8px!important}
+body.print-relatorio #relatorioMensalFuncionario .relatorio-resumo .card strong{font-size:16px!important}
+body.print-relatorio #relatorioMensalFuncionario .relatorio-tabela{overflow:visible!important;border:1px solid #ccc!important}
+body.print-relatorio #relatorioMensalFuncionario .relatorio-funcionario{break-before:page;page-break-before:always}
+body.print-relatorio #relatorioMensalFuncionario .relatorio-funcionario:first-child{break-before:auto;page-break-before:auto}
+body.print-relatorio #relatorioMensalFuncionario .relatorio-funcionario .relatorio-resumo{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+body.print-relatorio #relatorioMensalFuncionario .relatorio-funcionario h1{color:#7b1e2b!important}
+
 body{background:white}
 header{background:white!important;color:black!important;border-bottom:2px solid black;padding:8px 0}
 header p{color:black}
@@ -81,6 +112,56 @@ table{min-width:0}
 th,td{padding:5px 3px;font-size:9px}
 .status{min-width:0;padding:4px;font-size:9px}
 tr{break-inside:avoid}
+
+
+/* Impressão exclusiva da escala do dia */
+@media print {
+  body.print-dia > header,
+  body.print-dia > footer,
+  body.print-dia > .modal-ponto {
+    display: none !important;
+  }
+
+  body.print-dia main {
+    display: block !important;
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  body.print-dia main > * {
+    display: none !important;
+  }
+
+  body.print-dia main > #impressaoEscalaDia {
+    display: block !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  body.print-dia #impressaoEscalaDia table {
+    width: 100% !important;
+    min-width: 0 !important;
+    border-collapse: collapse !important;
+  }
+
+  body.print-dia #impressaoEscalaDia th,
+  body.print-dia #impressaoEscalaDia td {
+    border: 1px solid #999 !important;
+    padding: 7px !important;
+    font-size: 11px !important;
+    color: #000 !important;
+  }
+
+  body.print-dia #impressaoEscalaDia th {
+    background: #eee !important;
+  }
+
+  body.print-dia #impressaoEscalaDia tr {
+    break-inside: avoid;
+  }
+}
+
 }
 </style>
 </head>
@@ -119,6 +200,7 @@ tr{break-inside:avoid}
 <option value="5x2-rotativa">Escala (5x2 rotativa)</option>
 <option value="5x2-feminina">Escala1 (5x2)</option>
 <option value="5x2-masculina">Escala2 (5x2)</option>
+<option value="jovem-aprendiz">Jovem Aprendiz (4x3 + curso)</option>
 <option value="12x36">Escala (12x36)</option>
 </select>
 </div>
@@ -169,6 +251,9 @@ tr{break-inside:avoid}
 <button class="btn-gold" onclick="irParaHoje()">Hoje</button>
 <button class="btn-primary" onclick="window.print()">Imprimir escala</button>
 </div>
+<label for="dataImpressaoDia" style="font-size:13px;font-weight:bold">Data da escala:</label>
+<input type="date" id="dataImpressaoDia" aria-label="Data da escala para imprimir" style="width:auto">
+<button class="btn-gold" type="button" onclick="imprimirEscalaDia()">Imprimir escala do dia</button>
 </div>
 <p id="periodoSemana" class="hint"></p>
 <div class="filters no-print">
@@ -179,6 +264,7 @@ tr{break-inside:avoid}
 <option value="5x2-rotativa">Escala (5x2 Rotativa)</option>
 <option value="5x2-feminina">Escala1 (5x2 - Domingo/quinta ou segunda/sexta)</option>
 <option value="5x2-masculina">Escala2 (5x2 - Domingo/terça ou segunda/sexta)</option>
+<option value="jovem-aprendiz">Jovem Aprendiz (4x3 + curso)</option>
 <option value="12x36">Escala (12x36)</option>
 </select>
 <select id="filtroSetor" onchange="renderizarTudo()">
@@ -196,8 +282,31 @@ tr{break-inside:avoid}
 <span><i class="dot dot-work"></i> Trabalha / plantão</span>
 <span><i class="dot dot-rest"></i> Folga / descanso</span>
 <span><i class="dot dot-off"></i> Antes do início do ciclo</span>
+<span><i class="dot" style="background:#e4b94e"></i> Curso</span>
 </div>
 <p class="hint">Na escala rotativa: uma semana com folga sábado e domingo, seguida de uma semana com folgas na quarta e quinta-feira. Cada semana do calendário contém cinco dias de trabalho e dois dias de folga. Confira a sequência entre semanas para evitar períodos excessivos de trabalho consecutivo.</p>
+</section>
+
+<section class="panel" id="relatorioMensalFuncionario">
+ <div class="relatorio-controles no-print">
+  <h2>Relatório mensal de funcionários</h2>
+  <p class="hint">Selecione um ou vários funcionários e o mês. O sistema vai gerar um relatório por funcionário; na impressão, cada relatório começa em uma nova página.</p>
+  <div class="form-grid">
+   <div class="field" style="grid-column:span 3">
+    <label>Funcionários</label>
+    <div class="actions" style="margin:0 0 8px">
+     <button class="btn-light" type="button" onclick="selecionarTodosRelatorio(true)">Selecionar todos</button>
+     <button class="btn-light" type="button" onclick="selecionarTodosRelatorio(false)">Limpar seleção</button>
+    </div>
+    <div id="listaFuncionariosRelatorio" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:8px;max-height:230px;overflow:auto;border:1px solid var(--borda);border-radius:8px;padding:12px">
+     <span class="hint">Carregando funcionários...</span>
+    </div>
+   </div>
+   <div class="field"><label for="mesRelatorio">Mês do relatório</label><input type="month" id="mesRelatorio" required></div>
+  </div>
+  <div class="actions"><button class="btn-primary" id="btnGerarRelatorio" type="button" onclick="gerarRelatorioMensal()">Gerar relatórios</button><button class="btn-gold" id="btnImprimirRelatorio" type="button" onclick="imprimirRelatorioMensal()" disabled>Imprimir relatórios selecionados</button></div>
+ </div>
+ <div id="conteudoRelatorioMensal"><div class="empty">Selecione um funcionário e um mês, depois clique em “Gerar relatório”.</div></div>
 </section>
 
 <section class="panel no-print">
@@ -222,16 +331,50 @@ tr{break-inside:avoid}
 <p class="hint">Os dados são salvos no Google Sheets e sincronizados entre os computadores que usam esta mesma planilha. Faça backups regularmente.</p>
 </section>
 </main>
-<footer>Sistema de Escala Semanal · 5x2 fixa, rotativa, feminina, masculina e 12x36</footer>
+
+<div id="modalPonto" class="modal-ponto no-print" role="dialog" aria-modal="true" aria-labelledby="tituloModalPonto">
+ <div class="caixa-ponto">
+  <h2 id="tituloModalPonto">Registro de ponto</h2>
+  <p id="subtituloPonto" class="hint"></p>
+  <div id="horarioPrevistoPonto" class="ponto-previsto"></div>
+  <form id="formPonto">
+   <input type="hidden" id="pontoFuncionarioId">
+   <input type="hidden" id="pontoData">
+   <div class="ponto-grid">
+    <div class="field"><label for="pontoOcorrencia">Ocorrência *</label>
+     <select id="pontoOcorrencia" required>
+      <option value="normal">Presença normal</option>
+      <option value="atraso">Atraso</option>
+      <option value="entrada_autorizada">Entrada autorizada mais tarde</option>
+      <option value="saida_antecipada">Saída antecipada</option>
+      <option value="falta">Faltou</option>
+      <option value="outro">Outra ocorrência</option>
+     </select>
+    </div>
+    <div class="field"><label for="pontoEntrada">Horário real de entrada</label><input type="time" id="pontoEntrada"></div>
+    <div class="field"><label for="pontoSaida">Horário real de saída</label><input type="time" id="pontoSaida"></div>
+    <div class="field" style="grid-column:1/-1"><label for="pontoJustificativa">Justificativa / observações</label><textarea id="pontoJustificativa" maxlength="1000" placeholder="Ex.: avisou previamente que chegaria às 10h."></textarea></div>
+   </div>
+   <p class="hint" id="dicaJustificativa">Informe os horários reais. Para atraso, falta ou exceção, registre a justificativa.</p>
+   <div class="ponto-acoes">
+    <button class="btn-primary" type="submit" id="btnSalvarPonto">Salvar registro</button>
+    <button class="btn-light" type="button" onclick="fecharModalPonto()">Cancelar</button>
+   </div>
+  </form>
+ </div>
+</div>
+
+<footer>Sistema de Escala Semanal · sincronização otimizada com Google Sheets</footer>
 
 <script>
 "use strict";
 
 // COLE ABAIXO A URL /exec DA IMPLANTAÇÃO DO SEU APPS SCRIPT.
-const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyvaro7f14RYtGTyFrVjrxYHTY1OucOHmrWz-TrPNmE8yZgQWVfmJOhXfHtVTwbZA-9/exec";
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyJ4X0Z7XXjSU0MhxUot6Ke7qiZzVX3klAXnBBiHL0SI99B09BA6TDw5rJWRFm3NvBL/exec";
 const DIAS=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
 const DIAS_CURTOS=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 let funcionarios=[];
+let registrosPonto=[];
 let sincronizando=false;
 
 function mostrarConexao(mensagem,tipo=""){
@@ -283,7 +426,6 @@ async function carregarFuncionarios(){
  sincronizando=true;
  mostrarConexao("Conectando ao Google Sheets...");
  try{
-  await chamarAPI("teste");
   let dados=await chamarAPI("listar");
   if(!Array.isArray(dados))throw new Error("A resposta da ação listar não é uma lista de funcionários.");
 
@@ -310,11 +452,12 @@ async function carregarFuncionarios(){
    nome:String(f.nome||f.Nome||""),
    setor:String(f.setor||f.Setor||"Não informado"),
    escala:String(f.escala||f.TipoEscala||""),
-   horario: normalizarHorarioFront(f.horario || f.HorarioEntrada || ""),
-   horarioFim: normalizarHorarioFront(f.horarioFim || f.HorarioSaida || ""),
-   dataInicio:String(f.dataInicio||f.DataInicio||"").slice(0,10),
+   horario:normalizarHorarioFront(f.horario||f.HorarioEntrada||""),
+   horarioFim:normalizarHorarioFront(f.horarioFim||f.HorarioSaida||""),
+   dataInicio:normalizarDataFront(f.dataInicio||f.DataInicio||""),
    folgas:Array.isArray(f.folgas)?f.folgas.map(Number):interpretarFolgasFront(f.Folgas)
   })).filter(f=>f.id && f.nome);
+  await carregarRegistrosPonto(false);
   renderizarTudo();
   mostrarConexao("Conectado ao Google Sheets · "+funcionarios.length+" funcionário(s) sincronizado(s).","ok");
  }catch(erro){
@@ -332,11 +475,50 @@ function interpretarFolgasFront(valor){
  }catch(e){return []}
 }
 
+function normalizarHorarioFront(valor){
+ if(valor===null||valor===undefined||valor==="")return "";
+ const texto=String(valor).trim();
+ // Aceita HH:mm e datas antigas serializadas pelo Google Sheets.
+ const correspondencia=texto.match(/(?:^|\s)(\d{1,2}):(\d{2})(?::\d{2})?(?=\s|$)/);
+ if(correspondencia){
+  return correspondencia[1].padStart(2,"0")+":"+correspondencia[2];
+ }
+ return texto;
+}
+
+// Normaliza datas vindas do Apps Script/Sheets sem cortar strings como
+// "Thu Oct 29 2026 ..." (que antes viravam "Thu Oct 29" e geravam Invalid Date).
+function normalizarDataFront(valor){
+ if(valor===null||valor===undefined||valor==="")return "";
+ if(valor instanceof Date && !Number.isNaN(valor.getTime()))return dataLocal(valor);
+ const texto=String(valor).trim();
+ if(!texto)return "";
+ let m=texto.match(/^(\d{4})-(\d{1,2})-(\d{1,2})(?:$|T|\s)/);
+ if(m){
+  const a=Number(m[1]),mes=Number(m[2]),d=Number(m[3]);
+  const teste=new Date(a,mes-1,d);
+  if(teste.getFullYear()===a&&teste.getMonth()===mes-1&&teste.getDate()===d)
+   return `${a}-${String(mes).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+ }
+ m=texto.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})$/);
+ if(m){
+  const d=Number(m[1]),mes=Number(m[2]),a=Number(m[3]);
+  const teste=new Date(a,mes-1,d);
+  if(teste.getFullYear()===a&&teste.getMonth()===mes-1&&teste.getDate()===d)
+   return `${a}-${String(mes).padStart(2,"0")}-${String(d).padStart(2,"0")}`;
+ }
+ const tentativa=new Date(texto);
+ if(!Number.isNaN(tentativa.getTime()))return dataLocal(tentativa);
+ return "";
+}
+
 function dataLocal(data=new Date()){
  return [data.getFullYear(),String(data.getMonth()+1).padStart(2,"0"),String(data.getDate()).padStart(2,"0")].join("-");
 }
 function lerData(valor){
- const [ano,mes,dia]=valor.split("-").map(Number);
+ const normalizada=normalizarDataFront(valor);
+ if(!normalizada)return new Date(NaN);
+ const [ano,mes,dia]=normalizada.split("-").map(Number);
  return new Date(ano,mes-1,dia,0,0,0,0);
 }
 function adicionarDias(data,quantidade){
@@ -344,7 +526,7 @@ function adicionarDias(data,quantidade){
  nova.setDate(nova.getDate()+quantidade);
  return nova;
 }
-function formatarData(data){return data.toLocaleDateString("pt-BR")}
+function formatarData(data){return data instanceof Date&&!Number.isNaN(data.getTime())?data.toLocaleDateString("pt-BR"):"Data não informada"}
 function criarId(){return Date.now().toString(36)+Math.random().toString(36).slice(2,9)}
 function escaparHTML(valor){
  return String(valor??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -359,9 +541,10 @@ function atualizarCamposEscala(){
  document.getElementById("campoFim").classList.toggle("hidden",escala==="12x36");
  document.getElementById("explicacaoEscala").textContent=
  escala==="5x2"?"Selecione dois dias fixos de folga. Os outros cinco dias serão de trabalho.":
- escala==="5x2-rotativa"?"Alterna: sábado e domingo de folga em uma semana; terça e sexta de folga na seguinte.":
+ escala==="5x2-rotativa"?"Alterna: sábado e domingo de folga em uma semana; quarta e quinta de folga na seguinte.":
  escala==="5x2-feminina"?"Alterna: em uma semana, domingo e quinta de folga; na seguinte, segunda e sexta.":
  escala==="5x2-masculina"?"Alterna: em uma semana, domingo e terça de folga; na seguinte, segunda e sexta.":
+escala==="jovem-aprendiz"?"Trabalha de segunda a quinta; sexta-feira é curso; sábado e domingo são folga.":
  "O sistema calcula 12 horas de trabalho seguidas de 36 horas de descanso.";
 }
 document.getElementById("escala").addEventListener("change",atualizarCamposEscala);
@@ -376,7 +559,6 @@ document.getElementById("formFuncionario").addEventListener("submit",async funct
  const horarioFim=document.getElementById("horarioFim").value;
  const dataInicio=document.getElementById("dataInicio").value;
  const folgas=obterFolgasSelecionadas();
-
  if(!nome||!horario||!dataInicio){alert("Preencha o nome, horário de entrada e data inicial.");return}
  if(escala==="5x2"&&folgas.length!==2){alert("Na escala 5x2 fixa, selecione exatamente dois dias de folga.");return}
  if(escala!=="12x36"&&!horarioFim){alert("Informe o horário de saída.");return}
@@ -384,23 +566,34 @@ document.getElementById("formFuncionario").addEventListener("submit",async funct
 
  const registro={id:id||criarId(),nome,setor,escala,horario,horarioFim:escala==="12x36"?"":horarioFim,dataInicio,folgas:escala==="5x2"?folgas:[]};
  const btn=document.getElementById("btnSalvar");
- btn.disabled=true;
  const textoOriginal=btn.textContent;
- btn.textContent="Salvando...";
+ const indiceAnterior=funcionarios.findIndex(f=>String(f.id)===String(registro.id));
+ const anterior=indiceAnterior>=0?{...funcionarios[indiceAnterior]}:null;
+ // Atualiza a tela imediatamente; a gravação ocorre em paralelo logo em seguida.
+ if(indiceAnterior>=0) funcionarios[indiceAnterior]=registro;
+ else funcionarios.push(registro);
+ renderizarTudo();
+ mostrarConexao("Alteração exibida · enviando para o Google Sheets...");
+ btn.disabled=true;btn.textContent="Enviando...";
  try{
-  await chamarAPI("salvar",{funcionario:JSON.stringify(registro)});
-  await carregarFuncionarios();
-  cancelarEdicao();
+  const resposta=await chamarAPI("salvar",{funcionario:JSON.stringify(registro)});
+  if(resposta&&resposta.id)registro.id=String(resposta.id);
+  const idx=funcionarios.findIndex(f=>String(f.id)===String(registro.id));
+  if(idx>=0)funcionarios[idx]={...registro};
   renderizarTudo();
-  alert(id?"Funcionário atualizado com sucesso no Google Sheets!":"Funcionário cadastrado com sucesso no Google Sheets!");
+  mostrarConexao("Salvo no Google Sheets · "+funcionarios.length+" funcionário(s).","ok");
+  cancelarEdicao();
  }catch(erro){
-  mostrarConexao("Erro ao salvar: "+erro.message,"erro");
-  alert("Não foi possível salvar no Google Sheets.\\n\\n"+erro.message);
-
- }finally{
-  btn.disabled=false;
-  btn.textContent=textoOriginal;
- }
+  // Se o servidor falhar, desfaz a atualização otimista para não indicar um dado inexistente.
+  funcionarios=funcionarios.filter(f=>String(f.id)!==String(registro.id));
+  if(anterior){
+   const pos=Math.min(Math.max(indiceAnterior,0),funcionarios.length);
+   funcionarios.splice(pos,0,anterior);
+  }
+  renderizarTudo();
+  mostrarConexao("Falha ao salvar no Google Sheets: "+erro.message,"erro");
+  alert("A alteração apareceu na tela, mas não foi confirmada pelo Google Sheets e foi desfeita.\n\n"+erro.message);
+ }finally{btn.disabled=false;btn.textContent=textoOriginal;}
 });
 
 function editarFuncionario(id){
@@ -442,34 +635,49 @@ function cancelarEdicao(){
 }
 
 async function excluirFuncionario(id){
- const f=funcionarios.find(item=>item.id===id);
- if(!f)return;
+ const indice=funcionarios.findIndex(item=>String(item.id)===String(id));
+ if(indice<0)return;
+ const f=funcionarios[indice];
  if(!confirm(`Deseja excluir o funcionário ${f.nome} do Google Sheets?`))return;
+ // Remove da interface imediatamente e restaura se o servidor recusar.
+ funcionarios.splice(indice,1);
+ renderizarTudo();
+ mostrarConexao("Funcionário removido da tela · sincronizando...");
  try{
   await chamarAPI("excluir",{id});
-  await carregarFuncionarios();
-  renderizarTudo();
-  alert("Funcionário excluído com sucesso.");
+  mostrarConexao("Exclusão confirmada no Google Sheets · "+funcionarios.length+" funcionário(s).","ok");
  }catch(erro){
-  mostrarConexao("Erro ao excluir: "+erro.message,"erro");
-  alert("Não foi possível excluir no Google Sheets.\n\n"+erro.message);
+  funcionarios.splice(Math.min(indice,funcionarios.length),0,f);
+  renderizarTudo();
+  mostrarConexao("Falha ao excluir no Google Sheets: "+erro.message,"erro");
+  alert("A exclusão não foi confirmada pelo Google Sheets; o funcionário foi restaurado na tela.\n\n"+erro.message);
  }
 }
 
 function obterSemana(){
+ // Sempre calcula a segunda-feira da semana selecionada.
+ // Isso evita que a navegação dependa do dia específico escolhido no calendário.
  const valor=document.getElementById("dataReferencia").value||dataLocal();
- const selecionada=lerData(valor);
- const deslocamento=(selecionada.getDay()+6)%7;
- return adicionarDias(selecionada,-deslocamento);
+ return segundaDaSemana(lerData(valor));
 }
-function mudarSemana(dias){
- const valor=document.getElementById("dataReferencia").value||dataLocal();
- document.getElementById("dataReferencia").value=dataLocal(adicionarDias(lerData(valor),dias));
+async function atualizarSemanaSelecionada(){
+ // Renderiza imediatamente as datas da nova semana e depois atualiza os pontos.
+ renderizarTudo();
+ await carregarRegistrosPonto();
  renderizarTudo();
 }
-function irParaHoje(){
+async function mudarSemana(dias){
+ // Avança/retrocede a partir da segunda-feira atualmente exibida.
+ // Assim, cada clique muda exatamente uma semana inteira.
+ const segundaAtual=obterSemana();
+ const novaSegunda=adicionarDias(segundaAtual,Number(dias));
+ document.getElementById("dataReferencia").value=dataLocal(novaSegunda);
+ await atualizarSemanaSelecionada();
+}
+async function irParaHoje(){
  document.getElementById("dataReferencia").value=dataLocal();
- renderizarTudo();
+document.getElementById("dataImpressaoDia").value=dataLocal();
+ await atualizarSemanaSelecionada();
 }
 function inicioDoDia(data){
  return new Date(data.getFullYear(),data.getMonth(),data.getDate(),0,0,0,0);
@@ -485,9 +693,9 @@ function diferencaDias(dataA,dataB){
 }
 
 /*
- * Escala feminina:
- * Semana par: domingo e quarta de folga.
- * Semana ímpar: quarta e quinta de folga.
+ * ESCALA FEMININA 5x2:
+ * Semana par: folgas no domingo e na quinta-feira.
+ * Semana ímpar: folgas na segunda-feira e na sexta-feira.
  */
 function obterFolgaFeminina(f, data) {
     const inicio = lerData(f.dataInicio);
@@ -512,9 +720,9 @@ function obterFolgaFeminina(f, data) {
 }
 
 /*
- * Escala masculina:
- * Semana par: domingo e terça de folga.
- * Semana ímpar: terça e quarta de folga.
+ * ESCALA MASCULINA 5x2:
+ * Semana par: folgas no domingo e na terça-feira.
+ * Semana ímpar: folgas na segunda-feira e na sexta-feira.
  */
 function obterFolgaMasculina(f, data) {
     const inicio = lerData(f.dataInicio);
@@ -539,18 +747,15 @@ function obterFolgaMasculina(f, data) {
 }
 
 /*
- * ESCALA 5x2 ROTATIVA
+ * ESCALA 5x2 ROTATIVA:
+ * Semana par: folgas no sábado e no domingo.
+ * Semana ímpar: folgas na quarta-feira e na quinta-feira.
  *
- * Semana par: folga sábado e domingo.
- * Semana ímpar: folga terça e sexta.
- *
- * Cada semana do calendário tem cinco dias de trabalho e dois de folga.
  * A fase do ciclo é calculada pela semana da data de início do funcionário.
- *
- * Observação: alternar um fim de semana inteiro com uma semana de folgas
- * em dias úteis pode produzir mais de cinco dias consecutivos de trabalho
- * na passagem entre algumas semanas. Para garantir também um limite de
- * cinco dias consecutivos, seria necessário alterar a regra de alternância.
+ * A alternância mantém duas folgas por semana, mas pode gerar mais de cinco
+ * dias consecutivos de trabalho na transição entre semanas. Isso é inerente
+ * a esta regra de alternância; não existe bloqueio de folgas por quantidade
+ * de funcionários no fim de semana.
  */
 
 function obterFolgaRotativa(f, data) {
@@ -586,6 +791,17 @@ function statusFuncionarioNoDia(f,data){
   return{tipo:"off",titulo:"Fora do ciclo",detalhe:"—"};
  }
 
+ if(f.escala==="jovem-aprendiz"){
+  const dia=data.getDay();
+  if(dia===5){
+   return{tipo:"course",titulo:"Curso",detalhe:`das ${normalizarHorarioFront(f.horario)} às ${normalizarHorarioFront(f.horarioFim)||"—"}`};
+  }
+  if(dia===0||dia===6){
+   return{tipo:"rest",titulo:"Folga",detalhe:dia===0?"Domingo":"Sábado"};
+  }
+  return{tipo:"work",titulo:"Trabalha",detalhe:`das ${normalizarHorarioFront(f.horario)} às ${normalizarHorarioFront(f.horarioFim)||"—"}`};
+ }
+
  if(["5x2","5x2-rotativa","5x2-feminina","5x2-masculina"].includes(f.escala)){
   let folga=false;
 
@@ -607,7 +823,7 @@ function statusFuncionarioNoDia(f,data){
   return{
    tipo:"work",
    titulo:"Trabalha",
-   detalhe: `das ${normalizarHorarioFront(f.horario)} às ${normalizarHorarioFront(f.horarioFim) || "—"}`
+   detalhe:`das ${normalizarHorarioFront(f.horario)} às ${normalizarHorarioFront(f.horarioFim)||"—"}`
   };
  }
 
@@ -637,6 +853,7 @@ function statusFuncionarioNoDia(f,data){
 
 function classeStatus(tipo){
  if(tipo==="work")return"status-work";
+ if(tipo==="course")return"status-course";
  if(tipo==="rest")return"status-rest";
  return"status-off";
 }
@@ -689,8 +906,27 @@ function renderizarEscala(){
 
   for(let i=0;i<7;i++){
    const data=adicionarDias(segunda,i);
+   const dataISO=dataLocal(data);
    const status=statusFuncionarioNoDia(f,data);
-   linha+=`<td><span class="status ${classeStatus(status.tipo)}">${escaparHTML(status.titulo)}${status.detalhe?`<br>${escaparHTML(status.detalhe)}`:""}</span></td>`;
+   const ponto=obterRegistroPonto(f.id,dataISO);
+   let titulo=status.titulo;
+   let detalhe=status.detalhe||"";
+   let classe=classeStatus(status.tipo);
+   if(status.tipo==="work" && ponto){
+    if(ponto.ocorrencia==="falta") { titulo="FALTOU"; classe="status-absence"; }
+    else if(ponto.ocorrencia==="atraso") { titulo="Atraso"; classe="status-late"; }
+    else if(ponto.ocorrencia==="entrada_autorizada") { titulo="Entrada autorizada"; classe="status-work"; }
+    else if(ponto.ocorrencia==="saida_antecipada") { titulo="Saída antecipada"; classe="status-late"; }
+    else if(ponto.ocorrencia==="outro") { titulo="Ocorrência"; classe="status-late"; }
+    else { titulo="Presente"; classe="status-work"; }
+    const horarios=[];
+    if(ponto.entradaReal)horarios.push("Entrada "+ponto.entradaReal);
+    if(ponto.saidaReal)horarios.push("Saída "+ponto.saidaReal);
+    detalhe=horarios.join(" · ");
+    if(ponto.justificativa)detalhe+=(detalhe?" · ":"")+"Just.: "+ponto.justificativa;
+   }
+   const botaoPonto=status.tipo==="work" ? `<button class="btn-light small-btn" onclick="abrirModalPonto('${escaparHTML(f.id)}','${dataISO}')">${ponto?"Editar ponto":"Ponto"}</button>` : "";
+   linha+=`<td><span class="status ${classe}">${escaparHTML(titulo)}${detalhe?`<span class="ponto-resumo">${escaparHTML(detalhe)}</span>`:""}</span>${botaoPonto}</td>`;
   }
 
   linha+=`<td class="no-print employee-actions"><button class="btn-light small-btn" onclick="editarFuncionario('${escaparHTML(f.id)}')">Editar</button><button class="btn-danger small-btn" onclick="excluirFuncionario('${escaparHTML(f.id)}')">Excluir</button></td></tr>`;
@@ -698,12 +934,101 @@ function renderizarEscala(){
  }).join("");
 }
 
+
+function obterRegistroPonto(funcionarioId,data){
+ return registrosPonto.find(p=>String(p.funcionarioId)===String(funcionarioId)&&String(p.data)===String(data));
+}
+
+async function carregarRegistrosPonto(mostrarErro=true){
+ try{
+  const segunda=obterSemana();
+  const domingo=adicionarDias(segunda,6);
+  const dados=await chamarAPI("listarPonto",{dataInicio:dataLocal(segunda),dataFim:dataLocal(domingo)});
+  registrosPonto=Array.isArray(dados)?dados:[];
+ }catch(erro){
+  if(mostrarErro){
+   console.error("Falha ao carregar registros de ponto:",erro);
+   alert("Não foi possível carregar os registros de ponto. Confira a conexão com o Google Sheets.\n\n"+erro.message);
+  }
+ }
+}
+
+function abrirModalPonto(funcionarioId,data){
+ const f=funcionarios.find(item=>String(item.id)===String(funcionarioId));
+ if(!f)return;
+ const dataObj=lerData(data);
+ const status=statusFuncionarioNoDia(f,dataObj);
+ if(status.tipo!=="work"){
+  alert("O registro de ponto só pode ser feito em um dia previsto de trabalho.");
+  return;
+ }
+ const registro=obterRegistroPonto(funcionarioId,data)||{};
+ document.getElementById("pontoFuncionarioId").value=f.id;
+ document.getElementById("pontoData").value=data;
+ document.getElementById("subtituloPonto").textContent=f.nome+" · "+formatarData(dataObj);
+ document.getElementById("horarioPrevistoPonto").innerHTML="<strong>Horário previsto:</strong> "+escaparHTML(status.detalhe||"conforme escala");
+ document.getElementById("pontoOcorrencia").value=registro.ocorrencia||"normal";
+ document.getElementById("pontoEntrada").value=registro.entradaReal||"";
+ document.getElementById("pontoSaida").value=registro.saidaReal||"";
+ document.getElementById("pontoJustificativa").value=registro.justificativa||"";
+ document.getElementById("btnSalvarPonto").textContent=registro.id?"Salvar alterações":"Salvar registro";
+ atualizarCamposOcorrenciaPonto();
+ document.getElementById("modalPonto").classList.add("aberto");
+}
+
+function fecharModalPonto(){document.getElementById("modalPonto").classList.remove("aberto");}
+
+function atualizarCamposOcorrenciaPonto(){
+ const falta=document.getElementById("pontoOcorrencia").value==="falta";
+ document.getElementById("pontoEntrada").disabled=falta;
+ document.getElementById("pontoSaida").disabled=falta;
+ if(falta){document.getElementById("pontoEntrada").value="";document.getElementById("pontoSaida").value="";}
+ document.getElementById("dicaJustificativa").textContent=falta?"Registre a justificativa da falta. Os horários reais não são necessários.":"Informe os horários reais. Para atraso, falta ou exceção, registre a justificativa.";
+}
+
+document.getElementById("pontoOcorrencia").addEventListener("change",atualizarCamposOcorrenciaPonto);
+document.getElementById("formPonto").addEventListener("submit",async function(event){
+ event.preventDefault();
+ const funcionarioId=document.getElementById("pontoFuncionarioId").value;
+ const data=document.getElementById("pontoData").value;
+ const f=funcionarios.find(item=>String(item.id)===String(funcionarioId));
+ if(!f)return;
+ const ocorrencia=document.getElementById("pontoOcorrencia").value;
+ const entradaReal=document.getElementById("pontoEntrada").value;
+ const saidaReal=document.getElementById("pontoSaida").value;
+ const justificativa=document.getElementById("pontoJustificativa").value.trim();
+ if(ocorrencia!=="falta"&&(!entradaReal||!saidaReal)){alert("Informe o horário real de entrada e de saída.");return;}
+ if(ocorrencia!=="normal"&&!justificativa){alert("Informe uma justificativa para esta ocorrência.");return;}
+ const anterior=obterRegistroPonto(funcionarioId,data);
+ const registro={id:anterior?.id||("pendente-"+criarId()),funcionarioId:f.id,nome:f.nome,setor:f.setor,data,horarioPrevisto:statusFuncionarioNoDia(f,lerData(data)).detalhe||"",entradaReal:ocorrencia==="falta"?"":entradaReal,saidaReal:ocorrencia==="falta"?"":saidaReal,ocorrencia,justificativa};
+ const botao=document.getElementById("btnSalvarPonto");
+ botao.disabled=true;botao.textContent="Enviando...";
+ // O registro aparece imediatamente na escala antes de esperar pelo Apps Script.
+ registrosPonto=registrosPonto.filter(p=>!(String(p.funcionarioId)===String(funcionarioId)&&String(p.data)===String(data)));
+ registrosPonto.push(registro);
+ renderizarTudo();
+ fecharModalPonto();
+ mostrarConexao("Ponto exibido · enviando para o Google Sheets...");
+ try{
+  const resposta=await chamarAPI("salvarPonto",{registro:JSON.stringify(registro)});
+  if(resposta&&resposta.id)registro.id=String(resposta.id);
+  mostrarConexao("Registro de ponto salvo no Google Sheets.","ok");
+ }catch(erro){
+  registrosPonto=registrosPonto.filter(p=>!(String(p.funcionarioId)===String(funcionarioId)&&String(p.data)===String(data)));
+  if(anterior)registrosPonto.push(anterior);
+  renderizarTudo();
+  mostrarConexao("Falha ao salvar o ponto: "+erro.message,"erro");
+  alert("O ponto apareceu na tela, mas não foi confirmado pelo Google Sheets. A alteração foi desfeita.\n\n"+erro.message);
+ }finally{botao.disabled=false;botao.textContent="Salvar registro";}
+});
+
 function nomeEscala(escala){
  return({
   "5x2":"Escala (5x2 fixa)",
   "5x2-rotativa":"Escala (5x2 rotativa)",
   "5x2-feminina":"Escala1 (5x2)",
   "5x2-masculina":"Escala2 (5x2)",
+  "jovem-aprendiz":"Jovem Aprendiz (4x3 + curso)",
   "12x36":"Escala (12x36)"
  })[escala]||escala;
 }
@@ -721,7 +1046,7 @@ function renderizarListaFuncionarios(){
  <td>${escaparHTML(f.setor)}</td>
  <td>${escaparHTML(nomeEscala(f.escala))}</td>
  <td>${escaparHTML(f.horario)}${f.escala==="12x36"?" · 12h":"–"+escaparHTML(f.horarioFim||"—")}</td>
- <td>${formatarData(lerData(f.dataInicio))}</td>
+ <td>${escaparHTML(formatarData(lerData(f.dataInicio)))}</td>
  <td>
  <button class="btn-light small-btn" onclick="editarFuncionario('${escaparHTML(f.id)}')">Editar</button>
  <button class="btn-danger small-btn" onclick="excluirFuncionario('${escaparHTML(f.id)}')">Excluir</button>
@@ -754,24 +1079,190 @@ function renderizarIndicadores(){
  document.getElementById("totalHoje").textContent=trabalhando;
 }
 
-function normalizarHorarioFront(valor) {
-    if (valor === null || valor === undefined || valor === "") return "";
-
-    const texto = String(valor).trim();
-    const correspondencia = texto.match(/(?:^|\s)(\d{1,2}):(\d{2})(?::\d{2})?(?=\s|$)/);
-
-    if (correspondencia) {
-        return correspondencia[1].padStart(2, "0") + ":" + correspondencia[2];
-    }
-
-    return texto;
-}
-
 function renderizarTudo(){
  renderizarFiltrosSetor();
+ atualizarSelecaoRelatorio();
  renderizarEscala();
  renderizarListaFuncionarios();
  renderizarIndicadores();
+}
+
+
+function atualizarSelecaoRelatorio(){
+ const container=document.getElementById("listaFuncionariosRelatorio");
+ if(!container)return;
+ const selecionados=new Set(Array.from(container.querySelectorAll('input[name="funcionarioRelatorio"]:checked')).map(el=>String(el.value)));
+ const lista=[...funcionarios].sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
+ container.innerHTML=lista.length?lista.map(f=>`
+  <label style="display:flex;align-items:flex-start;gap:8px;font-size:13px;font-weight:normal;padding:5px;border-radius:5px">
+   <input type="checkbox" name="funcionarioRelatorio" value="${escaparHTML(f.id)}" style="width:auto;margin-top:2px" ${selecionados.has(String(f.id))?"checked":""}>
+   <span>${escaparHTML(f.nome)}<small style="display:block;color:#81736d;margin-top:3px">${escaparHTML(f.setor||"Não informado")}</small></span>
+  </label>`).join(""):'<span class="hint">Nenhum funcionário cadastrado.</span>';
+}
+function selecionarTodosRelatorio(marcar){
+ document.querySelectorAll('#listaFuncionariosRelatorio input[name="funcionarioRelatorio"]').forEach(el=>el.checked=marcar);
+}
+function textoOcorrenciaPonto(ponto){
+ if(!ponto)return "Sem registro de ponto";
+ const nomes={normal:"Presença normal",atraso:"Atraso",entrada_autorizada:"Entrada autorizada mais tarde",saida_antecipada:"Saída antecipada",falta:"Falta",outro:"Outra ocorrência"};
+ return nomes[ponto.ocorrencia]||ponto.ocorrencia||"Registrado";
+}
+async function gerarRelatorioMensal(){
+ const ids=Array.from(document.querySelectorAll('#listaFuncionariosRelatorio input[name="funcionarioRelatorio"]:checked')).map(el=>String(el.value));
+ const mes=document.getElementById("mesRelatorio").value;
+ if(!ids.length||!mes){alert("Selecione pelo menos um funcionário e o mês do relatório.");return;}
+ const selecionados=ids.map(id=>funcionarios.find(item=>String(item.id)===id)).filter(Boolean);
+ if(!selecionados.length){alert("Nenhum dos funcionários selecionados foi encontrado.");return;}
+ const [ano,mesNum]=mes.split("-").map(Number), primeiro=new Date(ano,mesNum-1,1), ultimo=new Date(ano,mesNum,0);
+ const btn=document.getElementById("btnGerarRelatorio");btn.disabled=true;btn.textContent="Carregando...";
+ document.getElementById("btnImprimirRelatorio").disabled=true;
+ try{
+  const resposta=await chamarAPI("listarPonto",{dataInicio:dataLocal(primeiro),dataFim:dataLocal(ultimo)});
+  const registrosMes=Array.isArray(resposta)?resposta:[];
+  const nomeMes=primeiro.toLocaleDateString("pt-BR",{month:"long",year:"numeric"});
+  const geradoEm=new Date().toLocaleString("pt-BR");
+  const relatorios=selecionados.map(f=>{
+   const dias=[];let diasTrabalho=0,diasFolga=0,presencas=0,faltas=0,atrasos=0,semRegistro=0;
+   for(let dia=1;dia<=ultimo.getDate();dia++){
+    const data=new Date(ano,mesNum-1,dia),iso=dataLocal(data),status=statusFuncionarioNoDia(f,data);
+    const ponto=registrosMes.find(p=>String(p.funcionarioId)===String(f.id)&&String(p.data).slice(0,10)===iso);
+    let situacao=status.titulo,entrada=ponto?.entradaReal||"—",saida=ponto?.saidaReal||"—",ocorrencia="—",justificativa=ponto?.justificativa||"—";
+    if(status.tipo==="work"){
+     diasTrabalho++;
+     if(!ponto){situacao="Sem registro";semRegistro++;}
+     else{
+      ocorrencia=textoOcorrenciaPonto(ponto);
+      if(ponto.ocorrencia==="falta"){situacao="FALTA";faltas++;}
+      else if(ponto.ocorrencia==="atraso"){situacao="ATRASO";atrasos++;}
+      else{situacao=ponto.ocorrencia==="normal"?"Presente":ocorrencia;presencas++;}
+     }
+    }else if(status.tipo==="rest"){diasFolga++;}
+    dias.push(`<tr><td>${escaparHTML(formatarData(data))}</td><td>${escaparHTML(DIAS_CURTOS[data.getDay()])}</td><td>${escaparHTML(status.tipo==="work"?(status.detalhe||"Trabalho"):status.titulo)}</td><td>${escaparHTML(situacao)}</td><td>${escaparHTML(entrada)}</td><td>${escaparHTML(saida)}</td><td>${escaparHTML(ocorrencia)}</td><td>${escaparHTML(justificativa)}</td></tr>`);
+   }
+   return `<article class="relatorio-funcionario">
+    <h1 style="margin:0 0 6px;font-size:22px">Relatório mensal de funcionário</h1>
+    <p style="margin:0 0 14px">Mês: <strong>${escaparHTML(nomeMes.charAt(0).toUpperCase()+nomeMes.slice(1))}</strong></p>
+    <p style="margin:0 0 5px"><strong>Funcionário:</strong> ${escaparHTML(f.nome)}</p>
+    <p style="margin:0 0 5px"><strong>Setor:</strong> ${escaparHTML(f.setor||"Não informado")} &nbsp; <strong>Escala:</strong> ${escaparHTML(nomeEscala(f.escala))}</p>
+    <p style="margin:0 0 14px"><strong>Horário cadastrado:</strong> ${escaparHTML(f.horario||"—")}${f.escala==="12x36"?" (plantão de 12 horas)":" às "+escaparHTML(f.horarioFim||"—")}</p>
+    <div class="cards relatorio-resumo" style="grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
+     <div class="card"><span>Dias previstos de trabalho</span><strong>${diasTrabalho}</strong></div>
+     <div class="card"><span>Presenças registradas</span><strong>${presencas}</strong></div>
+     <div class="card"><span>Faltas registradas</span><strong>${faltas}</strong></div>
+     <div class="card"><span>Atrasos registrados</span><strong>${atrasos}</strong></div>
+    </div>
+    <p class="relatorio-observacao hint">Dias de folga: ${diasFolga} · Dias previstos sem registro de ponto: ${semRegistro}. “Sem registro” não significa falta; indica que não foi lançado ponto para aquele dia.</p>
+    <div class="table-wrap relatorio-tabela"><table style="min-width:100%"><thead><tr><th>Data</th><th>Dia</th><th>Escala prevista</th><th>Situação</th><th>Entrada real</th><th>Saída real</th><th>Ocorrência</th><th>Justificativa / observação</th></tr></thead><tbody>${dias.join("")}</tbody></table></div>
+    <p class="hint" style="margin-top:14px">Relatório gerado em ${escaparHTML(geradoEm)}.</p>
+   </article>`;
+  });
+  document.getElementById("conteudoRelatorioMensal").innerHTML=relatorios.join("");
+  document.getElementById("btnImprimirRelatorio").disabled=false;
+ }catch(erro){alert("Não foi possível gerar os relatórios mensais.\n\n"+erro.message);}
+ finally{btn.disabled=false;btn.textContent="Gerar relatórios";}
+}
+function imprimirRelatorioMensal(){
+ const conteudo=document.getElementById("conteudoRelatorioMensal");
+ if(!conteudo||!conteudo.querySelector(".relatorio-funcionario table tbody tr")){alert("Gere os relatórios antes de imprimir.");return;}
+ document.body.classList.add("print-relatorio");window.print();
+}
+window.addEventListener("afterprint",()=>document.body.classList.remove("print-relatorio"));
+
+
+function imprimirEscalaDia() {
+  if (document.body.classList.contains("print-dia")) return;
+
+  const campoData = document.getElementById("dataImpressaoDia");
+  if (!campoData || !campoData.value) {
+    alert("Selecione a data que deseja imprimir.");
+    return;
+  }
+
+  if (!funcionarios || funcionarios.length === 0) {
+    alert("Não há funcionários carregados para imprimir.");
+    return;
+  }
+
+  // Usa exatamente a data informada, sem depender da semana exibida.
+  const data = lerData(campoData.value);
+  if (Number.isNaN(data.getTime())) {
+    alert("A data informada é inválida.");
+    return;
+  }
+
+  const dataISO = dataLocal(data);
+  const nomeDia = DIAS[data.getDay()];
+
+  // Inclui somente funcionários cujo status é trabalho nessa data.
+  // Quem estiver de folga, descanso ou antes do início do ciclo não aparece.
+  const lista = funcionarios
+    .map(f => ({ funcionario: f, status: statusFuncionarioNoDia(f, data) }))
+    .filter(item => item.status.tipo === "work" || item.status.tipo === "course")
+    .sort((a, b) => a.funcionario.nome.localeCompare(b.funcionario.nome, "pt-BR"));
+
+  if (lista.length === 0) {
+    alert("Nenhum funcionário está escalado para trabalhar ou fazer curso em " + formatarData(data) + ".");
+    return;
+  }
+
+  const linhas = lista.map(({funcionario: f, status}) => {
+    const horario = status.tipo === "course" ? "CURSO · " + (status.detalhe || "horário não informado") : (status.detalhe || "Horário não informado");
+    return `
+      <tr>
+        <td>${escaparHTML(f.nome)}</td>
+        <td>${escaparHTML(f.setor || "Não informado")}</td>
+        <td>${escaparHTML(nomeEscala(f.escala))}</td>
+        <td>${escaparHTML(horario)}</td>
+        <td></td>
+      </tr>
+    `;
+  }).join("");
+
+  let area = document.getElementById("impressaoEscalaDia");
+  if (!area) {
+    area = document.createElement("section");
+    area.id = "impressaoEscalaDia";
+    area.className = "panel";
+    document.querySelector("main").appendChild(area);
+  }
+
+  area.innerHTML = `
+    <div style="text-align:center;margin-bottom:20px">
+      <h1 style="font-size:22px;margin:0 0 8px">ESCALA DE TRABALHO DO DIA</h1>
+      <p style="font-size:15px;margin:0 0 6px">
+        <strong>${escaparHTML(nomeDia)}, ${escaparHTML(formatarData(data))}</strong>
+      </p>
+      <p style="font-size:12px;margin:10px 0">
+        Total de funcionários escalados: <strong>${lista.length}</strong>
+      </p>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Funcionário</th>
+          <th>Setor</th>
+          <th>Escala</th>
+          <th>Horário de entrada e saída</th>
+          <th>Assinatura</th>
+        </tr>
+      </thead>
+      <tbody>${linhas}</tbody>
+    </table>
+
+    <p style="margin-top:24px;font-size:11px">
+      Responsável: ______________________________________
+    </p>
+  `;
+
+  function finalizarImpressao() {
+    document.body.classList.remove("print-dia");
+    window.removeEventListener("afterprint", finalizarImpressao);
+  }
+
+  window.addEventListener("afterprint", finalizarImpressao);
+  document.body.classList.add("print-dia");
+  window.print();
 }
 
 function exportarCSV(){
@@ -793,6 +1284,7 @@ function exportarCSV(){
   f.escala==="5x2-rotativa"?"Alterna: sábado/domingo; quarta/quinta":
   f.escala==="5x2-feminina"?"Semana par: domingo e quinta; semana ímpar: segunda e sexta":
   f.escala==="5x2-masculina"?"Semana par: domingo e terça; semana ímpar: segunda e sexta":
+  f.escala==="jovem-aprendiz"?"Trabalho: segunda a quinta; curso: sexta; folga: sábado e domingo":
   "Ciclo 12x36"
  ]));
 
@@ -828,7 +1320,7 @@ async function restaurarBackup(event){
    const dados=JSON.parse(leitor.result);
    if(!Array.isArray(dados))throw new Error("O arquivo não contém uma lista.");
    const validos=dados.every(f=>f&&typeof f.nome==="string"&&typeof f.setor==="string"&&
-    ["5x2","5x2-rotativa","5x2-feminina","5x2-masculina","12x36"].includes(f.escala)&&
+    ["5x2","5x2-rotativa","5x2-feminina","5x2-masculina","jovem-aprendiz","12x36"].includes(f.escala)&&
     typeof f.horario==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(f.dataInicio)&&
     (f.escala!=="5x2"||(Array.isArray(f.folgas)&&f.folgas.length===2&&f.folgas.every(d=>Number.isInteger(d)&&d>=0&&d<=6))));
    if(!validos)throw new Error("Existem funcionários com dados inválidos no backup.");
@@ -857,12 +1349,16 @@ async function restaurarBackup(event){
  leitor.readAsText(arquivo);
 }
 
-document.getElementById("dataReferencia").addEventListener("change",renderizarTudo);
+document.getElementById("dataReferencia").addEventListener("change",async()=>{await atualizarSemanaSelecionada();});
 document.getElementById("dataReferencia").value=dataLocal();
 document.getElementById("dataInicio").value=dataLocal();
+document.getElementById("mesRelatorio").value=dataLocal().slice(0,7);
+
+
 atualizarCamposEscala();
 renderizarTudo();
 carregarFuncionarios();
+
 </script>
 </body>
 </html>
