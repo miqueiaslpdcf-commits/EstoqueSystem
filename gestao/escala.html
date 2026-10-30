@@ -87,12 +87,60 @@ body.print-relatorio main{display:block!important;max-width:none;padding:0!impor
 body.print-relatorio main > *{display:none!important}
 body.print-relatorio main > #relatorioMensalFuncionario{display:block!important;border:0!important;padding:0!important;margin:0!important}
 body.print-relatorio #relatorioMensalFuncionario .no-print{display:none!important}
-body.print-relatorio #relatorioMensalFuncionario table{min-width:0;width:100%;font-size:10px}
-body.print-relatorio #relatorioMensalFuncionario th,body.print-relatorio #relatorioMensalFuncionario td{padding:5px 4px;font-size:10px}
-body.print-relatorio #relatorioMensalFuncionario .relatorio-controles{display:none!important}
-body.print-relatorio #relatorioMensalFuncionario .relatorio-resumo{grid-template-columns:repeat(4,1fr)!important}
-body.print-relatorio #relatorioMensalFuncionario .relatorio-resumo .card{border:1px solid #bbb!important;padding:8px!important}
-body.print-relatorio #relatorioMensalFuncionario .relatorio-resumo .card strong{font-size:16px!important}
+/* RELATÓRIO MENSAL - IMPRESSÃO COM LETRAS MAIORES */
+
+body.print-relatorio #relatorioMensalFuncionario table{
+    min-width:0!important;
+    width:100%!important;
+    font-size:11px!important;
+}
+
+body.print-relatorio #relatorioMensalFuncionario th,
+body.print-relatorio #relatorioMensalFuncionario td{
+    padding:7px 5px!important;
+    font-size:11px!important;
+    line-height:1.35!important;
+    color:#000!important;
+}
+
+body.print-relatorio #relatorioMensalFuncionario th{
+    font-weight:bold!important;
+}
+
+body.print-relatorio #relatorioMensalFuncionario .relatorio-controles{
+    display:none!important;
+}
+
+body.print-relatorio #relatorioMensalFuncionario .relatorio-resumo{
+    grid-template-columns:repeat(4,1fr)!important;
+}
+
+body.print-relatorio #relatorioMensalFuncionario .relatorio-resumo .card{
+    border:1px solid #999!important;
+    padding:10px!important;
+}
+
+body.print-relatorio #relatorioMensalFuncionario .relatorio-resumo .card span{
+    font-size:11px!important;
+    color:#000!important;
+}
+
+body.print-relatorio #relatorioMensalFuncionario .relatorio-resumo .card strong{
+    font-size:21px!important;
+}
+
+body.print-relatorio #relatorioMensalFuncionario .relatorio-funcionario h1{
+    font-size:25px!important;
+}
+
+body.print-relatorio #relatorioMensalFuncionario .relatorio-funcionario p{
+    font-size:12px!important;
+    line-height:1.5!important;
+}
+
+body.print-relatorio #relatorioMensalFuncionario .relatorio-funcionario{
+    color:#000!important;
+}
 body.print-relatorio #relatorioMensalFuncionario .relatorio-tabela{overflow:visible!important;border:1px solid #ccc!important}
 body.print-relatorio #relatorioMensalFuncionario .relatorio-funcionario{break-before:page;page-break-before:always}
 body.print-relatorio #relatorioMensalFuncionario .relatorio-funcionario:first-child{break-before:auto;page-break-before:auto}
@@ -162,6 +210,53 @@ tr{break-inside:avoid}
   }
 }
 
+}
+.sequencia-escala {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 5px;
+    margin-bottom: 18px;
+}
+
+.dia-escala {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 7px 3px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 10px;
+}
+
+.dia-escala strong {
+    font-size: 14px;
+}
+
+.dia-escala.work {
+    background: #e2f0e5;
+    border-color: #8ab99a;
+}
+
+.dia-escala.rest {
+    background: #f5e2e2;
+    border-color: #d6a0a0;
+}
+
+@media print {
+    .dia-escala {
+        padding: 8px 3px;
+        font-size: 11px;
+        break-inside: avoid;
+    }
+
+    .dia-escala strong {
+        font-size: 15px;
+    }
+
+    .sequencia-escala {
+        gap: 6px;
+    }
 }
 </style>
 </head>
@@ -370,7 +465,7 @@ tr{break-inside:avoid}
 "use strict";
 
 // COLE ABAIXO A URL /exec DA IMPLANTAÇÃO DO SEU APPS SCRIPT.
-const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbwlw0taJsCjiVAKa173qP26qSvgbbvkV687F-VV3aDya-Vryb86YPb4Kansk4IBl05B/exec";
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbwACCFp-4efch_ZAXLQaFLQM_m17lA72vkhHE0RP9R1owKhO1zLOXS1v4VqJJzzJdX6/exec";
 const DIAS=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
 const DIAS_CURTOS=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 let funcionarios=[];
@@ -697,6 +792,8 @@ function diferencaDias(dataA,dataB){
  * Semana par: folgas no domingo e na quinta-feira.
  * Semana ímpar: folgas na segunda-feira e na sexta-feira.
  */
+
+
 function obterFolgaFeminina(f, data) {
     const inicio = lerData(f.dataInicio);
     const semanaBase = segundaDaSemana(inicio);
@@ -710,20 +807,15 @@ function obterFolgaFeminina(f, data) {
 
     if (semana < 0) return false;
 
-    // Semana par: folga domingo e quinta-feira
+    // Semana par: domingo e quinta
     if (semana % 2 === 0) {
         return dia === 0 || dia === 4;
     }
 
-    // Semana ímpar: folga segunda e sexta-feira
+    // Semana ímpar: segunda e sexta
     return dia === 1 || dia === 5;
 }
 
-/*
- * ESCALA MASCULINA 5x2:
- * Semana par: folgas no domingo e na terça-feira.
- * Semana ímpar: folgas na segunda-feira e na sexta-feira.
- */
 function obterFolgaMasculina(f, data) {
     const inicio = lerData(f.dataInicio);
     const semanaBase = segundaDaSemana(inicio);
@@ -737,30 +829,17 @@ function obterFolgaMasculina(f, data) {
 
     if (semana < 0) return false;
 
-    // Semana par: folga domingo e terça-feira
+    // Semana par: domingo e terça
     if (semana % 2 === 0) {
         return dia === 0 || dia === 2;
     }
 
-    // Semana ímpar: folga segunda e sexta-feira
+    // Semana ímpar: segunda e sexta
     return dia === 1 || dia === 5;
 }
 
-/*
- * ESCALA 5x2 ROTATIVA:
- * Semana par: folgas no sábado e no domingo.
- * Semana ímpar: folgas na quarta-feira e na quinta-feira.
- *
- * A fase do ciclo é calculada pela semana da data de início do funcionário.
- * A alternância mantém duas folgas por semana, mas pode gerar mais de cinco
- * dias consecutivos de trabalho na transição entre semanas. Isso é inerente
- * a esta regra de alternância; não existe bloqueio de folgas por quantidade
- * de funcionários no fim de semana.
- */
-
 function obterFolgaRotativa(f, data) {
     const inicio = lerData(f.dataInicio);
-
     const semanaBase = segundaDaSemana(inicio);
     const semanaAtual = segundaDaSemana(data);
 
@@ -772,84 +851,162 @@ function obterFolgaRotativa(f, data) {
 
     if (semana < 0) return false;
 
-    // Semana par: folga sábado e domingo
+    // Semana par: sábado e domingo
     if (semana % 2 === 0) {
         return dia === 6 || dia === 0;
     }
 
-    // Semana ímpar: folga quarta e quinta-feira
+    // Semana ímpar: quarta e quinta
     return dia === 3 || dia === 4;
 }
 
+function statusFuncionarioNoDia(f, data) {
+    const inicioCadastro = lerData(f.dataInicio);
+    const inicioDia = inicioDoDia(data);
+    const fimDia = adicionarDias(inicioDia, 1);
 
-function statusFuncionarioNoDia(f,data){
- const inicioCadastro=lerData(f.dataInicio);
- const inicioDia=inicioDoDia(data);
- const fimDia=adicionarDias(inicioDia,1);
+    if (
+        Number.isNaN(inicioCadastro.getTime()) ||
+        inicioDia < inicioCadastro
+    ) {
+        return {
+            tipo: "off",
+            titulo: "Fora do ciclo",
+            detalhe: "—"
+        };
+    }
 
- if(inicioDia<inicioCadastro){
-  return{tipo:"off",titulo:"Fora do ciclo",detalhe:"—"};
- }
+    const horario = normalizarHorarioFront(f.horario);
+    const horarioFim = normalizarHorarioFront(f.horarioFim);
 
- if(f.escala==="jovem-aprendiz"){
-  const dia=data.getDay();
-  if(dia===5){
-   return{tipo:"course",titulo:"Curso",detalhe:`das ${normalizarHorarioFront(f.horario)} às ${normalizarHorarioFront(f.horarioFim)||"—"}`};
-  }
-  if(dia===0||dia===6){
-   return{tipo:"rest",titulo:"Folga",detalhe:dia===0?"Domingo":"Sábado"};
-  }
-  return{tipo:"work",titulo:"Trabalha",detalhe:`das ${normalizarHorarioFront(f.horario)} às ${normalizarHorarioFront(f.horarioFim)||"—"}`};
- }
+    // JOVEM APRENDIZ
+    if (f.escala === "jovem-aprendiz") {
+        const dia = data.getDay();
 
- if(["5x2","5x2-rotativa","5x2-feminina","5x2-masculina"].includes(f.escala)){
-  let folga=false;
+        if (dia === 5) {
+            return {
+                tipo: "course",
+                titulo: "Curso",
+                detalhe: `das ${horario} às ${horarioFim || "—"}`
+            };
+        }
 
-  if(f.escala==="5x2-feminina")folga=obterFolgaFeminina(f,data);
-  else if(f.escala==="5x2-masculina")folga=obterFolgaMasculina(f,data);
-  else if(f.escala==="5x2-rotativa")folga=obterFolgaRotativa(f,inicioDia);
-  else folga=(f.folgas||[]).includes(data.getDay());
+        if (dia === 0 || dia === 6) {
+            return {
+                tipo: "rest",
+                titulo: "Folga",
+                detalhe: dia === 0 ? "Domingo" : "Sábado"
+            };
+        }
 
-  if(folga){
-   const detalhes={
-    "5x2-feminina":"Escala1 5x2",
-    "5x2-masculina":"Escala2 5x2",
-    "5x2-rotativa":"Rotativa",
-    "5x2":"Fixa"
-   };
-   return{tipo:"rest",titulo:"Folga",detalhe:detalhes[f.escala]};
-  }
+        return {
+            tipo: "work",
+            titulo: "Trabalha",
+            detalhe: `das ${horario} às ${horarioFim || "—"}`
+        };
+    }
 
-  return{
-   tipo:"work",
-   titulo:"Trabalha",
-   detalhe:`das ${normalizarHorarioFront(f.horario)} às ${normalizarHorarioFront(f.horarioFim)||"—"}`
-  };
- }
+    // ESCALAS 5X2
+    if (
+        ["5x2", "5x2-rotativa", "5x2-feminina", "5x2-masculina"]
+        .includes(f.escala)
+    ) {
+        let folga = false;
 
- const [hora,minuto]=f.horario.split(":").map(Number);
- const inicioCiclo=lerData(f.dataInicio);
- inicioCiclo.setHours(hora,minuto,0,0);
+        switch (f.escala) {
+            case "5x2":
+                const diasFolga = Array.isArray(f.folgas)
+                    ? f.folgas.map(Number)
+                    : [];
 
- const duracaoPlantao=12*3600000;
- const duracaoCiclo=48*3600000;
- const diferenca=inicioDia.getTime()-inicioCiclo.getTime();
- const indice=Math.floor(diferenca/duracaoCiclo);
+                folga = diasFolga.includes(data.getDay());
+                break;
 
- for(let i=indice-1;i<=indice+1;i++){
-  const inicioPlantao=inicioCiclo.getTime()+i*duracaoCiclo;
-  const fimPlantao=inicioPlantao+duracaoPlantao;
+            case "5x2-rotativa":
+                folga = obterFolgaRotativa(f, data);
+                break;
 
-  if(inicioPlantao<fimDia.getTime()&&fimPlantao>inicioDia.getTime()){
-   const comeco=new Date(inicioPlantao);
-   const fim=new Date(fimPlantao);
-   const fmt=d=>d.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
-   return{tipo:"work",titulo:"Plantão 12h",detalhe:`${fmt(comeco)}–${fmt(fim)}`};
-  }
- }
+            case "5x2-feminina":
+                folga = obterFolgaFeminina(f, data);
+                break;
 
- return{tipo:"rest",titulo:"Descanso",detalhe:"36h de ciclo"};
+            case "5x2-masculina":
+                folga = obterFolgaMasculina(f, data);
+                break;
+        }
+
+        if (folga) {
+            return {
+                tipo: "rest",
+                titulo: "Folga",
+                detalhe: "Descanso da escala"
+            };
+        }
+
+        return {
+            tipo: "work",
+            titulo: "Trabalha",
+            detalhe: `das ${horario} às ${horarioFim || "—"}`
+        };
+    }
+
+    // ESCALA 12X36
+
+// ESCALA 12X36
+if (f.escala === "12x36") {
+    const partes = horario.split(":").map(Number);
+    const hora = partes[0] || 0;
+    const minuto = partes[1] || 0;
+
+    const inicioCiclo = lerData(f.dataInicio);
+    inicioCiclo.setHours(hora, minuto, 0, 0);
+
+    const duracaoCiclo = 48 * 60 * 60 * 1000;
+
+    const diferenca =
+        inicioDia.getTime() - inicioCiclo.getTime();
+
+    const indice = Math.floor(diferenca / duracaoCiclo);
+
+    // Procura o plantão cuja DATA DE INÍCIO
+    // corresponde ao dia que está sendo consultado.
+    for (let i = indice - 1; i <= indice + 2; i++) {
+        const inicioPlantao =
+            inicioCiclo.getTime() + i * duracaoCiclo;
+
+        const dataInicioPlantao = new Date(inicioPlantao);
+
+        if (dataLocal(dataInicioPlantao) === dataLocal(inicioDia)) {
+            const fimPlantao = new Date(
+                inicioPlantao + 12 * 60 * 60 * 1000
+            );
+
+            const fmt = d => d.toLocaleTimeString("pt-BR", {
+                hour: "2-digit",
+                minute: "2-digit"
+            });
+
+            return {
+                tipo: "work",
+                titulo: "Plantão 12h",
+                detalhe: `${fmt(dataInicioPlantao)}–${fmt(fimPlantao)}`
+            };
+        }
+    }
+
+    return {
+        tipo: "rest",
+        titulo: "Descanso",
+        detalhe: "36h de descanso"
+    };
 }
+    return {
+        tipo: "off",
+        titulo: "Escala não identificada",
+        detalhe: "Verificar cadastro"
+    };
+}
+
 
 function classeStatus(tipo){
  if(tipo==="work")return"status-work";
@@ -925,7 +1082,25 @@ function renderizarEscala(){
     detalhe=horarios.join(" · ");
     if(ponto.justificativa)detalhe+=(detalhe?" · ":"")+"Just.: "+ponto.justificativa;
    }
-   const botaoPonto=status.tipo==="work" ? `<button class="btn-light small-btn" onclick="abrirModalPonto('${escaparHTML(f.id)}','${dataISO}')">${ponto?"Editar ponto":"Ponto"}</button>` : "";
+   const botaoPonto = status.tipo === "work"
+  ? `
+    <div style="margin-top:5px">
+      <button
+        class="btn-light small-btn"
+        onclick="abrirModalPonto('${escaparHTML(f.id)}','${dataISO}')">
+        ${ponto ? "Editar ponto" : "Registrar ponto"}
+      </button>
+
+      ${ponto ? `
+        <button
+          class="btn-danger small-btn"
+          onclick="removerPonto('${escaparHTML(f.id)}','${dataISO}')">
+          Remover ponto
+        </button>
+      ` : ""}
+    </div>
+  `
+  : "";
    linha+=`<td><span class="status ${classe}">${escaparHTML(titulo)}${detalhe?`<span class="ponto-resumo">${escaparHTML(detalhe)}</span>`:""}</span>${botaoPonto}</td>`;
   }
 
@@ -937,6 +1112,73 @@ function renderizarEscala(){
 
 function obterRegistroPonto(funcionarioId,data){
  return registrosPonto.find(p=>String(p.funcionarioId)===String(funcionarioId)&&String(p.data)===String(data));
+}
+
+async function removerPonto(funcionarioId, data) {
+  const funcionario = funcionarios.find(
+    f => String(f.id) === String(funcionarioId)
+  );
+
+  const registro = obterRegistroPonto(funcionarioId, data);
+
+  if (!funcionario || !registro) {
+    alert("Não foi encontrado um registro de ponto para remover.");
+    return;
+  }
+
+  const dataFormatada = formatarData(lerData(data));
+
+  const confirmar = confirm(
+    "Deseja realmente remover a marcação de ponto?\n\n" +
+    "Funcionário: " + funcionario.nome + "\n" +
+    "Data: " + dataFormatada + "\n\n" +
+    "O registro será excluído do Google Sheets."
+  );
+
+  if (!confirmar) return;
+
+  const registrosAnteriores = [...registrosPonto];
+
+  registrosPonto = registrosPonto.filter(p =>
+    !(
+      String(p.funcionarioId) === String(funcionarioId) &&
+      String(p.data).slice(0, 10) === String(data)
+    )
+  );
+
+  renderizarTudo();
+  mostrarConexao("Removendo registro de ponto...");
+
+  try {
+    await chamarAPI("excluirPonto", {
+      id: String(registro.id),
+      funcionarioId: String(funcionarioId),
+      data: String(data)
+    });
+
+    mostrarConexao(
+      "Registro de ponto removido do Google Sheets.",
+      "ok"
+    );
+
+    // Recarrega os registros para confirmar a exclusão.
+    await carregarRegistrosPonto(false);
+    renderizarTudo();
+
+  } catch (erro) {
+    registrosPonto = registrosAnteriores;
+    renderizarTudo();
+
+    mostrarConexao(
+      "Falha ao remover o ponto: " + erro.message,
+      "erro"
+    );
+
+    alert(
+      "Não foi possível confirmar a remoção no Google Sheets.\n\n" +
+      erro.message
+    );
+  }
 }
 
 async function carregarRegistrosPonto(mostrarErro=true){
@@ -1122,13 +1364,40 @@ async function gerarRelatorioMensal(){
   const nomeMes=primeiro.toLocaleDateString("pt-BR",{month:"long",year:"numeric"});
   const geradoEm=new Date().toLocaleString("pt-BR");
   const relatorios=selecionados.map(f=>{
-   const dias=[];let diasTrabalho=0,diasFolga=0,presencas=0,faltas=0,atrasos=0,semRegistro=0;
+  const dias=[];
+  const sequenciaEscala=[];
+  const diasSemanaEscalados=new Set();
+
+let diasTrabalho=0,
+    diasFolga=0,
+    presencas=0,
+    faltas=0,
+    atrasos=0,
+    semRegistro=0;
    for(let dia=1;dia<=ultimo.getDate();dia++){
     const data=new Date(ano,mesNum-1,dia),iso=dataLocal(data),status=statusFuncionarioNoDia(f,data);
+const nomesStatus = {
+    work: "TRABALHA",
+    rest: "FOLGA",
+    course: "CURSO",
+    off: "FORA DO CICLO"
+};
+
+sequenciaEscala.push(`
+    <div class="dia-escala ${status.tipo}">
+        <strong>${String(dia).padStart(2, "0")}</strong>
+        <span>${nomesStatus[status.tipo] || status.titulo}</span>
+    </div>
+`);
     const ponto=registrosMes.find(p=>String(p.funcionarioId)===String(f.id)&&String(p.data).slice(0,10)===iso);
     let situacao=status.titulo,entrada=ponto?.entradaReal||"—",saida=ponto?.saidaReal||"—",ocorrencia="—",justificativa=ponto?.justificativa||"—";
     if(status.tipo==="work"){
-     diasTrabalho++;
+
+    diasTrabalho++;
+
+    // Guarda os dias da semana em que o funcionário
+    // realmente está escalado para trabalhar.
+    diasSemanaEscalados.add(DIAS[data.getDay()]);
      if(!ponto){situacao="Sem registro";semRegistro++;}
      else{
       ocorrencia=textoOcorrenciaPonto(ponto);
@@ -1145,6 +1414,15 @@ async function gerarRelatorioMensal(){
     <p style="margin:0 0 5px"><strong>Funcionário:</strong> ${escaparHTML(f.nome)}</p>
     <p style="margin:0 0 5px"><strong>Setor:</strong> ${escaparHTML(f.setor||"Não informado")} &nbsp; <strong>Escala:</strong> ${escaparHTML(nomeEscala(f.escala))}</p>
     <p style="margin:0 0 14px"><strong>Horário cadastrado:</strong> ${escaparHTML(f.horario||"—")}${f.escala==="12x36"?" (plantão de 12 horas)":" às "+escaparHTML(f.horarioFim||"—")}</p>
+    <p style="margin:0 0 14px;padding:10px;background:#f4ede7;border-left:4px solid #c79a45">
+    <strong>Dias da semana escalados para trabalhar:</strong><br>
+    ${DIAS.filter(dia=>diasSemanaEscalados.has(dia)).join(", ") || "Nenhum dia de trabalho neste mês"}
+</p>
+<h3 style="margin:18px 0 10px;">Escala de trabalho do mês</h3>
+
+<div class="sequencia-escala">
+    ${sequenciaEscala.join("")}
+</div>
     <div class="cards relatorio-resumo" style="grid-template-columns:repeat(4,minmax(0,1fr));gap:8px">
      <div class="card"><span>Dias previstos de trabalho</span><strong>${diasTrabalho}</strong></div>
      <div class="card"><span>Presenças registradas</span><strong>${presencas}</strong></div>
