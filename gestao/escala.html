@@ -579,6 +579,7 @@ tr{break-inside:avoid}
 <label for="dataImpressaoDia" style="font-size:13px;font-weight:bold">Data da escala:</label>
 <input type="date" id="dataImpressaoDia" aria-label="Data da escala para imprimir" style="width:auto">
 <button class="btn-gold" type="button" onclick="imprimirEscalaDia()">Imprimir escala do dia</button>
+<button class="btn-primary" type="button" onclick="abrirEditorEscalaDia()">Editar escala do dia</button>
 </div>
 <p id="periodoSemana" class="hint"></p>
 <div class="filters no-print">
@@ -746,7 +747,20 @@ tr{break-inside:avoid}
     <button class="btn-primary" type="submit" id="btnSalvarPonto">Salvar registro</button>
     <button class="btn-light" type="button" onclick="fecharModalPonto()">Cancelar</button>
    </div>
-  </form>
+    </form>
+ </div>
+</div>
+
+<div id="modalEscalaDia" class="modal-ponto no-print" role="dialog" aria-modal="true">
+ <div class="caixa-ponto">
+  <h2>Editar escala do dia</h2>
+  <p id="dataEditorEscala" class="hint"></p>
+
+  <div id="listaFuncionariosEscalaDia"></div>
+
+  <div class="ponto-acoes">
+   <button class="btn-light" type="button" onclick="fecharEditorEscalaDia()">Fechar</button>
+  </div>
  </div>
 </div>
 
@@ -755,13 +769,17 @@ tr{break-inside:avoid}
 <script>
 "use strict";
 
+
+
 // COLE ABAIXO A URL /exec DA IMPLANTAÇÃO DO SEU APPS SCRIPT.
-const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyJdEhzCsrD1HJiShOKVwk8Xu2sM8aJY1JuHqI7Z9iNZbxa1mF32OXHHPbqazdi9mj9/exec";
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbwCaQ_7HDUylUoAJc21VuC_mI0zfdSHJuHOMWee9XZQRHujZN8Xj8NhY4EMPxYBxYO1/exec";
 const DIAS=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
 const DIAS_CURTOS=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 let funcionarios=[];
 let registrosPonto=[];
 let sincronizando=false;
+// Guarda as alterações específicas de cada data.
+let ajustesEscalaDia={};
 
 function mostrarConexao(mensagem,tipo=""){
  const el=document.getElementById("statusConexao");
@@ -807,6 +825,38 @@ function chamarAPI(acao,parametros={}){
  });
 }
 
+// Consulta os ajustes de uma data no Google Sheets.
+async function carregarAjustesDataPlanilha(data){
+ const iso=typeof data==="string"?data:dataLocal(data);
+
+ const dados=await chamarAPI("listarAjustesEscalaDia",{
+  data:iso
+ });
+
+ const mapa={};
+
+ (Array.isArray(dados)?dados:[]).forEach(ajuste=>{
+  mapa[String(ajuste.funcionarioId)]=
+   ajuste.acao==="adicionar"?"work":"rest";
+ });
+
+ ajustesEscalaDia[iso]=mapa;
+}
+
+
+// Carrega os ajustes dos sete dias da semana exibida.
+async function carregarAjustesSemanaPlanilha(){
+ const segunda=obterSemana();
+
+ const datas=Array.from({length:7},(_,i)=>
+  dataLocal(adicionarDias(segunda,i))
+ );
+
+ await Promise.all(
+  datas.map(data=>carregarAjustesDataPlanilha(data))
+ );
+}
+
 async function carregarFuncionarios(){
  if(sincronizando)return;
  sincronizando=true;
@@ -844,6 +894,7 @@ async function carregarFuncionarios(){
    folgas:Array.isArray(f.folgas)?f.folgas.map(Number):interpretarFolgasFront(f.Folgas)
   })).filter(f=>f.id && f.nome);
   await carregarRegistrosPonto(false);
+  await carregarAjustesSemanaPlanilha();
   renderizarTudo();
   mostrarConexao("Conectado ao Google Sheets · "+funcionarios.length+" funcionário(s) sincronizado(s).","ok");
  }catch(erro){
@@ -1048,11 +1099,12 @@ function obterSemana(){
  return segundaDaSemana(lerData(valor));
 }
 async function atualizarSemanaSelecionada(){
- // Renderiza imediatamente as datas da nova semana e depois atualiza os pontos.
  renderizarTudo();
+ await carregarAjustesSemanaPlanilha();
  await carregarRegistrosPonto();
  renderizarTudo();
 }
+
 async function mudarSemana(dias){
  // Avança/retrocede a partir da segunda-feira atualmente exibida.
  // Assim, cada clique muda exatamente uma semana inteira.
@@ -1152,7 +1204,7 @@ function obterFolgaRotativa(f, data) {
     return dia === 3 || dia === 4;
 }
 
-function statusFuncionarioNoDia(f, data) {
+function statusFuncionarioBaseNoDia(f, data) {
     const inicioCadastro = lerData(f.dataInicio);
     const inicioDia = inicioDoDia(data);
     const fimDia = adicionarDias(inicioDia, 1);
@@ -1299,6 +1351,34 @@ if (f.escala === "12x36") {
     };
 }
 
+function statusFuncionarioNoDia(f, data) {
+    const dataISO = dataLocal(data);
+    const ajustes = ajustesEscalaDia[dataISO] || {};
+    const ajuste = ajustes[String(f.id)];
+
+    // Se houver ajuste, ele substitui a escala normal somente nessa data.
+    if (ajuste === "work") {
+        const horario = normalizarHorarioFront(f.horario);
+        const horarioFim = normalizarHorarioFront(f.horarioFim);
+
+        return {
+            tipo: "work",
+            titulo: "Trabalha",
+            detalhe: `das ${horario} às ${horarioFim || "—"}`
+        };
+    }
+
+    if (ajuste === "rest") {
+        return {
+            tipo: "rest",
+            titulo: "Folga",
+            detalhe: "Ajuste específico deste dia"
+        };
+    }
+
+    // Sem ajuste, mantém a escala original.
+    return statusFuncionarioBaseNoDia(f, data);
+}
 
 function classeStatus(tipo){
  if(tipo==="work")return"status-work";
@@ -1658,6 +1738,133 @@ function abrirModalPonto(funcionarioId,data){
 }
 
 function fecharModalPonto(){document.getElementById("modalPonto").classList.remove("aberto");}
+
+function abrirEditorEscalaDia(){
+ const campoData=document.getElementById("dataImpressaoDia");
+
+ if(!campoData.value){
+  alert("Selecione primeiro a data da escala.");
+  return;
+ }
+
+ const data=lerData(campoData.value);
+
+ document.getElementById("dataEditorEscala").textContent=
+  "Data selecionada: "+data.toLocaleDateString("pt-BR");
+
+ renderizarListaEditorEscalaDia(data);
+
+ document.getElementById("modalEscalaDia").classList.add("aberto");
+}
+
+function fecharEditorEscalaDia(){
+ document.getElementById("modalEscalaDia").classList.remove("aberto");
+}
+
+function renderizarListaEditorEscalaDia(data){
+
+ const lista=document.getElementById("listaFuncionariosEscalaDia");
+ const dataISO=dataLocal(data);
+
+ lista.innerHTML="";
+
+ if(funcionarios.length===0){
+  lista.textContent="Nenhum funcionário cadastrado.";
+  return;
+ }
+
+ const ordenados=[...funcionarios].sort((a,b)=>
+  a.nome.localeCompare(b.nome,"pt-BR")
+ );
+
+ ordenados.forEach(f=>{
+
+  const status=statusFuncionarioNoDia(f,data);
+  const ajuste=(ajustesEscalaDia[dataISO]||{})[String(f.id)];
+
+  const linha=document.createElement("div");
+  linha.style.cssText="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid #eee;flex-wrap:wrap";
+
+  const informacao=document.createElement("div");
+
+  const nome=document.createElement("strong");
+  nome.textContent=f.nome;
+
+  const situacao=document.createElement("div");
+  situacao.textContent=status.titulo+" · "+status.detalhe;
+  situacao.style.cssText="font-size:12px;color:#777;margin-top:4px";
+
+  informacao.append(nome,situacao);
+
+  const seletor=document.createElement("select");
+  seletor.dataset.funcionarioId=f.id;
+  seletor.dataset.data=dataISO;
+  seletor.style.width="190px";
+
+  seletor.innerHTML=`
+   <option value="normal">Escala normal</option>
+   <option value="work">Trabalha neste dia</option>
+   <option value="rest">Folga neste dia</option>
+  `;
+
+  seletor.value=ajuste||"normal";
+  seletor.addEventListener("change", salvarAjusteEscalaDia);
+
+  linha.append(informacao,seletor);
+  lista.appendChild(linha);
+ });
+}
+
+async function salvarAjusteEscalaDia(event){
+
+ const seletor=event.target;
+ const funcionarioId=seletor.dataset.funcionarioId;
+ const data=seletor.dataset.data;
+ const escolha=seletor.value;
+
+ seletor.disabled=true;
+
+ try{
+
+  if(escolha==="normal"){
+
+   await chamarAPI("limparAjusteEscalaDia",{
+    ajuste:JSON.stringify({data,funcionarioId})
+   });
+
+  }else{
+
+   await chamarAPI("salvarAjusteEscalaDia",{
+    ajuste:JSON.stringify({
+     data,
+     funcionarioId,
+     acao:escolha==="work"?"adicionar":"remover"
+    })
+   });
+
+  }
+
+  await carregarAjustesDataPlanilha(data);
+
+  renderizarListaEditorEscalaDia(lerData(data));
+  renderizarTudo();
+
+  mostrarConexao("Escala do dia atualizada no Google Sheets.","ok");
+
+ }catch(erro){
+
+  alert("Não foi possível salvar a alteração: "+erro.message);
+
+  seletor.value=(ajustesEscalaDia[data]||{})[String(funcionarioId)]||"normal";
+
+  mostrarConexao("Falha ao atualizar a escala: "+erro.message,"erro");
+
+ }finally{
+
+  seletor.disabled=false;
+
+ }
+}
 
 function atualizarCamposOcorrenciaPonto(){
  const falta=document.getElementById("pontoOcorrencia").value==="falta";
