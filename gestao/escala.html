@@ -50,10 +50,140 @@ button:hover{filter:brightness(.94)}
 .week-controls h2{margin:0}
 .week-navigation{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .week-navigation input{width:auto}
-.table-wrap{overflow-x:auto;border:1px solid var(--borda);border-radius:9px}
-table{width:100%;border-collapse:collapse;min-width:950px;background:white}
-th,td{border-bottom:1px solid var(--borda);padding:11px 9px;text-align:center;font-size:12px}
-th{background:#f4ede7;color:#503b34;font-size:12px;white-space:nowrap}
+/* ÁREA DA TABELA COM SCROLL VERTICAL E HORIZONTAL */
+.table-wrap{
+  max-height:520px;
+  overflow:auto;
+  position:relative;
+  border:1px solid var(--borda);
+  border-radius:9px;
+  background:#fff;
+  scrollbar-width:thin;
+  scrollbar-color:#b99a82 #f3ece6;
+}
+
+/* APARÊNCIA DA BARRA DE ROLAGEM */
+.table-wrap::-webkit-scrollbar{
+  width:10px;
+  height:10px;
+}
+
+.table-wrap::-webkit-scrollbar-track{
+  background:#f3ece6;
+  border-radius:10px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb{
+  background:#b99a82;
+  border-radius:10px;
+}
+
+.table-wrap::-webkit-scrollbar-thumb:hover{
+  background:#7b1e2b;
+}
+
+/* TABELA */
+.table-wrap table{
+  width:100%;
+  min-width:950px;
+  border-collapse:separate;
+  border-spacing:0;
+  background:white;
+}
+
+/* CABEÇALHO FIXO DURANTE A ROLAGEM */
+.table-wrap th{
+  position:sticky;
+  top:0;
+  z-index:5;
+  background:#f4ede7;
+  color:#503b34;
+  font-size:11px;
+  white-space:nowrap;
+  padding:9px 7px;
+  border-bottom:2px solid var(--borda);
+}
+
+/* CÉLULAS MAIS COMPACTAS */
+.table-wrap td{
+  border-bottom:1px solid var(--borda);
+  padding:7px 6px;
+  text-align:center;
+  font-size:11px;
+  white-space:nowrap;
+}
+
+.table-wrap td:first-child,
+.table-wrap th:first-child{
+  text-align:left;
+}
+
+/* FUNCIONÁRIOS */
+.employee-name{
+  font-weight:bold;
+  font-size:12px;
+}
+
+.employee-detail{
+  display:block;
+  margin-top:3px;
+  color:#81736d;
+  font-size:10px;
+}
+
+/* SEPARAÇÃO DOS SETORES */
+.linha-setor td{
+  background:#f3e9e3;
+  color:#7b1e2b;
+  padding:9px 12px;
+  text-align:left !important;
+  border-bottom:1px solid #dfcfc3;
+}
+
+.setor-titulo{
+  font-size:12px;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.5px;
+}
+
+.setor-total{
+  display:inline-block;
+  margin-left:9px;
+  padding:3px 8px;
+  border-radius:12px;
+  background:#ead9cc;
+  color:#654333;
+  font-size:10px;
+  font-weight:bold;
+}
+
+/* HOVER NAS LINHAS */
+.table-wrap tbody tr:hover td{
+  background-color:#fffaf6;
+}
+
+.table-wrap tbody tr.linha-setor:hover td{
+  background:#f3e9e3;
+}
+
+/* SITUAÇÕES */
+.status{
+  display:inline-block;
+  padding:5px 6px;
+  border-radius:5px;
+  min-width:65px;
+  font-size:10px;
+  font-weight:bold;
+  line-height:1.3;
+}
+
+/* BOTÕES */
+.small-btn{
+  padding:5px 7px;
+  margin:2px;
+  font-size:10px;
+}
 td:first-child,th:first-child{text-align:left}
 tbody tr:last-child td{border-bottom:0}
 tbody tr:hover{background:#fffdfb}
@@ -258,6 +388,56 @@ tr{break-inside:avoid}
         gap: 6px;
     }
 }
+
+/* NAVEGAÇÃO PRINCIPAL */
+.navbar{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  background:#fff;
+  border-bottom:1px solid var(--borda);
+  box-shadow:0 3px 12px #0000000a;
+}
+.nav-inner{
+  max-width:1550px;
+  margin:auto;
+  padding:0 22px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  overflow-x:auto;
+  scrollbar-width:thin;
+}
+.nav-link{
+  flex:0 0 auto;
+  background:transparent;
+  color:#66534b;
+  border-radius:0;
+  padding:15px 17px;
+  border-bottom:3px solid transparent;
+  font-size:13px;
+}
+.nav-link:hover{background:#f8f2ed;color:var(--bordo)}
+.nav-link.active{
+  color:var(--bordo);
+  border-bottom-color:var(--dourado);
+  background:#fbf8f5;
+}
+.page-view{display:none}
+.page-view.active{display:block}
+.page-view.active.cards{display:grid}
+#statusConexao{max-width:100%}
+@media(max-width:650px){
+  .nav-inner{padding:0 8px}
+  .nav-link{padding:13px 12px;font-size:12px}
+}
+
+
+@media print{
+  .navbar{display:none!important}
+  .page-view:not(.active){display:none!important}
+}
+
 </style>
 </head>
 <body>
@@ -267,15 +447,26 @@ tr{break-inside:avoid}
 <p id="statusConexao">Conectando ao Google Sheets...</p>
 </header>
 
+<nav class="navbar no-print" aria-label="Navegação principal">
+  <div class="nav-inner">
+    <button class="nav-link active" type="button" data-aba="inicio" onclick="abrirAba('inicio')">⌂ Início</button>
+    <button class="nav-link" type="button" data-aba="escala" onclick="abrirAba('escala')">▦ Escala semanal</button>
+    <button class="nav-link" type="button" data-aba="funcionarios" onclick="abrirAba('funcionarios')">♙ Funcionários</button>
+    <button class="nav-link" type="button" data-aba="relatorios" onclick="abrirAba('relatorios')">▤ Relatórios</button>
+    <button class="nav-link" type="button" data-aba="ponto" onclick="abrirAba('ponto')">◷ Controle de ponto</button>
+    <button class="nav-link" type="button" data-aba="configuracoes" onclick="abrirAba('configuracoes')">⚙ Configurações</button>
+  </div>
+</nav>
+
 <main class="container">
-<section class="cards">
+<section class="cards page-view active" data-pagina="inicio">
 <div class="card"><span>Total de funcionários</span><strong id="totalFuncionarios">0</strong></div>
 <div class="card"><span>Escalas 5x2</span><strong id="total5x2">0</strong></div>
 <div class="card"><span>Escalas 12x36</span><strong id="total1236">0</strong></div>
 <div class="card"><span>Trabalham hoje</span><strong id="totalHoje">0</strong></div>
 </section>
 
-<section class="panel no-print" id="painelCadastro">
+<section class="panel no-print page-view" data-pagina="funcionarios" id="painelCadastro">
 <h2 id="tituloFormulario">Cadastrar funcionário</h2>
 <form id="formFuncionario">
 <input type="hidden" id="funcionarioId">
@@ -336,7 +527,7 @@ tr{break-inside:avoid}
 </form>
 </section>
 
-<section class="panel">
+<section class="panel page-view" data-pagina="escala">
 <div class="week-controls">
 <h2>Escala da semana</h2>
 <div class="week-navigation no-print">
@@ -382,7 +573,7 @@ tr{break-inside:avoid}
 <p class="hint">Na escala rotativa: uma semana com folga sábado e domingo, seguida de uma semana com folgas na quarta e quinta-feira. Cada semana do calendário contém cinco dias de trabalho e dois dias de folga. Confira a sequência entre semanas para evitar períodos excessivos de trabalho consecutivo.</p>
 </section>
 
-<section class="panel" id="relatorioMensalFuncionario">
+<section class="panel page-view" data-pagina="relatorios" id="relatorioMensalFuncionario">
  <div class="relatorio-controles no-print">
   <h2>Relatório mensal de funcionários</h2>
   <p class="hint">Selecione um ou vários funcionários e o mês. O sistema vai gerar um relatório por funcionário; na impressão, cada relatório começa em uma nova página.</p>
@@ -404,7 +595,7 @@ tr{break-inside:avoid}
  <div id="conteudoRelatorioMensal"><div class="empty">Selecione um funcionário e um mês, depois clique em “Gerar relatório”.</div></div>
 </section>
 
-<section class="panel no-print">
+<section class="panel no-print page-view" data-pagina="funcionarios">
 <h2>Funcionários cadastrados</h2>
 <div class="table-wrap">
 <table style="min-width:650px">
@@ -417,13 +608,51 @@ tr{break-inside:avoid}
 </table>
 <div id="mensagemListaVazia" class="empty">Nenhum funcionário cadastrado.</div>
 </div>
-<div class="actions">
-<button class="btn-light" onclick="exportarCSV()">Exportar funcionários (CSV)</button>
-<button class="btn-light" onclick="exportarBackup()">Baixar backup</button>
-<button class="btn-light" onclick="document.getElementById('arquivoBackup').click()">Restaurar backup</button>
-<input type="file" id="arquivoBackup" accept=".json,application/json" class="hidden" onchange="restaurarBackup(event)">
-</div>
-<p class="hint">Os dados são salvos no Google Sheets e sincronizados entre os computadores que usam esta mesma planilha. Faça backups regularmente.</p>
+<p class="hint">Os dados são salvos no Google Sheets e sincronizados entre os computadores que usam esta mesma planilha.</p>
+</section>
+
+<section class="panel page-view" data-pagina="ponto" id="paginaPonto">
+  <div class="week-controls">
+    <div>
+      <h2>Controle de ponto</h2>
+      <p class="hint">Consulte os registros de ponto por período, confira ocorrências e remova marcações quando necessário.</p>
+    </div>
+    <div class="week-navigation no-print">
+      <label for="pontoDataInicio">De</label>
+      <input type="date" id="pontoDataInicio">
+      <label for="pontoDataFim">Até</label>
+      <input type="date" id="pontoDataFim">
+      <button class="btn-primary" type="button" onclick="consultarPontos()">Consultar</button>
+    </div>
+  </div>
+  <div class="table-wrap">
+    <table style="min-width:900px">
+      <thead>
+        <tr>
+          <th>Funcionário</th><th>Setor</th><th>Data</th><th>Horário previsto</th>
+          <th>Entrada real</th><th>Saída real</th><th>Ocorrência</th><th>Anexos</th><th class="no-print">Ações</th>
+        </tr>
+      </thead>
+      <tbody id="corpoPainelPonto"></tbody>
+    </table>
+    <div id="mensagemPontosVazia" class="empty">Selecione um período e clique em Consultar.</div>
+  </div>
+</section>
+
+<section class="panel page-view" data-pagina="configuracoes">
+  <h2>Configurações e segurança dos dados</h2>
+  <p class="hint">Ferramentas para exportar os dados dos funcionários e manter uma cópia de segurança.</p>
+  <div class="actions">
+    <button class="btn-primary" type="button" onclick="exportarCSV()">Exportar funcionários (CSV)</button>
+    <button class="btn-gold" type="button" onclick="exportarBackup()">Baixar backup (JSON)</button>
+    <button class="btn-light" type="button" onclick="document.getElementById('arquivoBackup').click()">Restaurar backup</button>
+    <input type="file" id="arquivoBackup" accept=".json,application/json" class="hidden" onchange="restaurarBackup(event)">
+  </div>
+  <div class="ponto-previsto" style="margin-top:18px">
+    <strong>Banco de dados:</strong> Google Sheets<br>
+    <strong>Sincronização:</strong> conectada ao Apps Script quando o indicador superior informar que está conectado.
+  </div>
+  <p class="hint" style="margin-top:14px">A restauração substitui os funcionários atuais pelos dados do arquivo de backup. Faça isso somente quando tiver certeza de que selecionou o arquivo correto.</p>
 </section>
 </main>
 
@@ -451,6 +680,29 @@ tr{break-inside:avoid}
     <div class="field" style="grid-column:1/-1"><label for="pontoJustificativa">Justificativa / observações</label><textarea id="pontoJustificativa" maxlength="1000" placeholder="Ex.: avisou previamente que chegaria às 10h."></textarea></div>
    </div>
    <p class="hint" id="dicaJustificativa">Informe os horários reais. Para atraso, falta ou exceção, registre a justificativa.</p>
+  
+  <div class="field" style="grid-column:1/-1;margin-top:12px">
+
+  <label for="pontoAnexos">Anexar imagens ou documentos</label>
+
+  <input
+    type="file"
+    id="pontoAnexos"
+    accept="image/jpeg,image/png,image/webp,application/pdf"
+    multiple
+  >
+
+  <span class="hint">
+    Formatos aceitos: JPG, PNG, WEBP e PDF.
+    Máximo de 5 arquivos, com até 2 MB cada.
+  </span>
+
+  <div id="listaAnexosSelecionados" style="margin-top:8px"></div>
+
+  <div id="listaAnexosSalvos" style="margin-top:8px"></div>
+
+</div>
+
    <div class="ponto-acoes">
     <button class="btn-primary" type="submit" id="btnSalvarPonto">Salvar registro</button>
     <button class="btn-light" type="button" onclick="fecharModalPonto()">Cancelar</button>
@@ -465,7 +717,7 @@ tr{break-inside:avoid}
 "use strict";
 
 // COLE ABAIXO A URL /exec DA IMPLANTAÇÃO DO SEU APPS SCRIPT.
-const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbw3Ug_fMc6mFykUOPMRdTJq6HhrCBDM_ol6QWEtossAhuC3nH_d-knMi5ynapRipY2e/exec";
+const URL_APPS_SCRIPT = "https://script.google.com/macros/s/AKfycbyJdEhzCsrD1HJiShOKVwk8Xu2sM8aJY1JuHqI7Z9iNZbxa1mF32OXHHPbqazdi9mj9/exec";
 const DIAS=["Domingo","Segunda","Terça","Quarta","Quinta","Sexta","Sábado"];
 const DIAS_CURTOS=["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 let funcionarios=[];
@@ -711,7 +963,8 @@ function editarFuncionario(id){
  document.getElementById("btnSalvar").textContent="Salvar alterações";
  document.getElementById("btnCancelar").classList.remove("hidden");
  atualizarCamposEscala();
- document.getElementById("painelCadastro").scrollIntoView({behavior:"smooth"});
+ abrirAba("funcionarios");
+  document.getElementById("painelCadastro").scrollIntoView({behavior:"smooth"});
 }
 
 function cancelarEdicao(){
@@ -1165,6 +1418,11 @@ async function removerPonto(funcionarioId, data) {
     await carregarRegistrosPonto(false);
     renderizarTudo();
 
+    // Se a exclusão ocorreu na aba de ponto, atualiza também o período consultado.
+    if (document.querySelector('[data-pagina="ponto"].active')) {
+      await consultarPontos();
+    }
+
   } catch (erro) {
     registrosPonto = registrosAnteriores;
     renderizarTudo();
@@ -1194,8 +1452,99 @@ async function carregarRegistrosPonto(mostrarErro=true){
   }
  }
 }
+let arquivosPontoSelecionados = [];
+
+document.getElementById("pontoAnexos").addEventListener("change", function() {
+
+  const arquivos = Array.from(this.files || []);
+  const lista = document.getElementById("listaAnexosSelecionados");
+
+  const tiposPermitidos = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "application/pdf"
+  ];
+
+  const tamanhoMaximo = 2 * 1024 * 1024;
+
+  lista.innerHTML = "";
+
+  if (arquivos.length > 5) {
+    alert("Você pode selecionar no máximo 5 arquivos.");
+    this.value = "";
+    arquivosPontoSelecionados = [];
+    return;
+  }
+
+  for (const arquivo of arquivos) {
+
+    if (!tiposPermitidos.includes(arquivo.type)) {
+      alert("Formato não permitido: " + arquivo.name);
+      this.value = "";
+      arquivosPontoSelecionados = [];
+      return;
+    }
+
+    if (arquivo.size > tamanhoMaximo) {
+      alert("O arquivo " + arquivo.name + " ultrapassa o limite de 2 MB.");
+      this.value = "";
+      arquivosPontoSelecionados = [];
+      return;
+    }
+  }
+
+  arquivosPontoSelecionados = arquivos;
+
+  if (!arquivos.length) return;
+
+  const titulo = document.createElement("strong");
+  titulo.textContent = "Pré-visualização dos arquivos:";
+  lista.appendChild(titulo);
+
+  arquivos.forEach(function(arquivo) {
+
+    const linha = document.createElement("div");
+    linha.style.marginTop = "10px";
+
+    if (arquivo.type.indexOf("image/") === 0) {
+
+      const imagem = document.createElement("img");
+      const url = URL.createObjectURL(arquivo);
+
+      imagem.src = url;
+      imagem.alt = arquivo.name;
+      imagem.style.width = "110px";
+      imagem.style.height = "90px";
+      imagem.style.objectFit = "cover";
+      imagem.style.borderRadius = "8px";
+      imagem.style.cursor = "pointer";
+      imagem.style.border = "1px solid #e5dcd5";
+
+      imagem.onclick = function() {
+        abrirVisualizadorAnexo(url, arquivo.name);
+      };
+
+      linha.appendChild(imagem);
+
+    } else {
+
+      const link = document.createElement("span");
+      link.textContent = "📄 " + arquivo.name;
+      linha.appendChild(link);
+
+    }
+
+    lista.appendChild(linha);
+  });
+
+});
 
 function abrirModalPonto(funcionarioId,data){
+  arquivosPontoSelecionados = [];
+
+  document.getElementById("pontoAnexos").value = "";
+  document.getElementById("listaAnexosSelecionados").textContent = "";
  const f=funcionarios.find(item=>String(item.id)===String(funcionarioId));
  if(!f)return;
  const dataObj=lerData(data);
@@ -1213,6 +1562,57 @@ function abrirModalPonto(funcionarioId,data){
  document.getElementById("pontoEntrada").value=registro.entradaReal||"";
  document.getElementById("pontoSaida").value=registro.saidaReal||"";
  document.getElementById("pontoJustificativa").value=registro.justificativa||"";
+   const listaAnexos = document.getElementById("listaAnexosSalvos");
+  listaAnexos.innerHTML = "";
+
+  if (Array.isArray(registro.anexos) && registro.anexos.length > 0) {
+    const titulo = document.createElement("strong");
+    titulo.textContent = "Arquivos já anexados:";
+    listaAnexos.appendChild(titulo);
+
+   registro.anexos.forEach(function(anexo) {
+
+  const linha = document.createElement("div");
+  linha.style.marginTop = "10px";
+
+  if (anexo.tipo && anexo.tipo.indexOf("image/") === 0) {
+
+    const imagem = document.createElement("img");
+
+    imagem.src = anexo.miniatura ||
+      (anexo.id
+        ? "https://drive.google.com/thumbnail?id=" + encodeURIComponent(anexo.id) + "&sz=w1200"
+        : anexo.url);
+
+    imagem.alt = anexo.nome || "Imagem anexada";
+    imagem.title = "Clique para ampliar";
+    imagem.style.width = "110px";
+    imagem.style.height = "90px";
+    imagem.style.objectFit = "cover";
+    imagem.style.borderRadius = "8px";
+    imagem.style.cursor = "pointer";
+    imagem.style.border = "1px solid #e5dcd5";
+
+    imagem.onclick = function() {
+      abrirVisualizadorAnexo(imagem.src, anexo.nome);
+    };
+
+    linha.appendChild(imagem);
+
+  } else {
+
+    const link = document.createElement("a");
+    link.href = anexo.url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = "📄 " + (anexo.nome || "Abrir documento");
+
+    linha.appendChild(link);
+  }
+
+  listaAnexos.appendChild(linha);
+    });
+  }
  document.getElementById("btnSalvarPonto").textContent=registro.id?"Salvar alterações":"Salvar registro";
  atualizarCamposOcorrenciaPonto();
  document.getElementById("modalPonto").classList.add("aberto");
@@ -1226,6 +1626,34 @@ function atualizarCamposOcorrenciaPonto(){
  document.getElementById("pontoSaida").disabled=falta;
  if(falta){document.getElementById("pontoEntrada").value="";document.getElementById("pontoSaida").value="";}
  document.getElementById("dicaJustificativa").textContent=falta?"Registre a justificativa da falta. Os horários reais não são necessários.":"Informe os horários reais. Para atraso, falta ou exceção, registre a justificativa.";
+}
+
+function converterArquivoParaBase64(arquivo) {
+  return new Promise(function(resolve, reject) {
+    const leitor = new FileReader();
+
+    leitor.onload = function() {
+      const resultado = String(leitor.result);
+      const base64 = resultado.split(",")[1];
+
+      if (!base64) {
+        reject(new Error("Não foi possível ler o arquivo: " + arquivo.name));
+        return;
+      }
+
+      resolve({
+        nome: arquivo.name,
+        tipo: arquivo.type,
+        base64: base64
+      });
+    };
+
+    leitor.onerror = function() {
+      reject(new Error("Erro ao ler o arquivo: " + arquivo.name));
+    };
+
+    leitor.readAsDataURL(arquivo);
+  });
 }
 
 document.getElementById("pontoOcorrencia").addEventListener("change",atualizarCamposOcorrenciaPonto);
@@ -1242,9 +1670,28 @@ document.getElementById("formPonto").addEventListener("submit",async function(ev
  if(ocorrencia!=="falta"&&(!entradaReal||!saidaReal)){alert("Informe o horário real de entrada e de saída.");return;}
  if(ocorrencia!=="normal"&&!justificativa){alert("Informe uma justificativa para esta ocorrência.");return;}
  const anterior=obterRegistroPonto(funcionarioId,data);
- const registro={id:anterior?.id||("pendente-"+criarId()),funcionarioId:f.id,nome:f.nome,setor:f.setor,data,horarioPrevisto:statusFuncionarioNoDia(f,lerData(data)).detalhe||"",entradaReal:ocorrencia==="falta"?"":entradaReal,saidaReal:ocorrencia==="falta"?"":saidaReal,ocorrencia,justificativa};
- const botao=document.getElementById("btnSalvarPonto");
- botao.disabled=true;botao.textContent="Enviando...";
+ const registro={
+  id:anterior?.id||("pendente-"+criarId()),
+  funcionarioId:f.id,
+  nome:f.nome,
+  setor:f.setor,
+  data,
+  horarioPrevisto:statusFuncionarioNoDia(f,lerData(data)).detalhe||"",
+  entradaReal:ocorrencia==="falta"?"":entradaReal,
+  saidaReal:ocorrencia==="falta"?"":saidaReal,
+  ocorrencia,
+  justificativa,
+  anexos:Array.isArray(anterior?.anexos)?anterior.anexos:[]
+};
+
+const botao = document.getElementById("btnSalvarPonto");
+
+// Guarda os arquivos antes de fechar o modal.
+const arquivosSelecionados = [...arquivosPontoSelecionados];
+
+botao.disabled = true;
+botao.textContent = "Enviando...";
+
  // O registro aparece imediatamente na escala antes de esperar pelo Apps Script.
  registrosPonto=registrosPonto.filter(p=>!(String(p.funcionarioId)===String(funcionarioId)&&String(p.data)===String(data)));
  registrosPonto.push(registro);
@@ -1252,9 +1699,30 @@ document.getElementById("formPonto").addEventListener("submit",async function(ev
  fecharModalPonto();
  mostrarConexao("Ponto exibido · enviando para o Google Sheets...");
  try{
-  const resposta=await chamarAPI("salvarPonto",{registro:JSON.stringify(registro)});
-  if(resposta&&resposta.id)registro.id=String(resposta.id);
-  mostrarConexao("Registro de ponto salvo no Google Sheets.","ok");
+  const arquivos = await Promise.all(
+  arquivosSelecionados.map(converterArquivoParaBase64)
+);
+
+const resposta = await enviarPontoComAnexos(registro, arquivos);
+
+if (resposta && resposta.id) {
+  registro.id = String(resposta.id);
+}
+
+if (resposta && resposta.avisoAnexos) {
+  mostrarConexao(
+    "Ponto salvo, mas houve problema com os anexos.",
+    "erro"
+  );
+
+  alert(
+    "O registro de ponto foi salvo no Google Sheets, mas nem todos os anexos foram confirmados no Google Drive.\n\n" +
+    (resposta.mensagemAnexos || "")
+  );
+
+} else {
+  mostrarConexao("Registro de ponto salvo no Google Sheets.", "ok");
+}
  }catch(erro){
   registrosPonto=registrosPonto.filter(p=>!(String(p.funcionarioId)===String(funcionarioId)&&String(p.data)===String(data)));
   if(anterior)registrosPonto.push(anterior);
@@ -1263,6 +1731,117 @@ document.getElementById("formPonto").addEventListener("submit",async function(ev
   alert("O ponto apareceu na tela, mas não foi confirmado pelo Google Sheets. A alteração foi desfeita.\n\n"+erro.message);
  }finally{botao.disabled=false;botao.textContent="Salvar registro";}
 });
+
+
+function enviarPontoComAnexos(registro, arquivos) {
+  return new Promise(function(resolve, reject) {
+
+    const formulario = document.getElementById("formEnvioPonto");
+    const campoPayload = document.getElementById("payloadEnvioPonto");
+    const iframe = document.getElementById("iframeEnvioPonto");
+
+    if (!formulario || !campoPayload || !iframe) {
+      reject(new Error("Formulário de envio de anexos não encontrado."));
+      return;
+    }
+
+    let finalizado = false;
+
+    const anexosAnteriores = Array.isArray(registro.anexos)
+      ? registro.anexos.length
+      : 0;
+
+    const quantidadeEsperada = anexosAnteriores + arquivos.length;
+
+    const temporizador = setTimeout(function() {
+      finalizar(
+        new Error("Tempo esgotado aguardando a confirmação do Google Sheets.")
+      );
+    }, 90000);
+
+    function finalizar(erro, resultado) {
+      if (finalizado) return;
+
+      finalizado = true;
+      clearTimeout(temporizador);
+      iframe.removeEventListener("load", aoCarregarIframe);
+
+      if (erro) {
+        reject(erro);
+      } else {
+        resolve(resultado);
+      }
+    }
+
+    async function confirmarRegistro() {
+      let salvo = null;
+
+      // Aguarda a planilha atualizar e consulta até 8 vezes.
+      for (let tentativa = 0; tentativa < 8; tentativa++) {
+
+        try {
+          const dados = await chamarAPI("listarPonto", {
+            dataInicio: registro.data,
+            dataFim: registro.data
+          });
+
+          salvo = Array.isArray(dados)
+            ? dados.find(function(item) {
+                return String(item.funcionarioId) === String(registro.funcionarioId) &&
+                       String(item.data) === String(registro.data);
+              })
+            : null;
+
+          if (salvo) break;
+
+        } catch (erro) {
+          console.error("Erro ao consultar o ponto:", erro);
+        }
+
+        await new Promise(function(resolve) {
+          setTimeout(resolve, 1200);
+        });
+      }
+
+      if (!salvo) {
+        finalizar(
+          new Error("O registro não foi localizado na aba RegistrosPonto.")
+        );
+        return;
+      }
+
+      const quantidadeSalva = Array.isArray(salvo.anexos)
+        ? salvo.anexos.length
+        : 0;
+
+      // O ponto foi salvo, mas algum anexo pode ter falhado.
+      if (quantidadeSalva < quantidadeEsperada) {
+        salvo.avisoAnexos = true;
+        salvo.mensagemAnexos =
+          "O ponto foi gravado, mas nem todos os anexos foram confirmados no Google Drive.";
+      }
+
+      finalizar(null, salvo);
+    }
+
+    function aoCarregarIframe() {
+      confirmarRegistro();
+    }
+
+    // O retorno do iframe inicia a conferência.
+    iframe.addEventListener("load", aoCarregarIframe, { once: true });
+
+    formulario.action = URL_APPS_SCRIPT;
+
+    campoPayload.value = JSON.stringify({
+      registro: registro,
+      arquivos: arquivos
+    });
+
+    formulario.submit();
+  });
+}
+      
 
 function nomeEscala(escala){
  return({
@@ -1319,6 +1898,69 @@ function renderizarIndicadores(){
  ).length;
  document.getElementById("total1236").textContent=funcionarios.filter(f=>f.escala==="12x36").length;
  document.getElementById("totalHoje").textContent=trabalhando;
+}
+
+function abrirAba(nome){
+ document.querySelectorAll(".page-view").forEach(el=>{
+  el.classList.toggle("active",el.dataset.pagina===nome);
+ });
+ document.querySelectorAll(".nav-link").forEach(el=>{
+  el.classList.toggle("active",el.dataset.aba===nome);
+ });
+ if(nome==="ponto"){
+  const inicio=document.getElementById("pontoDataInicio");
+  const fim=document.getElementById("pontoDataFim");
+  if(!inicio.value||!fim.value){
+   const hoje=new Date();
+   inicio.value=dataLocal(new Date(hoje.getFullYear(),hoje.getMonth(),1));
+   fim.value=dataLocal(hoje);
+  }
+  consultarPontos();
+ }
+ window.scrollTo({top:0,behavior:"smooth"});
+}
+
+async function consultarPontos(){
+ const inicio=document.getElementById("pontoDataInicio").value;
+ const fim=document.getElementById("pontoDataFim").value;
+ const corpo=document.getElementById("corpoPainelPonto");
+ const vazio=document.getElementById("mensagemPontosVazia");
+ if(!inicio||!fim){alert("Informe a data inicial e final.");return;}
+ if(inicio>fim){alert("A data inicial não pode ser posterior à data final.");return;}
+ corpo.innerHTML='<tr><td colspan="9" style="text-align:center">Carregando registros...</td></tr>';
+ vazio.classList.add("hidden");
+ try{
+  const dados=await chamarAPI("listarPonto",{dataInicio:inicio,dataFim:fim});
+  const lista=Array.isArray(dados)?dados:[];
+  registrosPonto=lista;
+  if(!lista.length){
+   corpo.innerHTML="";
+   vazio.textContent="Nenhum registro de ponto encontrado nesse período.";
+   vazio.classList.remove("hidden");
+   return;
+  }
+  vazio.classList.add("hidden");
+  corpo.innerHTML=[...lista].sort((a,b)=>(String(b.data||"")).localeCompare(String(a.data||""))||String(a.nome||"").localeCompare(String(b.nome||""),"pt-BR")).map(p=>{
+   const anexos=Array.isArray(p.anexos)&&p.anexos.length
+    ?p.anexos.map(a=>`<a href="${escaparHTML(a.url)}" target="_blank" rel="noopener noreferrer">${escaparHTML(a.nome||"Abrir")}</a>`).join("<br>")
+    :"—";
+   return `<tr>
+    <td>${escaparHTML(p.nome||"—")}</td>
+    <td>${escaparHTML(p.setor||"—")}</td>
+    <td>${escaparHTML(formatarData(lerData(String(p.data||"").slice(0,10))))}</td>
+    <td>${escaparHTML(p.horarioPrevisto||"—")}</td>
+    <td>${escaparHTML(p.entradaReal||"—")}</td>
+    <td>${escaparHTML(p.saidaReal||"—")}</td>
+    <td>${escaparHTML(textoOcorrenciaPonto(p))}${p.justificativa?`<small style="display:block;color:#81736d;margin-top:3px">${escaparHTML(p.justificativa)}</small>`:""}</td>
+    <td>${anexos}</td>
+    <td class="no-print"><button class="btn-danger small-btn" onclick="removerPonto('${escaparHTML(p.funcionarioId)}','${String(p.data||"").slice(0,10)}')">Remover</button></td>
+   </tr>`;
+  }).join("");
+ }catch(erro){
+  corpo.innerHTML="";
+  vazio.textContent="Erro ao carregar os registros: "+erro.message;
+  vazio.classList.remove("hidden");
+ }
 }
 
 function renderizarTudo(){
@@ -1440,6 +2082,7 @@ sequenciaEscala.push(`
  finally{btn.disabled=false;btn.textContent="Gerar relatórios";}
 }
 function imprimirRelatorioMensal(){
+ abrirAba("relatorios");
  const conteudo=document.getElementById("conteudoRelatorioMensal");
  if(!conteudo||!conteudo.querySelector(".relatorio-funcionario table tbody tr")){alert("Gere os relatórios antes de imprimir.");return;}
  document.body.classList.add("print-relatorio");window.print();
@@ -1476,7 +2119,19 @@ function imprimirEscalaDia() {
   const lista = funcionarios
     .map(f => ({ funcionario: f, status: statusFuncionarioNoDia(f, data) }))
     .filter(item => item.status.tipo === "work" || item.status.tipo === "course")
-    .sort((a, b) => a.funcionario.nome.localeCompare(b.funcionario.nome, "pt-BR"));
+    .sort((a, b) => {
+      const setorA = (a.funcionario.setor || "Não informado").trim();
+      const setorB = (b.funcionario.setor || "Não informado").trim();
+
+      const comparacaoSetor = setorA.localeCompare(setorB, "pt-BR");
+
+      if (comparacaoSetor !== 0) return comparacaoSetor;
+
+      return a.funcionario.nome.localeCompare(
+        b.funcionario.nome,
+        "pt-BR"
+      );
+    });
 
   if (lista.length === 0) {
     alert("Nenhum funcionário está escalado para trabalhar ou fazer curso em " + formatarData(data) + ".");
@@ -1536,6 +2191,7 @@ function imprimirEscalaDia() {
   function finalizarImpressao() {
     document.body.classList.remove("print-dia");
     window.removeEventListener("afterprint", finalizarImpressao);
+    if (area && area.parentNode) area.remove();
   }
 
   window.addEventListener("afterprint", finalizarImpressao);
@@ -1585,6 +2241,25 @@ function baixarArquivo(conteudo,nome,tipo){
  setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
+
+function abrirVisualizadorAnexo(url, nome) {
+
+  document.getElementById("imagemAmpliada").src = url;
+
+  document.getElementById("nomeImagemAmpliada").textContent =
+    nome || "Imagem anexada";
+
+  document.getElementById("visualizadorAnexo").style.display = "flex";
+}
+
+function fecharVisualizadorAnexo() {
+
+  document.getElementById("visualizadorAnexo").style.display = "none";
+
+  document.getElementById("imagemAmpliada").src = "";
+}
+
+
 function exportarBackup(){
  baixarArquivo(JSON.stringify(funcionarios,null,2),"backup_escala.json","application/json");
 }
@@ -1631,6 +2306,9 @@ document.getElementById("dataReferencia").addEventListener("change",async()=>{aw
 document.getElementById("dataReferencia").value=dataLocal();
 document.getElementById("dataInicio").value=dataLocal();
 document.getElementById("mesRelatorio").value=dataLocal().slice(0,7);
+const hojeInicial=new Date();
+document.getElementById("pontoDataInicio").value=dataLocal(new Date(hojeInicial.getFullYear(),hojeInicial.getMonth(),1));
+document.getElementById("pontoDataFim").value=dataLocal(hojeInicial);
 
 
 atualizarCamposEscala();
@@ -1638,5 +2316,72 @@ renderizarTudo();
 carregarFuncionarios();
 
 </script>
+
+<iframe
+  id="iframeEnvioPonto"
+  name="iframeEnvioPonto"
+  style="display:none"
+></iframe>
+
+<form
+  id="formEnvioPonto"
+  method="POST"
+  target="iframeEnvioPonto"
+  style="display:none"
+>
+  <input type="hidden" name="payload" id="payloadEnvioPonto">
+</form>
+
+<div id="visualizadorAnexo"
+     style="
+       display:none;
+       position:fixed;
+       inset:0;
+       background:rgba(0,0,0,.90);
+       z-index:100000;
+       align-items:center;
+       justify-content:center;
+       padding:20px;
+     ">
+
+  <div style="
+       position:relative;
+       width:100%;
+       height:100%;
+       display:flex;
+       align-items:center;
+       justify-content:center;
+       flex-direction:column;
+       gap:12px;
+  ">
+
+    <button type="button"
+            onclick="fecharVisualizadorAnexo()"
+            style="
+              position:absolute;
+              top:0;
+              right:0;
+              background:#7b1e2b;
+              color:white;
+              font-size:20px;
+              z-index:2;
+            ">
+      ✕
+    </button>
+
+    <span id="nomeImagemAmpliada"
+          style="color:white;font-weight:bold">
+    </span>
+
+    <img id="imagemAmpliada"
+         style="
+           max-width:100%;
+           max-height:85vh;
+           object-fit:contain;
+           border-radius:8px;
+         ">
+  </div>
+</div>
+
 </body>
 </html>
