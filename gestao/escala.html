@@ -2,6 +2,11 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Sistema de Escala Semanal</title>
@@ -13,19 +18,21 @@ header{background:var(--bordo);color:white;padding:22px 28px;border-bottom:4px s
 header h1{margin:0 0 7px;font-size:25px}
 header p{margin:0;color:#f0dfe1;font-size:14px}#statusConexao{margin-top:10px;font-size:12px;color:#fff;padding:7px 10px;border:1px solid #ffffff55;border-radius:7px;display:inline-block}#statusConexao.erro{background:#8f2028}#statusConexao.ok{background:#245f3d}
 
+
 header.topo{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;background:linear-gradient(135deg,#5d1621 0%,#7b1e2b 55%,#8e2a38 100%);padding:20px 28px;border-bottom:4px solid var(--dourado);box-shadow:0 4px 18px #5d162140}
 .topo-marca{display:flex;align-items:center;gap:18px;min-width:0}
 .logo-moldura{flex:0 0 auto;width:112px;height:112px;border-radius:50%;border:3px solid var(--dourado);background:var(--bordo-dark);box-shadow:0 4px 14px #0005;overflow:hidden;display:block}
 .logo-empresa{width:100%;height:100%;object-fit:cover;display:block;padding:0;background:none;border-radius:0;max-width:none;max-height:none}
 .topo-etiqueta{display:block;margin-bottom:4px;font-size:11px;font-weight:bold;letter-spacing:2px;text-transform:uppercase;color:var(--dourado)}
-header.topo h1{margin:0 0 5px;font-size:26px;letter-spacing:.3px}
+header.topo h1{font-family:var(--fonte-titulo);font-weight:600;font-size:28px;letter-spacing:.06em;text-transform:uppercase}
 .topo-lateral{display:flex;flex-direction:column;align-items:flex-end;gap:8px}
 .topo-data{font-size:13px;color:#f0dfe1;text-transform:capitalize}
 header.topo #statusConexao{margin:0}
+
 @media(max-width:650px){
   .topo-lateral{align-items:flex-start}
   .logo-moldura{width:76px;height:76px}
-  header.topo h1{font-size:20px}
+  header.topo h1{font-size:19px}
 }
 @media print{
   .topo-lateral{display:none}
