@@ -61,7 +61,17 @@ textarea{border:1px solid #d9cec6;border-radius:7px;font:14px Arial;resize:verti
 .ponto-previsto{padding:10px;background:#f4ede7;border-radius:7px;font-size:13px;line-height:1.5}
 .ponto-acoes{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
 .ponto-acoes button{flex:1}
-.ponto-resumo{display:block;margin-top:4px;font-size:10px;font-weight:normal;line-height:1.35}
+.ponto-resumo {
+  display: block;
+  max-width: 110px;
+  margin: 4px auto 0;
+  font-size: 10px;
+  font-weight: normal;
+  line-height: 1.35;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 .status-absence{background:#f8dfe0;color:#922b32}
 .status-late{background:#fff0d2;color:#80540b}
 @media(max-width:520px){.ponto-grid{grid-template-columns:1fr}.caixa-ponto{padding:16px}}
@@ -522,7 +532,7 @@ tr{break-inside:avoid}
 <label for="escala">Tipo de escala *</label>
 <select id="escala" required>
 <option value="5x2">Escala (5x2 fixa)</option>
-<option value="5x2-rotativa">Escala (5x2 rotativa)</option>
+<option value="5x2-rotativa">Escala (5x2 alternada)</option>
 <option value="5x2-feminina">Escala1 (5x2)</option>
 <option value="5x2-masculina">Escala2 (5x2)</option>
 <option value="jovem-aprendiz">Jovem Aprendiz (4x3 + curso)</option>
@@ -587,7 +597,7 @@ tr{break-inside:avoid}
 <select id="filtroEscala" onchange="renderizarTudo()">
 <option value="">Todas as escalas</option>
 <option value="5x2">Escala (5x2 Fixa)</option>
-<option value="5x2-rotativa">Escala (5x2 Rotativa)</option>
+<option value="5x2-rotativa">Escala (5x2 Alternada)</option>
 <option value="5x2-feminina">Escala1 (5x2 - Domingo/quinta ou segunda/sexta)</option>
 <option value="5x2-masculina">Escala2 (5x2 - Domingo/terça ou segunda/sexta)</option>
 <option value="jovem-aprendiz">Jovem Aprendiz (4x3 + curso)</option>
@@ -610,7 +620,11 @@ tr{break-inside:avoid}
 <span><i class="dot dot-off"></i> Antes do início do ciclo</span>
 <span><i class="dot" style="background:#e4b94e"></i> Curso</span>
 </div>
-<p class="hint">Na escala rotativa: uma semana com folga sábado e domingo, seguida de uma semana com folgas na quarta e quinta-feira. Cada semana do calendário contém cinco dias de trabalho e dois dias de folga. Confira a sequência entre semanas para evitar períodos excessivos de trabalho consecutivo.</p>
+<p class="hint">
+Na escala 5x2 alternada: Semana A com folgas na quinta-feira e sábado;
+Semana B com folgas no domingo e sexta-feira.
+O ciclo se repete continuamente, com cinco dias de trabalho e duas folgas em cada semana.
+</p>
 </section>
 
 <section class="panel page-view" data-pagina="relatorios" id="relatorioMensalFuncionario">
@@ -826,21 +840,22 @@ function chamarAPI(acao,parametros={}){
 }
 
 // Consulta os ajustes de uma data no Google Sheets.
-async function carregarAjustesDataPlanilha(data){
- const iso=typeof data==="string"?data:dataLocal(data);
+// Consulta os ajustes de uma data no Google Sheets.
+async function carregarAjustesDataPlanilha(data) {
+  const iso = typeof data === "string" ? data : dataLocal(data);
 
- const dados=await chamarAPI("listarAjustesEscalaDia",{
-  data:iso
- });
+  const dados = await chamarAPI("listarAjustesEscalaDia", {
+    data: iso
+  });
 
- const mapa={};
+  const mapa = {};
 
- (Array.isArray(dados)?dados:[]).forEach(ajuste=>{
-  mapa[String(ajuste.funcionarioId)]=
-   ajuste.acao==="adicionar"?"work":"rest";
- });
+  (Array.isArray(dados) ? dados : []).forEach(ajuste => {
+    mapa[String(ajuste.funcionarioId)] =
+      ajuste.acao === "adicionar" ? "work" : "rest";
+  });
 
- ajustesEscalaDia[iso]=mapa;
+  ajustesEscalaDia[iso] = mapa;
 }
 
 
@@ -978,7 +993,7 @@ function atualizarCamposEscala(){
  document.getElementById("campoFim").classList.toggle("hidden",escala==="12x36");
  document.getElementById("explicacaoEscala").textContent=
  escala==="5x2"?"Selecione dois dias fixos de folga. Os outros cinco dias serão de trabalho.":
- escala==="5x2-rotativa"?"Alterna: sábado e domingo de folga em uma semana; quarta e quinta de folga na seguinte.":
+ escala==="5x2-rotativa"?"Alterna: semana A com folga quinta e sábado; semana B com folga domingo e sexta.": 
  escala==="5x2-feminina"?"Alterna: em uma semana, domingo e quinta de folga; na seguinte, segunda e sexta.":
  escala==="5x2-masculina"?"Alterna: em uma semana, domingo e terça de folga; na seguinte, segunda e sexta.":
 escala==="jovem-aprendiz"?"Trabalha de segunda a quinta; sexta-feira é curso; sábado e domingo são folga.":
@@ -1092,12 +1107,17 @@ async function excluirFuncionario(id){
  }
 }
 
-function obterSemana(){
- // Sempre calcula a segunda-feira da semana selecionada.
- // Isso evita que a navegação dependa do dia específico escolhido no calendário.
- const valor=document.getElementById("dataReferencia").value||dataLocal();
- return segundaDaSemana(lerData(valor));
+
+function obterSemana() {
+  // Sempre calcula o domingo da semana selecionada.
+  // Domingo será o primeiro dia da semana.
+  const valor = document.getElementById("dataReferencia").value || dataLocal();
+  const data = lerData(valor);
+
+  return adicionarDias(data, -data.getDay());
 }
+
+
 async function atualizarSemanaSelecionada(){
  renderizarTudo();
  await carregarAjustesSemanaPlanilha();
@@ -1105,14 +1125,22 @@ async function atualizarSemanaSelecionada(){
  renderizarTudo();
 }
 
-async function mudarSemana(dias){
- // Avança/retrocede a partir da segunda-feira atualmente exibida.
- // Assim, cada clique muda exatamente uma semana inteira.
- const segundaAtual=obterSemana();
- const novaSegunda=adicionarDias(segundaAtual,Number(dias));
- document.getElementById("dataReferencia").value=dataLocal(novaSegunda);
- await atualizarSemanaSelecionada();
+async function mudarSemana(dias) {
+  // Avança ou retrocede a partir do domingo atualmente exibido.
+  const domingoAtual = obterSemana();
+
+  const novoDomingo = adicionarDias(
+    domingoAtual,
+    Number(dias)
+  );
+
+  document.getElementById("dataReferencia").value =
+    dataLocal(novoDomingo);
+
+  await atualizarSemanaSelecionada();
 }
+
+
 async function irParaHoje(){
  document.getElementById("dataReferencia").value=dataLocal();
 document.getElementById("dataImpressaoDia").value=dataLocal();
@@ -1184,8 +1212,18 @@ function obterFolgaMasculina(f, data) {
 
 function obterFolgaRotativa(f, data) {
     const inicio = lerData(f.dataInicio);
-    const semanaBase = segundaDaSemana(inicio);
-    const semanaAtual = segundaDaSemana(data);
+
+    // O ciclo considera a semana de domingo a sábado,
+    // conforme a tabela da escala alternativa.
+    const semanaBase = new Date(inicio);
+    semanaBase.setDate(
+        semanaBase.getDate() - semanaBase.getDay()
+    );
+
+    const semanaAtual = new Date(data);
+    semanaAtual.setDate(
+        semanaAtual.getDate() - semanaAtual.getDay()
+    );
 
     const semana = Math.floor(
         diferencaDias(semanaAtual, semanaBase) / 7
@@ -1195,13 +1233,15 @@ function obterFolgaRotativa(f, data) {
 
     if (semana < 0) return false;
 
-    // Semana par: sábado e domingo
+    // SEMANA A:
+    // Folgas: quinta-feira e sábado.
     if (semana % 2 === 0) {
-        return dia === 6 || dia === 0;
+        return dia === 4 || dia === 6;
     }
 
-    // Semana ímpar: quarta e quinta
-    return dia === 3 || dia === 4;
+    // SEMANA B:
+    // Folgas: domingo e sexta-feira.
+    return dia === 0 || dia === 5;
 }
 
 function statusFuncionarioBaseNoDia(f, data) {
@@ -1399,24 +1439,48 @@ function obterFuncionariosFiltrados(){
   .sort((a,b)=>a.nome.localeCompare(b.nome,"pt-BR"));
 }
 
-function renderizarCabecalho(segunda){
- let html="<tr><th>Funcionário / setor</th>";
- for(let i=0;i<7;i++){
-  const data=adicionarDias(segunda,i);
-  html+=`<th>${DIAS_CURTOS[data.getDay()]}<br>${formatarData(data)}</th>`;
- }
- html+='<th class="no-print">Ações</th></tr>';
- document.getElementById("cabecalhoEscala").innerHTML=html;
+
+function renderizarCabecalho(dataBase) {
+  const cabecalho = document.getElementById("cabecalhoEscala");
+
+  const dias = [
+    "DOMINGO",
+    "SEGUNDA",
+    "TERÇA",
+    "QUARTA",
+    "QUINTA",
+    "SEXTA",
+    "SÁBADO"
+  ];
+
+  cabecalho.innerHTML = `
+    <tr>
+      <th>FUNCIONÁRIO</th>
+      ${dias.map((dia, i) => {
+        const data = adicionarDias(dataBase, i);
+
+        return `
+          <th>
+            ${dia}
+            <br>
+            <small>${formatarData(data)}</small>
+          </th>
+        `;
+      }).join("")}
+      <th class="no-print">AÇÕES</th>
+    </tr>
+  `;
 }
 
-function renderizarEscala(){
- const segunda=obterSemana();
- const domingo=adicionarDias(segunda,6);
+function renderizarEscala() {
 
- document.getElementById("periodoSemana").textContent=
- `Período: ${formatarData(segunda)} a ${formatarData(domingo)}`;
+  const domingo = obterSemana();
+  const sabado = adicionarDias(domingo, 6);
 
- renderizarCabecalho(segunda);
+  document.getElementById("periodoSemana").textContent =
+    `Período: ${formatarData(domingo)} a ${formatarData(sabado)}`;
+
+  renderizarCabecalho(domingo);
 
  const lista=obterFuncionariosFiltrados();
  const corpo=document.getElementById("corpoEscala");
@@ -1433,8 +1497,8 @@ function renderizarEscala(){
  corpo.innerHTML=lista.map(f=>{
   let linha=`<tr><td><span class="employee-name">${escaparHTML(f.nome)}</span><span class="employee-detail">${escaparHTML(f.setor)} · ${escaparHTML(nomeEscala(f.escala))}</span></td>`;
 
-  for(let i=0;i<7;i++){
-   const data=adicionarDias(segunda,i);
+   for (let i = 0; i < 7; i++) {
+   const data = adicionarDias(domingo, i);
    const dataISO=dataLocal(data);
    const status=statusFuncionarioNoDia(f,data);
    const ponto=obterRegistroPonto(f.id,dataISO);
@@ -1473,7 +1537,13 @@ function renderizarEscala(){
     </div>
   `
   : "";
-   linha+=`<td><span class="status ${classe}">${escaparHTML(titulo)}${detalhe?`<span class="ponto-resumo">${escaparHTML(detalhe)}</span>`:""}</span>${botaoPonto}</td>`;
+   linha+=`<td>
+  <span class="status ${classe}">
+    ${escaparHTML(titulo)}
+    ${detalhe ? `<span class="ponto-resumo" title="${escaparHTML(detalhe)}">${escaparHTML(detalhe)}</span>` : ""}
+  </span>
+  ${botaoPonto}
+</td>`;
   }
 
   linha+=`<td class="no-print employee-actions"><button class="btn-light small-btn" onclick="editarFuncionario('${escaparHTML(f.id)}')">Editar</button><button class="btn-danger small-btn" onclick="excluirFuncionario('${escaparHTML(f.id)}')">Excluir</button></td></tr>`;
@@ -2092,7 +2162,7 @@ function enviarPontoComAnexos(registro, arquivos) {
 function nomeEscala(escala){
  return({
   "5x2":"Escala (5x2 fixa)",
-  "5x2-rotativa":"Escala (5x2 rotativa)",
+  "5x2-rotativa":"Escala (5x2 alternada)",
   "5x2-feminina":"Escala1 (5x2)",
   "5x2-masculina":"Escala2 (5x2)",
   "jovem-aprendiz":"Jovem Aprendiz (4x3 + curso)",
@@ -2461,7 +2531,7 @@ function exportarCSV(){
   f.horarioFim||"",
   f.dataInicio,
   f.escala==="5x2"?(f.folgas||[]).map(d=>DIAS[d]).join(", "):
-  f.escala==="5x2-rotativa"?"Alterna: sábado/domingo; quarta/quinta":
+  f.escala==="5x2-rotativa"?"Semana A: quinta e sábado; Semana B: domingo e sexta":
   f.escala==="5x2-feminina"?"Semana par: domingo e quinta; semana ímpar: segunda e sexta":
   f.escala==="5x2-masculina"?"Semana par: domingo e terça; semana ímpar: segunda e sexta":
   f.escala==="jovem-aprendiz"?"Trabalho: segunda a quinta; curso: sexta; folga: sábado e domingo":
